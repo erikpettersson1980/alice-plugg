@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plugga kemi – syror, baser och salter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F4; --card:#FFFFFF; --ink:#1E2340; --soft:#5D6480; --line:#D9DFE6;
+  --red:#D7263D; --orange:#EE7A2B; --yellow:#F2B705; --green:#3FA34D; --teal:#1F9E9A; --blue:#2B59C3; --violet:#6A3FB5;
+  --okbg:#DDF3E1; --badbg:#FBE0E4;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141827; --card:#1E2338; --ink:#ECEFF7; --soft:#A6ADC6; --line:#30375A;
+    --okbg:#173A24; --badbg:#47202A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141827; --card:#1E2338; --ink:#ECEFF7; --soft:#A6ADC6; --line:#30375A;
+  --okbg:#173A24; --badbg:#47202A;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Lexend,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:Outfit,Lexend,system-ui,sans-serif;line-height:1.15;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:20px 18px 40px}
+
+/* pH-strip: the signature element */
+.strip{display:grid;grid-template-columns:repeat(15,1fr);height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px}
+.strip span{display:block}
+.strip.big{height:22px;border-radius:11px}
+.marker{position:relative;height:16px}
+.marker i{position:absolute;top:0;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid var(--ink);transform:translateX(-8px);transition:left .5s ease}
+
+header h1{font-size:2.1rem;font-weight:800;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--soft)}
+
+.modes{display:grid;gap:12px;margin-top:22px}
+.mode{display:flex;gap:14px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px}
+.mode:hover{border-color:var(--ink)}
+.drop{flex:none;width:44px;height:44px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg)}
+.mode h2{font-size:1.25rem}
+.mode p{margin:2px 0 0;color:var(--soft);font-size:.95rem}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+.chip{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.backbtn{background:none;border:none;padding:6px 0;color:var(--soft);font-weight:600}
+.count{color:var(--soft);font-size:.95rem}
+
+/* flashcard */
+.flash{perspective:1200px;margin-top:14px}
+.flash-inner{position:relative;min-height:280px;transition:transform .45s ease;transform-style:preserve-3d}
+.flash.flipped .flash-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{transform:rotateY(180deg)}
+.face small{color:var(--soft);font-size:.85rem;position:absolute;top:16px;left:24px}
+.face .term{font-family:Outfit,sans-serif;font-size:2rem;font-weight:700;text-align:center}
+.face .def{font-size:1.08rem}
+.hint{text-align:center;color:var(--soft);font-size:.9rem;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.btn{border:none;border-radius:14px;padding:14px;font-weight:600;font-size:1rem}
+.btn.again{background:var(--badbg)}
+.btn.know{background:var(--okbg)}
+.btn.main{background:var(--ink);color:var(--bg);width:100%;margin-top:16px}
+
+/* quiz */
+.q{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:22px;margin-top:14px}
+.q h3{font-size:1.3rem;font-weight:700}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opt{text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--okbg);border-color:var(--green)}
+.opt.wrong{background:var(--badbg);border-color:var(--red)}
+.explain{margin-top:14px;padding:12px 14px;border-left:4px solid var(--blue);background:var(--bg);border-radius:0 10px 10px 0}
+
+.result{text-align:center;margin-top:30px}
+.result .big{font-family:Outfit,sans-serif;font-size:4rem;font-weight:800;line-height:1}
+.result p{color:var(--soft)}
+.done-list{text-align:left;margin-top:18px}
+.done-list li{margin-bottom:8px}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){.flash-inner,.marker i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- START -->
+  <section id="home">
+    <header>
+      <h1>Syror, baser och salter</h1>
+      <p>Kemi kapitel 4. Välj hur du vill plugga.</p>
+      <div class="strip big" id="homeStrip" aria-hidden="true"></div>
+    </header>
+    <div class="modes">
+      <button class="mode" data-go="cards">
+        <span class="drop" style="background:var(--blue)"></span>
+        <span><h2>Begrepp</h2><p>Kort att vända. Säg svaret högt och vänd sedan.</p></span>
+      </button>
+      <button class="mode" data-go="quiz">
+        <span class="drop" style="background:var(--red)"></span>
+        <span><h2>Quiz</h2><p>10 frågor i taget med förklaring efter varje svar.</p></span>
+      </button>
+      <button class="mode" data-go="exam">
+        <span class="drop" style="background:var(--green)"></span>
+        <span><h2>Övningsprov</h2><p>Alla quizfrågor i blandad ordning. Som provet.</p></span>
+      </button>
+    </div>
+    <p class="hint" id="homeProgress"></p>
+  </section>
+
+  <!-- KORT -->
+  <section id="cards" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="cardCount"></span></div>
+    <h2>Begrepp</h2>
+    <div class="chips" id="cardChips" role="group" aria-label="Välj avsnitt"></div>
+    <div class="flash" id="flash" tabindex="0" role="button" aria-label="Vänd kortet">
+      <div class="flash-inner">
+        <div class="face front"><small id="cardSec"></small><div class="term" id="cardTerm"></div></div>
+        <div class="face back"><small id="cardSec2"></small><div class="def" id="cardDef"></div></div>
+      </div>
+    </div>
+    <p class="hint">Tryck på kortet för att vända det.</p>
+    <div class="row">
+      <button class="btn again" id="cardAgain">Öva mer</button>
+      <button class="btn know" id="cardKnow">Jag kan den</button>
+    </div>
+    <div class="result hidden" id="cardsDone">
+      <div class="big">Klart!</div>
+      <p>Du kan alla kort i det här urvalet.</p>
+      <button class="btn main" id="cardsReset">Börja om med alla kort</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="quizCount"></span></div>
+    <div class="strip" id="quizStrip" aria-hidden="true"></div>
+    <div class="marker" aria-hidden="true"><i id="quizMarker" style="left:0%"></i></div>
+    <div class="q" id="qBox">
+      <h3 id="qText"></h3>
+      <div class="opts" id="qOpts"></div>
+      <div class="explain hidden" id="qExplain"></div>
+      <button class="btn main hidden" id="qNext">Nästa fråga</button>
+    </div>
+    <div class="result hidden" id="qResult">
+      <div class="big" id="qScore"></div>
+      <p id="qVerdict"></p>
+      <div class="done-list" id="qMissed"></div>
+      <button class="btn main" id="qAgain">Kör igen</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SECTIONS = {"4.1":"Syror","4.2":"Baser","4.3":"pH","4.4":"Buffertar","4.5":"Salter","4.6":"Metalloxider","F":"Formler"};
+
+const CARDS = [
+ ["4.1","vätejon","En positivt laddad jon, H⁺. Det är vätejonerna som gör en lösning sur."],
+ ["4.1","koncentrerad syra","En syra som innehåller nästan inget vatten. Många syramolekyler per liter."],
+ ["4.1","utspädd syra","Koncentrerad syra som blandats med vatten."],
+ ["4.1","stark syra","ALLA syramolekyler delar sig i vätejoner och negativa joner i vatten."],
+ ["4.1","svag syra","Bara en DEL av syramolekylerna delar sig i vätejoner och negativa joner."],
+ ["4.1","frätande","Kan förstöra och lösa upp andra ämnen, t.ex. hud och tänder. Spill på huden: skölj med mycket vatten."],
+ ["4.1","saltsyra","Stark syra, HCl. Finns i magsäcken och behövs för matsmältningen."],
+ ["4.1","salpetersyra","Stark syra, HNO₃. Används till konstgödsel och sprängämnen."],
+ ["4.1","svavelsyra","Stark syra, H₂SO₄. Används som batterivätska och till konstgödsel."],
+ ["4.1","oädel metall","Löses upp av syror. Atomerna blir joner, t.ex. järn och magnesium."],
+ ["4.1","ädel metall","Löses inte upp av de flesta syror, t.ex. guld, silver och platina."],
+ ["4.1","syror i mat","Citronsyra, mjölksyra, äppelsyra, ättiksyra, kolsyra och fosforsyra (i cola)."],
+ ["4.2","hydroxidjon","Negativ sammansatt jon, OH⁻. Finns alltid i en lösning av en bas. Fler OH⁻ = mer basiskt."],
+ ["4.2","svag bas","Bara en del av basmolekylerna rycker loss vätejoner från vattnet. Då bildas hydroxidjoner."],
+ ["4.2","stark bas","En jonförening som innehåller hydroxidjoner från början och släpper ut alla i vattnet."],
+ ["4.2","ammoniak","Svag bas, NH₃. Färglös gas med stickande lukt."],
+ ["4.2","ammoniumjon","NH₄⁺. Bildas när ammoniak tar en vätejon från vattnet."],
+ ["4.2","natriumhydroxid","Stark bas, NaOH. Kallas kaustiksoda. Väldigt frätande, löser fett, används till tvål."],
+ ["4.2","varför baser i rengöringsmedel?","Baser bryter sönder fettmolekyler i smuts, så smutsen kan sköljas bort."],
+ ["4.3","pH-värde","Siffra som visar hur sur eller basisk en lösning är. Under 7 = surt, 7 = neutralt, över 7 = basiskt."],
+ ["4.3","neutral","Varken sur eller basisk. pH 7, som rent vatten."],
+ ["4.3","indikator","Ämne som byter färg i sura eller basiska lösningar."],
+ ["4.3","lackmus","Indikator: röd i surt, lila i neutralt, blå i basiskt."],
+ ["4.3","BTB","Indikator: gul i surt, grön i neutralt, blå i basiskt."],
+ ["4.3","fenolftalein","Indikator: färglös i surt OCH neutralt, lila-rosa i basiskt."],
+ ["4.3","pH-papper","Visar många fler färger än lackmus, så det ger ett noggrannare pH-värde."],
+ ["4.3","pH-mätare","Elektronisk mätare som ger det exakta pH-värdet."],
+ ["4.3","neutralisation","Syra och bas tar ut varandra. Vätejoner + hydroxidjoner blir vatten."],
+ ["4.3","kalka","Strö ut mald kalksten i sura sjöar och mark. Kalkstenen är basisk och neutraliserar syran."],
+ ["4.4","buffert","Ämne eller lösning som dämpar pH-förändringar. Innehåller både en syra och en bas."],
+ ["4.4","buffrande berggrund","Mark med mycket kalksten som motverkar surt regn, t.ex. på Gotland."],
+ ["4.4","pH i blodet","Ska vara ca 7,4. Fel pH ger fel form på viktiga molekyler och man kan bli medvetslös."],
+ ["4.5","jon","En atom som har tagit upp eller släppt ifrån sig elektroner."],
+ ["4.5","salt","En jonförening byggd av positiva och negativa joner. Fasta kristaller i rumstemperatur."],
+ ["4.5","koksalt","Natriumklorid, NaCl. Vanligt salt. Från havsvatten och stensalt."],
+ ["4.5","stensalt","Lager av koksalt nere i marken."],
+ ["4.5","mineralsalt","Salt där en del natriumjoner bytts mot kaliumjoner. Minskar risken för högt blodtryck."],
+ ["4.5","gips","Kalciumsulfat, CaSO₄. Bränd gips + vatten → obränd gips som stelnar."],
+ ["4.5","salmiak","Ammoniumklorid, NH₄Cl. Finns i saltlakrits. HCl + NH₃ → NH₄Cl"],
+ ["4.5","fällning","Fast ämne som bildas i en lösning och faller till botten."],
+ ["4.5","test för kloridjoner","Droppa i silvernitrat. Vit fällning (silverklorid) = kloridjoner finns."],
+ ["4.5","-id, -at, -it","-id = negativ jon av en atom (klorid). -at/-it = sammansatt jon (sulfat, nitrit)."],
+ ["4.5","lågfärger","Varje metalljon ger egen färg i en låga: natrium gul, koppar blågrön, litium röd."],
+ ["4.6","oxid","Kemisk förening där syre sitter ihop med ett annat atomslag."],
+ ["4.6","metalloxid","Metall + syre. En jonförening och ett fast ämne."],
+ ["4.6","icke-metalloxid","Icke-metall + syre, t.ex. CO₂. Molekylförening, oftast gas."],
+ ["4.6","hematit","Röd järnoxid, Fe₂O₃. Bildas när järn brinner i ren syrgas."],
+ ["4.6","magnetit","Svart järnoxid, Fe₃O₄. Bildas när järn brinner i luft."],
+ ["4.6","aluminiumoxid","Al₂O₃. Tunn skyddande hinna på aluminium. Som sten: korund, rubin (röd), safir (blå)."],
+ ["F","H⁺ + OH⁻ →","H₂O (neutralisation)"],
+ ["F","HCl + NaOH →","NaCl + H₂O"],
+ ["F","NH₃ + H₂O →","NH₄⁺ + OH⁻"],
+ ["F","Fe + 2 H⁺ →","Fe²⁺ + H₂ (järn löses upp, vätgas bildas)"],
+ ["F","CO₂ + H₂O →","H₂CO₃ (kolsyra)"]
+];
+
+// [fråga, [alternativ], rätt index, förklaring]
+const QUIZ = [
+ ["Vilken jon gör en lösning sur?",["OH⁻","H⁺","Na⁺","Cl⁻"],1,"Vätejonerna, H⁺, gör lösningen sur. OH⁻ gör den basisk."],
+ ["Vad händer när en STARK syra löses i vatten?",["Bara en del molekyler delar sig","Inga molekyler delar sig","Alla molekyler delar sig i vätejoner och negativa joner","Den blir neutral"],2,"Stark syra = alla syramolekyler släpper sin vätejon."],
+ ["Vad betyder att en syra är koncentrerad?",["Alla molekyler delar sig","Den innehåller nästan inget vatten","Den är svag","Den är neutral"],1,"Koncentrerad handlar om mängd: lite vatten, mycket syra. Stark handlar om hur syran beter sig."],
+ ["Vilken av dessa är en stark syra?",["Citronsyra","Ättiksyra","Svavelsyra","Mjölksyra"],2,"Saltsyra, salpetersyra och svavelsyra är de starka syrorna. De andra är svaga syror i mat."],
+ ["Vad är formeln för salpetersyra?",["HCl","H₂SO₄","HNO₃","H₂CO₃"],2,"Salpetersyra = HNO₃. HCl är saltsyra, H₂SO₄ svavelsyra, H₂CO₃ kolsyra."],
+ ["Du spiller stark syra på handen. Vad gör du?",["Torkar av med papper","Häller på en bas","Sköljer genast med mycket vatten","Väntar och ser"],2,"Skölj direkt med väldigt mycket vatten."],
+ ["Varför behövs saltsyra i magsäcken?",["För att döda smak","För att matsmältningen ska fungera","För att göra blodet surt","För att lösa upp tänderna"],1,"Saltsyran behövs för matsmältningen."],
+ ["Vad händer med en silverring i syra?",["Den löses upp","Den blir vätgas","Ingenting, silver är en ädel metall","Den rostar"],2,"Ädla metaller som guld och silver påverkas inte av de flesta syror."],
+ ["Vad bildas när järn löses upp av en syra?",["Järnjoner och vätgas","Järnoxid och syrgas","Salt och vatten","Ingenting"],0,"Fe + 2 H⁺ → Fe²⁺ + H₂. Järn är en oädel metall."],
+ ["Vad är bubblorna i läsk?",["Kolsyra","Koldioxid","Syrgas","Vätgas"],1,"Bubblorna är koldioxid. En liten del blir kolsyra i vattnet."],
+ ["Vilken jon finns alltid i en lösning av en bas?",["H⁺","Cl⁻","OH⁻","NH₄⁺"],2,"Baser ger alltid hydroxidjoner, OH⁻."],
+ ["Vad är ammoniak?",["En stark syra","En svag bas","En stark bas","Ett salt"],1,"Ammoniak, NH₃, är en svag bas och en gas med stickande lukt."],
+ ["Vad är ett annat namn på natriumhydroxid?",["Kaustiksoda","Salmiak","Koksalt","Gips"],0,"NaOH kallas kaustiksoda."],
+ ["Vad bildas när ammoniak löses i vatten?",["Na⁺ + OH⁻","NH₄⁺ + OH⁻","H⁺ + Cl⁻","NH₄Cl"],1,"NH₃ + H₂O → NH₄⁺ + OH⁻"],
+ ["Är natriumhydroxid en molekylförening eller jonförening?",["Molekylförening","Jonförening"],1,"NaOH är en jonförening av Na⁺ och OH⁻."],
+ ["Varför finns baser i rengöringsmedel?",["De luktar gott","De bryter sönder fett i smuts","De är sura","De gör vattnet varmt"],1,"Baser bryter sönder fettmolekyler, så smutsen går att skölja bort."],
+ ["En lösning har pH 8. Den är …",["sur","neutral","basisk"],2,"Över 7 = basiskt."],
+ ["Vilken lösning har flest vätejoner?",["pH 2","pH 6","pH 7","pH 12"],0,"Lägre pH = fler vätejoner = surare."],
+ ["Vilken färg får lackmus i en sur lösning?",["Blå","Röd","Lila","Grön"],1,"Lackmus: röd i surt, lila i neutralt, blå i basiskt."],
+ ["Vilken färg får BTB i en neutral lösning?",["Gul","Blå","Grön","Färglös"],2,"BTB: gul i surt, grön i neutralt, blå i basiskt."],
+ ["Varför är fenolftalein dålig för att se om något är neutralt?",["Den är röd hela tiden","Den är färglös både i surt och neutralt","Den fungerar bara i baser","Den är farlig"],1,"Fenolftalein är färglös i både surt och neutralt."],
+ ["Vilket hjälpmedel ger det mest exakta pH-värdet?",["Lackmuspapper","pH-papper","pH-mätare","BTB"],2,"En elektronisk pH-mätare ger exakt värde."],
+ ["Vad händer vid en neutralisation?",["H⁺ och OH⁻ blir vatten","Syran blir starkare","Det bildas vätgas","pH blir 0"],0,"H⁺ + OH⁻ → H₂O"],
+ ["Vad bildas när saltsyra och natriumhydroxid blandas?",["Vätgas","Natriumklorid och vatten","Ammoniak","Gips"],1,"HCl + NaOH → NaCl + H₂O. Syra + bas → salt + vatten."],
+ ["Varför kalkar man sjöar?",["För att göra dem salta","För att neutralisera syran från surt regn","För att döda alger","För att höja temperaturen"],1,"Kalksten är basisk och neutraliserar syran."],
+ ["Vad gör en buffert?",["Gör lösningen sur","Dämpar pH-förändringar","Gör lösningen neutral direkt","Löser upp metaller"],1,"En buffert gör att pH bara ändras lite när man tillsätter syra eller bas."],
+ ["Varför måste en buffert innehålla både syra och bas?",["För att den ska lukta","Basen tar emot syra, syran tar emot bas","För att bli neutral","Det måste den inte"],1,"Basen buffrar mot syra och syran buffrar mot bas."],
+ ["Vilket landskap är mest känsligt för surt regn?",["Gotland","Västerbotten"],1,"Gotland har kalksten (buffrande berggrund). Västerbotten har nästan ingen."],
+ ["Ungefär vilket pH har blodet?",["4,0","6,0","7,4","9,0"],2,"Blodet har pH ca 7,4 och buffertar håller det stabilt."],
+ ["Vad är en jon?",["En molekyl av vatten","En atom som tagit upp eller släppt elektroner","En sorts syra","En metall"],1,"En jon har fler eller färre elektroner än protoner och är därför laddad."],
+ ["Vilken laddning får en atom i grupp 17, som klor?",["1+","2+","1−","2−"],2,"Grupp 17 tar upp en elektron och blir 1−, t.ex. Cl⁻."],
+ ["Vilken laddning får natrium som jon?",["1+","2+","1−","0"],0,"Grupp 1 ger bort en elektron: Na⁺."],
+ ["Saltet heter kaliumklorat. Är den negativa jonen enkel eller sammansatt?",["Enkel","Sammansatt"],1,"Slutar på -at = sammansatt jon. -id = enkel jon."],
+ ["Vad är det kemiska namnet på gips?",["Kalciumkarbonat","Kalciumsulfat","Natriumklorid","Ammoniumklorid"],1,"Gips = kalciumsulfat, CaSO₄."],
+ ["Vad är salmiak?",["Natriumklorid","Kalciumsulfat","Ammoniumklorid","Natriumhydroxid"],2,"Salmiak = ammoniumklorid, NH₄Cl."],
+ ["Varför är mineralsalt bra?",["Det smakar mer","Kaliumjoner minskar risken för högt blodtryck","Det innehåller mer natrium","Det löser sig inte"],1,"En del natriumjoner är utbytta mot kaliumjoner."],
+ ["Hur testar man om det finns kloridjoner i en lösning?",["Lackmuspapper","Droppa i silvernitrat och se om det blir vit fällning","Koka lösningen","Tillsätta socker"],1,"Vit fällning av silverklorid = kloridjoner finns."],
+ ["Vad är en fällning?",["En gas som bubblar upp","Ett fast ämne som bildas i en lösning och sjunker till botten","En stark syra","En indikator"],1,"Fällningen faller ner till botten."],
+ ["Vilken lågfärg ger natrium?",["Gul","Blågrön","Violett","Röd"],0,"Natrium = gul. Koppar = blågrön, kalium = violett, litium = röd."],
+ ["Vilken av dessa är INTE ett salt, fast den är en jonförening?",["NaCl","CaSO₄","NaOH","NH₄Cl"],2,"Metallhydroxider (NaOH) och metalloxider räknas inte som salter."],
+ ["Varför saltar man vägar på vintern?",["Saltet sänker isens smältpunkt","Saltet gör isen hårdare","Saltet värmer vägen","Saltet tar bort snö direkt"],0,"Isen smälter fast det är minusgrader. Nackdel: rost och skadade växter."],
+ ["Är koldioxid en molekylförening eller jonförening?",["Molekylförening","Jonförening"],0,"Icke-metall + syre = molekylförening."],
+ ["Vad stämmer om metalloxider?",["De är gaser","De är jonföreningar och fasta","De är syror","De är molekylföreningar"],1,"Metalloxider är jonföreningar och fasta ämnen."],
+ ["Järn brinner i ren syrgas. Vad bildas?",["Magnetit, svart","Hematit, röd","Aluminiumoxid","Rost"],1,"Ren syrgas → hematit Fe₂O₃ (röd). Luft → magnetit Fe₃O₄ (svart)."],
+ ["Vad är formeln för magnetit?",["Fe₂O₃","Fe₃O₄","FeO","Al₂O₃"],1,"Magnetit = Fe₃O₄, bildas när järn brinner i luft."],
+ ["Varför rostar inte en läskburk av aluminium sönder?",["Den är målad","En tunn hinna av aluminiumoxid skyddar metallen","Aluminium är en ädel metall","Läsken skyddar den"],1,"Aluminiumoxiden bildar en tät skyddande hinna. Rost på järn har hål och skyddar inte."],
+ ["Vilka ädelstenar består av aluminiumoxid?",["Diamant och smaragd","Rubin och safir","Bärnsten och pärla","Opal och kvarts"],1,"Korund = aluminiumoxid. Röd = rubin, blå = safir."]
+];
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const PH = ["#D7263D","#E04A2F","#EE7A2B","#F29F1D","#F2B705","#C6C23A","#8DB648","#3FA34D","#2E9D74","#1F9E9A","#2483AE","#2B59C3","#4848BC","#5A44B9","#6A3FB5"];
+function paintStrip(el){ el.innerHTML = PH.map(c=>`<span style="background:${c}"></span>`).join(""); }
+paintStrip($("homeStrip")); paintStrip($("quizStrip"));
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+let known = new Set();
+try { known = new Set(JSON.parse(localStorage.getItem("kem4-known")||"[]")); } catch(e){}
+function saveKnown(){ try{ localStorage.setItem("kem4-known", JSON.stringify([...known])); }catch(e){} }
+function homeProgress(){ $("homeProgress").textContent = `Du kan ${known.size} av ${CARDS.length} begrepp.`; }
+
+function show(id){
+  ["home","cards","quiz"].forEach(s=>$(s).classList.toggle("hidden", s!==id));
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>{
+  const g=b.dataset.go;
+  if(g==="home"){ homeProgress(); show("home"); }
+  if(g==="cards"){ startCards(); show("cards"); }
+  if(g==="quiz"){ startQuiz(10); show("quiz"); }
+  if(g==="exam"){ startQuiz(QUIZ.length); show("quiz"); }
+}));
+
+// ---------- kort ----------
+let section = "alla", deck = [], cur = null;
+const chips = $("cardChips");
+chips.innerHTML = [["alla","Alla"],...Object.entries(SECTIONS)].map(([k,v])=>`<button class="chip" data-sec="${k}" aria-pressed="${k==="alla"}">${k==="alla"||k==="F"?v:k+" "+v}</button>`).join("");
+chips.addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  section=b.dataset.sec;
+  chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", c===b));
+  startCards();
+});
+const keyOf = c => c[0]+"|"+c[1];
+function startCards(){
+  deck = shuffle(CARDS.filter(c=>(section==="alla"||c[0]===section) && !known.has(keyOf(c))));
+  nextCard();
+}
+function nextCard(){
+  $("flash").classList.remove("flipped");
+  const pool = CARDS.filter(c=>section==="alla"||c[0]===section);
+  const left = pool.filter(c=>!known.has(keyOf(c))).length;
+  $("cardCount").textContent = `${pool.length-left} av ${pool.length} kan du`;
+  const empty = deck.length===0;
+  $("flash").classList.toggle("hidden",empty);
+  document.querySelector("#cards .row").classList.toggle("hidden",empty);
+  document.querySelector("#cards .hint").classList.toggle("hidden",empty);
+  $("cardsDone").classList.toggle("hidden",!empty);
+  if(empty) return;
+  cur = deck.shift();
+  const label = cur[0]==="F" ? "Formel – vad blir det?" : `${cur[0]} ${SECTIONS[cur[0]]}`;
+  $("cardSec").textContent = label; $("cardSec2").textContent = cur[1];
+  $("cardTerm").textContent = cur[1]; $("cardDef").textContent = cur[2];
+}
+const flip = ()=>$("flash").classList.toggle("flipped");
+$("flash").addEventListener("click",flip);
+$("flash").addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();} });
+$("cardKnow").addEventListener("click",()=>{ known.add(keyOf(cur)); saveKnown(); nextCard(); });
+$("cardAgain").addEventListener("click",()=>{ deck.splice(Math.min(3,deck.length),0,cur); nextCard(); });
+$("cardsReset").addEventListener("click",()=>{
+  CARDS.filter(c=>section==="alla"||c[0]===section).forEach(c=>known.delete(keyOf(c)));
+  saveKnown(); startCards();
+});
+
+// ---------- quiz ----------
+let qs=[], qi=0, score=0, missed=[];
+function startQuiz(n){
+  qs = shuffle(QUIZ).slice(0,n); qi=0; score=0; missed=[];
+  $("qBox").classList.remove("hidden"); $("qResult").classList.add("hidden");
+  renderQ();
+}
+function setMarker(){
+  const pct = qi===0 ? 0 : score/qi;
+  $("quizMarker").style.left = (pct*100)+"%";
+}
+function renderQ(){
+  const [text,opts,right] = qs[qi];
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qText").textContent = text;
+  $("qExplain").classList.add("hidden"); $("qNext").classList.add("hidden");
+  const order = opts.length>2 ? shuffle(opts.map((o,i)=>i)) : opts.map((o,i)=>i);
+  $("qOpts").innerHTML = order.map(i=>`<button class="opt" data-i="${i}">${opts[i]}</button>`).join("");
+  setMarker();
+}
+$("qOpts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||b.disabled) return;
+  const [text,opts,right,why] = qs[qi];
+  const pick=+b.dataset.i;
+  $("qOpts").querySelectorAll(".opt").forEach(o=>{
+    o.disabled=true;
+    if(+o.dataset.i===right) o.classList.add("right");
+  });
+  if(pick===right){ score++; $("qExplain").textContent = "Rätt! "+why; }
+  else { b.classList.add("wrong"); missed.push(qs[qi]); $("qExplain").textContent = "Inte riktigt. "+why; }
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qExplain").classList.remove("hidden");
+  $("qNext").textContent = qi===qs.length-1 ? "Se resultat" : "Nästa fråga";
+  $("qNext").classList.remove("hidden");
+  $("qNext").focus();
+});
+$("qNext").addEventListener("click",()=>{
+  qi++;
+  if(qi<qs.length){ renderQ(); return; }
+  setMarker();
+  $("qBox").classList.add("hidden"); $("qResult").classList.remove("hidden");
+  $("qScore").textContent = `${score}/${qs.length}`;
+  const p = score/qs.length;
+  $("qVerdict").textContent = p===1 ? "Alla rätt. Du är redo!" : p>=0.8 ? "Riktigt bra. Kolla frågorna nedan en gång till." : p>=0.5 ? "Bra jobbat. Öva på frågorna nedan och kör igen." : "Fortsätt öva. Läs igenom frågorna nedan och testa begreppskorten.";
+  $("qMissed").innerHTML = missed.length ? "<h3>Öva mer på</h3><ul>"+missed.map(m=>`<li><strong>${m[0]}</strong><br>${m[1][m[2]]}</li>`).join("")+"</ul>" : "";
+  $("quizCount").textContent = "Klart";
+});
+$("qAgain").addEventListener("click",()=>startQuiz(qs.length));
+
+homeProgress();
+</script>
+</body>
+</html>
