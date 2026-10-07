@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Val, makt och EU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout: one narrow column, like a valsedel. Ballot colours (gul = riksdag, blå = region, vit = kommun) code the topics. */
+:root{
+  --bg:#EEF1F5; --card:#FFFFFF; --ink:#1A2233; --soft:#586377; --line:#D3D9E3;
+  --gul:#F3CF3A; --bla:#3E7BD6; --vit:#FFFFFF; --rod:#D2384B; --gron:#2F9A5B; --lila:#7A4CC2; --eu:#1F3F99;
+  --okbg:#DCF2E3; --badbg:#FBE1E5; --chipbg:#FFFFFF;
+  --display:"Bricolage Grotesque", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121722; --card:#1C2331; --ink:#ECEFF5; --soft:#A3ACBD; --line:#323B4E;
+    --vit:#E9ECF2; --okbg:#173A26; --badbg:#47202A; --chipbg:#1C2331; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121722; --card:#1C2331; --ink:#ECEFF5; --soft:#A3ACBD; --line:#323B4E;
+  --vit:#E9ECF2; --okbg:#173A26; --badbg:#47202A; --chipbg:#1C2331; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--bla);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding-inline:18px;padding-block:22px 44px}
+.hidden{display:none!important}
+
+/* hero: three fanned ballots */
+.hero{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.hero h1{font-size:clamp(2rem,8vw,2.6rem);font-weight:800;letter-spacing:-.015em}
+.hero p{margin:6px 0 0;color:var(--soft)}
+.fan{position:relative;width:96px;height:96px}
+.fan span{position:absolute;bottom:4px;left:30px;width:40px;height:62px;border-radius:4px;border:2px solid var(--ink);transform-origin:bottom center}
+.fan span:nth-child(1){background:var(--vit);transform:rotate(-20deg)}
+.fan span:nth-child(2){background:var(--bla);transform:rotate(0deg)}
+.fan span:nth-child(3){background:var(--gul);transform:rotate(20deg)}
+
+.modes{display:grid;gap:12px;margin-top:24px}
+.mode{display:flex;gap:14px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:16px}
+.mode:hover{border-color:var(--ink)}
+.slip{flex:none;width:30px;height:42px;border-radius:3px;border:2px solid var(--ink)}
+.mode h2{font-size:1.25rem}
+.mode p{margin:2px 0 0;color:var(--soft);font-size:.95rem}
+.note{color:var(--soft);font-size:.92rem;text-align:center;margin-top:16px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.backbtn{background:none;border:none;padding:6px 0;color:var(--soft);font-weight:700}
+.count{color:var(--soft);font-size:.95rem;font-variant-numeric:tabular-nums}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--chipbg);border-radius:999px;padding:5px 13px;font-size:.92rem}
+.chip i{width:10px;height:14px;border-radius:2px;border:1.5px solid var(--ink);display:inline-block}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] i{border-color:var(--bg)}
+
+/* flashcard = valsedel */
+.flash{perspective:1200px;margin-top:14px;cursor:pointer}
+.flash-inner{position:relative;min-height:300px;transition:transform .45s ease;transform-style:preserve-3d}
+.flash.flipped .flash-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:46px 24px 24px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:auto}
+.face::before{content:"";position:absolute;top:0;left:0;right:0;height:22px;background:var(--stripe,var(--gul));border-bottom:2px solid var(--line);border-radius:8px 8px 0 0}
+.face.backside{transform:rotateY(180deg)}
+.face small{position:absolute;top:30px;left:24px;color:var(--soft);font-size:.85rem}
+.term{font-family:var(--display);font-size:clamp(1.6rem,7vw,2.1rem);font-weight:800;text-align:center;overflow-wrap:anywhere}
+.def{font-size:1.06rem}
+.def em{display:block;margin-top:10px;color:var(--soft);font-style:normal}
+.hint{text-align:center;color:var(--soft);font-size:.9rem;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{border:none;border-radius:12px;padding:14px;font-weight:700;font-size:1rem}
+.btn.again{background:var(--badbg)}
+.btn.know{background:var(--okbg)}
+.btn.main{background:var(--ink);color:var(--bg);width:100%;margin-top:16px}
+
+/* parties */
+.scale{margin-top:16px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:16px 14px}
+.axis{display:flex;justify-content:space-between;color:var(--soft);font-size:.85rem;margin-bottom:8px}
+.track{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.party{border:2px solid transparent;border-radius:8px;padding:10px 0;font-weight:700;font-family:var(--display);color:#fff;font-size:1rem}
+.party[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--card) inset}
+.blocks{display:grid;grid-template-columns:3fr 1fr 4fr;gap:6px;margin-top:8px;font-size:.78rem;color:var(--soft);text-align:center}
+.blocks span{border-top:3px solid var(--line);padding-top:4px}
+.blocks .rg{border-color:var(--rod)}
+.blocks .tido{border-color:var(--bla)}
+.pinfo{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:18px}
+.pinfo h3{font-size:1.4rem}
+.pinfo dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0 0}
+.pinfo dt{color:var(--soft)}
+.pinfo dd{margin:0}
+.small{font-size:.88rem;color:var(--soft);margin-top:10px}
+
+/* quiz */
+.meter{display:flex;gap:3px;margin:8px 0 2px}
+.meter b{flex:1;height:10px;border-radius:2px;background:var(--line)}
+.meter b.ok{background:var(--gron)}
+.meter b.bad{background:var(--rod)}
+.meter b.now{background:var(--ink)}
+.q{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:22px;margin-top:12px}
+.qsec{color:var(--soft);font-size:.85rem;margin-bottom:6px}
+.q h3{font-size:1.28rem;font-weight:700}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opt{text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--okbg);border-color:var(--gron)}
+.opt.wrong{background:var(--badbg);border-color:var(--rod)}
+.explain{margin-top:14px;padding:12px 14px;border-left:4px solid var(--bla);background:var(--bg);border-radius:0 8px 8px 0}
+.result{text-align:center;margin-top:28px}
+.result .big{font-family:var(--display);font-size:4rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.result p{color:var(--soft)}
+.missed{text-align:left;margin-top:18px}
+.missed li{margin-bottom:10px}
+@media (max-width:420px){ .party{font-size:.85rem;padding:9px 0} .fan{width:76px;height:84px} .fan span{left:22px;width:34px;height:54px} }
+@media (prefers-reduced-motion:reduce){ .flash-inner{transition:none} }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<section id="home">
+  <div class="hero">
+    <div>
+      <h1>Val, makt och EU</h1>
+      <p>Samhällskunskap åk 8: begreppen inför valet, Sveriges statsskick och EU.</p>
+    </div>
+    <div class="fan" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+  <div class="modes">
+    <button class="mode" data-go="cards"><span class="slip" style="background:var(--gul)"></span><span><h2>Begrepp</h2><p>Kort att vända. Säg förklaringen högt och vänd sedan.</p></span></button>
+    <button class="mode" data-go="parties"><span class="slip" style="background:var(--bla)"></span><span><h2>Partierna</h2><p>Alla åtta riksdagspartier på vänster–högerskalan.</p></span></button>
+    <button class="mode" data-go="quiz"><span class="slip" style="background:var(--vit)"></span><span><h2>Quiz</h2><p>10 frågor i taget, med förklaring efter varje svar.</p></span></button>
+    <button class="mode" data-go="exam"><span class="slip" style="background:var(--ink)"></span><span><h2>Övningsprov</h2><p>25 blandade frågor från alla områden.</p></span></button>
+  </div>
+  <p class="note" id="homeProgress"></p>
+</section>
+
+<section id="cards" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="cardCount"></span></div>
+  <h2>Begrepp</h2>
+  <div class="chips" id="cardChips" role="group" aria-label="Välj område"></div>
+  <div class="flash" id="flash" tabindex="0" role="button" aria-label="Vänd kortet">
+    <div class="flash-inner">
+      <div class="face front"><small id="cardSec"></small><div class="term" id="cardTerm"></div></div>
+      <div class="face backside"><small id="cardSec2"></small><div class="def" id="cardDef"></div></div>
+    </div>
+  </div>
+  <p class="hint" id="cardHint">Tryck på kortet för att vända det.</p>
+  <div class="row" id="cardBtns">
+    <button class="btn again" id="cardAgain">Öva mer</button>
+    <button class="btn know" id="cardKnow">Jag kan den</button>
+  </div>
+  <div class="result hidden" id="cardsDone">
+    <div class="big">Klart!</div>
+    <p>Du kan alla kort i det här området.</p>
+    <button class="btn main" id="cardsReset">Börja om med de här korten</button>
+  </div>
+</section>
+
+<section id="parties" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button></div>
+  <h2>Partierna i riksdagen</h2>
+  <div class="scale">
+    <div class="axis"><span>‹ Vänster</span><span>Höger ›</span></div>
+    <div class="track" id="track"></div>
+    <div class="blocks"><span class="rg">Rödgröna</span><span>Mitten</span><span class="tido">Tidöpartierna</span></div>
+  </div>
+  <div class="pinfo" id="pinfo"></div>
+  <p class="small">Placeringen på skalan är ungefärlig. Läroböcker ritar den lite olika, särskilt i mitten.</p>
+</section>
+
+<section id="quiz" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="quizCount"></span></div>
+  <div class="meter" id="meter" aria-hidden="true"></div>
+  <div class="q" id="qBox">
+    <div class="qsec" id="qSec"></div>
+    <h3 id="qText"></h3>
+    <div class="opts" id="qOpts"></div>
+    <div class="explain hidden" id="qExplain"></div>
+    <button class="btn main hidden" id="qNext">Nästa fråga</button>
+  </div>
+  <div class="result hidden" id="qResult">
+    <div class="big" id="qScore"></div>
+    <p id="qVerdict"></p>
+    <div class="missed" id="qMissed"></div>
+    <button class="btn main" id="qAgain">Kör igen</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+const SECTIONS = {
+  dem:["Demokrati","var(--gul)"],
+  ide:["Ideologier","var(--lila)"],
+  par:["Partier","var(--rod)"],
+  lag:["Grundlagar","var(--ink)"],
+  val:["Valet","var(--bla)"],
+  mak:["Riksdag och regering","var(--gul)"],
+  kom:["Kommun och region","var(--vit)"],
+  eu:["EU","var(--eu)"]
+};
+
+// [område, begrepp, förklaring, exempel]
+const CARDS = [
+ ["dem","Budget","En plan för hur mycket pengar man får in och vad de ska användas till.","Riksdagen beslutar om statsbudgeten varje år. Kommunen har en egen budget."],
+ ["dem","Offentlig sektor","Allt som staten, regionerna och kommunerna driver och betalar med skattepengar.","Skolor, sjukhus, polisen och Försvarsmakten."],
+ ["dem","Demokrati","Folkstyre. Folket väljer vilka som ska bestämma i fria och hemliga val, och alla har yttrandefrihet.","Sverige är en demokrati: “all offentlig makt utgår från folket”."],
+ ["dem","Diktatur","En person eller en liten grupp har all makt. Det finns inga fria val och ingen yttrandefrihet.","Kritiker kan hamna i fängelse och medierna censureras."],
+ ["dem","Folkomröstning","Folket röstar direkt om en viss fråga i stället för att politikerna bestämmer.","1994 röstade svenskarna ja till EU. 2003 röstade de nej till euron."],
+ ["dem","Representativ demokrati","Folket väljer politiker som representerar dem och fattar besluten åt dem.","Vi väljer 349 ledamöter till riksdagen som beslutar om lagar."],
+ ["dem","Censur","När staten eller någon annan stoppar eller granskar texter, bilder eller filmer innan de får spridas.","Förbjudet i Sverige enligt tryckfrihetsförordningen."],
+ ["dem","Statschef","Landets högsta representant. Kan vara en kung, drottning eller president.","Sveriges statschef är kungen. Han har ingen politisk makt."],
+ ["dem","Monarki","Ett land där statschefen är en kung eller drottning och makten ärvs.","Sverige, Norge och Storbritannien är monarkier."],
+ ["dem","Republik","Ett land där statschefen är vald, oftast en president.","Finland, Frankrike och USA är republiker."],
+ ["ide","Ideologi","En samling idéer om hur samhället ska se ut och styras.","Partierna bygger sin politik på olika ideologier."],
+ ["ide","Liberalism","Individens frihet är viktigast. Staten ska inte bestämma för mycket över människors liv och ekonomi.","Liberalerna och Centerpartiet."],
+ ["ide","Konservatism","Bevara traditioner och det som fungerar. Förändringar ska ske försiktigt och långsamt.","Kristdemokraterna och Moderaterna."],
+ ["ide","Socialism","Jämlikhet är viktigast. Klyftorna mellan rika och fattiga ska minska och staten ska ta större ansvar.","Vänsterpartiet och Socialdemokraterna."],
+ ["ide","Nationalism","Nationen och den gemensamma kulturen, språket och historien står i centrum.","Sverigedemokraterna."],
+ ["ide","Ekologism","Miljön och naturen går först. Samhället ska vara hållbart för kommande generationer.","Miljöpartiet."],
+ ["ide","Feminism","Kvinnor och män ska ha samma makt, rättigheter och möjligheter.","Vänsterpartiet kallar sig feministiskt."],
+ ["par","Vänster–högerskala","Ett sätt att sortera partierna. Till vänster: mer jämlikhet och högre skatter. Till höger: mer frihet för individen och lägre skatter.","V längst till vänster, SD och M längst till höger."],
+ ["par","Rödgröna partierna","Socialdemokraterna, Vänsterpartiet och Miljöpartiet. Partier på vänstersidan som ofta samarbetar.","S, V och MP."],
+ ["par","Tidöpartierna","Moderaterna, Kristdemokraterna, Liberalerna och Sverigedemokraterna. De gjorde Tidöavtalet 2022.","Avtalet skrevs på Tidö slott."],
+ ["par","Vänsterpartiet (V)","Socialism och feminism. Vill minska klyftorna och stoppa vinster i välfärden.","Rödgröna. Längst till vänster."],
+ ["par","Socialdemokraterna (S)","Socialdemokrati. Vill ha ett starkt välfärdssamhälle och att alla ska ha jobb. Länge Sveriges största parti.","Rödgröna."],
+ ["par","Miljöpartiet (MP)","Ekologism. Klimat och miljö är viktigast.","Rödgröna."],
+ ["par","Centerpartiet (C)","Liberalism. Landsbygd, företagande och miljö.","Mittenparti, inte med i något av blocken."],
+ ["par","Liberalerna (L)","Liberalism. Individens frihet, skola och kunskap.","Tidöparti."],
+ ["par","Moderaterna (M)","Liberalkonservatism. Lägre skatter, arbete och lag och ordning.","Tidöparti. Längst till höger tillsammans med SD."],
+ ["par","Kristdemokraterna (KD)","Kristdemokrati, konservativt. Familjen, äldreomsorgen och vården.","Tidöparti."],
+ ["par","Sverigedemokraterna (SD)","Nationalism och socialkonservatism. Minskad invandring och hårdare tag mot brott.","Tidöparti."],
+ ["lag","Grundlagar","Sveriges fyra viktigaste lagar. De står över alla andra lagar och skyddar demokratin.","Regeringsformen, tryckfrihetsförordningen, yttrandefrihetsgrundlagen, successionsordningen."],
+ ["lag","Regeringsformen","Den viktigaste grundlagen. Beskriver hur Sverige ska styras och att vi har en representativ demokrati.","“All offentlig makt i Sverige utgår från folket.”"],
+ ["lag","Tryckfrihetsförordningen","Rätten att uttrycka sig i skrift, t.ex. tidningar och böcker. Staten får inte censurera. Här finns offentlighetsprincipen.","Förtal är ändå inte tillåtet."],
+ ["lag","Yttrandefrihetsgrundlagen","Rätten att uttrycka sig i radio, tv och film. Samma skydd som tryckfrihetsförordningen.","Ingen censur av tv-program."],
+ ["lag","Successionsordningen","Beskriver tronföljden, alltså vem som blir kung eller drottning.","Sedan 1979 ärver äldsta barnet tronen oavsett kön. Kronprinsessan Victoria."],
+ ["lag","Ändra en grundlag","Riksdagen måste rösta ja två gånger, med ett riksdagsval emellan. Får inte gå emot mänskliga rättigheter.","Kvinnlig rösträtt 1919, könsneutral tronföljd 1979."],
+ ["lag","Offentlighetsprincipen","Alla har rätt att läsa allmänna handlingar hos myndigheter.","Du kan begära ut kommunens beslut."],
+ ["val","Valrörelse","Tiden före ett val då partierna försöker övertyga väljarna att rösta på dem.","Valaffischer, debatter i tv och valstugor."],
+ ["val","Röstberättigad","Den som får rösta. I riksdagsvalet: svensk medborgare som fyllt 18 år senast på valdagen.","I kommun- och regionval får även vissa som inte är medborgare rösta."],
+ ["val","Vallokal","Platsen där man röstar på valdagen.","Står på röstkortet som Valmyndigheten skickar hem."],
+ ["val","Valsedlar","Papper med partiets namn som man lägger i kuvertet. Gul = riksdag, blå = region, vit = kommun.","Man kan rösta på olika partier i de tre valen."],
+ ["val","Förtidsrösta","Rösta innan valdagen, i en röstningslokal.","Bra om man är bortrest på valdagen."],
+ ["val","Rösta med bud","Någon annan lämnar in din röst åt dig, om du inte kan ta dig till röstningslokalen själv.","T.ex. om man är sjuk eller har en funktionsnedsättning."],
+ ["val","Fyraprocentsspärren","Ett parti måste få minst 4 % av rösterna i hela landet för att komma in i riksdagen.","Gäller riksdagsvalet. (Undantag: 12 % i en valkrets.)"],
+ ["val","Mandat","En plats i riksdagen eller fullmäktige. Fler röster ger fler mandat.","Riksdagen har 349 mandat."],
+ ["val","Valkrets","Ett område, oftast ett län, som har ett visst antal mandat beroende på hur många som bor där.","29 valkretsar. Stockholm har många mandat, Gotland 2."],
+ ["val","Personval","Man kan sätta ett kryss för en person på partiets valsedel.","Kandidaten får då större chans att komma in."],
+ ["val","Valmyndigheten","Myndigheten som ansvarar för valen. Gör röstlängden och skickar ut röstkort.","Röstlängd = lista över alla som får rösta i ett område."],
+ ["val","Rösta blankt","Lägga en tom valsedel i kuvertet. Man har röstat men inte på något parti.","Blanka röster ger inga mandat."],
+ ["mak","Riksdagen","Sveriges parlament med 349 ledamöter. Stiftar lagar, beslutar om statsbudgeten, väljer statsminister och granskar regeringen.","Talmannen är ordförande."],
+ ["mak","Parlamentarism","Regeringen styr landet men behöver riksdagens stöd. Röstar riksdagen nej får regeringen inte igenom sina förslag.","Riksdagen kan avsätta en minister."],
+ ["mak","Motion","Ett förslag från en riksdagsledamot.","Minnesknep: Motion = ledaMot."],
+ ["mak","Proposition","Ett förslag från regeringen till riksdagen.","Statsbudgeten läggs fram som en proposition."],
+ ["mak","Utskott","Grupper av riksdagsledamöter som förbereder ärenden inom ett område. Det finns 15.","T.ex. utbildningsutskottet och försvarsutskottet."],
+ ["mak","Regeringen","Styr landet. Leds av statsministern, som väljer sina ministrar. Lägger fram budgeten, företräder Sverige i EU och ansvarar för försvar och utrikespolitik.","Verkställer riksdagens beslut."],
+ ["mak","Majoritetsregering","Regeringspartierna har mer än hälften av platserna i riksdagen.","Motsats: minoritetsregering, som behöver stöd från andra partier."],
+ ["mak","Statsförvaltningen","Alla statliga myndigheter som sköter statens uppgifter. Finns på tre nivåer: central, regional och lokal.","Skolverket, CSN, Polismyndigheten."],
+ ["mak","Länsstyrelsen","Statens myndighet i varje län (21 st). Chefen kallas landshövding.","Arbetar med t.ex. naturvård."],
+ ["kom","Kommunfullmäktige","Kommunens “riksdag”. Beslutar i frågor som rör kommunen.","Borlänge kommun. Det finns 290 kommuner."],
+ ["kom","Regionfullmäktige","Regionens högsta beslutande församling. Beslutar i frågor som rör regionen.","Region Dalarna. Det finns 21 regioner."],
+ ["kom","Kommunens ansvar","Förskola, skola, socialtjänst, äldreomsorg, räddningstjänst, vatten och avlopp, gator, fritid och kultur.","Kommunalskatten skiljer sig mellan kommuner."],
+ ["kom","Regionens ansvar","Hälso- och sjukvård och tandvård. Ofta kollektivtrafik, t.ex. Dalatrafik.","Regionens största inkomst är skatt."],
+ ["kom","Statsbidrag","Pengar som staten ger till kommuner utifrån deras behov och storlek.","Kommuner med många äldre kan få mer."],
+ ["kom","Medborgarförslag","Ett förslag från en invånare till kommunen.","T.ex. ett vindskydd i parken."],
+ ["kom","Påverka","Rösta, gå med i ett parti, skriva medborgarförslag, bilda opinion, demonstrera eller överklaga beslut.","Demokrati fungerar bara om medborgarna engagerar sig."],
+ ["eu","EU","Europeiska unionen. 27 länder som samarbetar om handel, ekonomi, miljö och utrikespolitik. Startade efter andra världskriget för att skapa fred.","Sverige gick med 1995."],
+ ["eu","Överstatlig","Länderna har lämnat ifrån sig en del av sitt självbestämmande till EU. EU:s beslut måste följas.","EU-lagar gäller i Sverige."],
+ ["eu","Mellanstatlig","Alla länder måste vara överens för att ett beslut ska gälla.","Gäller t.ex. utrikes- och säkerhetspolitik."],
+ ["eu","De fyra friheterna","Fri rörlighet för varor, tjänster, kapital och personer inom EU:s inre marknad.","Du kan studera och jobba i ett annat EU-land utan visum."],
+ ["eu","Förordning","En EU-lag som gäller direkt i alla EU-länder.","Gemensamma importregler."],
+ ["eu","Direktiv","Ett mål som länderna ska nå. De bestämmer själva hur och får ofta 2 år på sig.","Minska engångsplasten."],
+ ["eu","EMU och euro","Den ekonomiska och monetära unionen. Den gemensamma valutan euro gör handeln lättare.","De flesta EU-länder har euro. Sverige har kronor."],
+ ["eu","EU-kommissionen","Driver EU framåt och är den enda som får lägga lagförslag. Ser till att länderna följer reglerna.","En kommissionär per land."],
+ ["eu","Ministerrådet","Ministrar från länderna. Beslutar om lagar tillsammans med Europaparlamentet.","Miljöministrarna träffas om miljöfrågor."],
+ ["eu","Europaparlamentet","Ca 700 ledamöter som EU:s medborgare väljer vart femte år. Beslutar om lagar ihop med ministerrådet men får inte lägga lagförslag.","Folkrika länder får fler platser."],
+ ["eu","Europeiska rådet","Stats- och regeringscheferna. Träffas på toppmöten fyra gånger per år och drar upp riktlinjerna.","Sveriges statsminister är med."],
+ ["eu","EU-domstolen","Domare från alla länder. Löser tvister och dömer om EU:s regler följs.","Sverige har fällts för för höga luftföroreningar."],
+ ["eu","Medborgarinitiativ","Ett förslag till EU-kommissionen från medborgare. Kräver 1 miljon namn från minst en fjärdedel av länderna.","Ett sätt att påverka EU."],
+ ["eu","Lobbyism","När företag och organisationer försöker påverka politiker, ofta via anställda lobbyister.","Kritik: kan ge vissa grupper för stor makt."]
+];
+
+// Partier i ungefärlig ordning vänster–höger
+const PARTIES = [
+ ["V","Vänsterpartiet","#A3121F","Rödgröna","Socialism, feminism","Minska klyftorna mellan rika och fattiga, inga vinster i välfärden, jämställdhet."],
+ ["S","Socialdemokraterna","#E8112D","Rödgröna","Socialdemokrati","Starkt välfärdssamhälle, jobb åt alla, trygghet. Länge Sveriges största parti."],
+ ["MP","Miljöpartiet","#4C9A2A","Rödgröna","Ekologism","Klimat och miljö, hållbar utveckling."],
+ ["C","Centerpartiet","#00843D","Mitten, inget av blocken","Liberalism","Landsbygden, småföretag och miljön."],
+ ["L","Liberalerna","#0069B4","Tidöpartierna","Liberalism","Individens frihet, skolan och kunskap."],
+ ["KD","Kristdemokraterna","#005EA1","Tidöpartierna","Kristdemokrati (konservatism)","Familjen, äldreomsorgen och vården."],
+ ["M","Moderaterna","#1B49DD","Tidöpartierna","Liberalkonservatism","Lägre skatter, arbete, lag och ordning."],
+ ["SD","Sverigedemokraterna","#B88A00","Tidöpartierna","Nationalism, socialkonservatism","Minskad invandring och hårdare tag mot brott."]
+];
+
+// [område, fråga, [alternativ], rätt index, förklaring]
+const QUIZ = [
+ ["dem","Vad betyder demokrati?",["Folkstyre","Kungastyre","Styre av en enda person","Styre av militären"],0,"Demokrati betyder folkstyre. Folket väljer sina företrädare i fria val."],
+ ["dem","Vad kännetecknar en diktatur?",["Fria val vart fjärde år","En person eller liten grupp har all makt","Folkomröstningar i alla frågor","Pressfrihet"],1,"I en diktatur finns inga fria val och ingen yttrandefrihet."],
+ ["dem","Sverige är en representativ demokrati. Vad betyder det?",["Folket röstar om varje lag","Folket väljer politiker som fattar besluten","Kungen bestämmer","Bara partiledare får rösta"],1,"Vi väljer representanter, t.ex. 349 riksdagsledamöter, som beslutar åt oss."],
+ ["dem","Vad är en folkomröstning?",["När riksdagen röstar","När folket röstar direkt i en viss fråga","När kungen väljs","Ett val till EU"],1,"Exempel: 1994 om EU-medlemskap och 2003 om euron."],
+ ["dem","Vem är Sveriges statschef?",["Statsministern","Talmannen","Kungen","Riksdagen"],2,"Sverige är en monarki. Kungen är statschef men har ingen politisk makt."],
+ ["dem","Vad är en republik?",["Ett land med kung","Ett land där statschefen är vald, oftast en president","Ett land utan regering","Ett EU-land"],1,"Finland och Frankrike är republiker."],
+ ["dem","Vad är censur?",["När man röstar blankt","När texter eller filmer stoppas eller granskas innan de sprids","En skatt","En sorts val"],1,"Censur är förbjuden i Sverige enligt grundlagarna."],
+ ["dem","Vad hör till den offentliga sektorn?",["En klädbutik","Ett privat företag","Skolor och sjukhus som betalas med skatt","Ett fotbollslag"],2,"Offentlig sektor = det staten, regioner och kommuner driver."],
+ ["dem","Vad är en budget?",["En lag","En plan för inkomster och utgifter","En myndighet","Ett parti"],1,"Riksdagen beslutar om statsbudgeten varje år."],
+ ["ide","Vilken ideologi sätter individens frihet främst?",["Socialism","Liberalism","Nationalism","Ekologism"],1,"Liberalism: staten ska inte bestämma för mycket över människors liv."],
+ ["ide","Vilken ideologi vill bevara traditioner och förändra försiktigt?",["Konservatism","Feminism","Socialism","Liberalism"],0,"Konservatism = bevara det som fungerar."],
+ ["ide","Vilken ideologi sätter jämlikhet och minskade klyftor främst?",["Liberalism","Konservatism","Socialism","Nationalism"],2,"Socialismen vill minska klyftorna mellan rika och fattiga."],
+ ["ide","Vilken ideologi sätter miljön och naturen först?",["Ekologism","Nationalism","Konservatism","Liberalism"],0,"Ekologism. Miljöpartiet bygger på den."],
+ ["ide","Vad vill feminismen?",["Att män ska ha mer makt","Att kvinnor och män ska ha samma makt och möjligheter","Att staten ska bort","Lägre skatter"],1,"Feminism handlar om jämställdhet mellan könen."],
+ ["ide","Vilken ideologi sätter nationen och dess kultur i centrum?",["Nationalism","Ekologism","Liberalism","Socialism"],0,"Nationalism. Sverigedemokraterna räknas dit."],
+ ["par","Vilka partier är de rödgröna?",["M, KD, L","S, V, MP","C, L, M","SD, M, KD"],1,"Socialdemokraterna, Vänsterpartiet och Miljöpartiet."],
+ ["par","Vilka är Tidöpartierna?",["S, V, MP, C","M, KD, L, SD","M, C, L, KD","Alla partier i riksdagen"],1,"Moderaterna, Kristdemokraterna, Liberalerna och Sverigedemokraterna. Tidöavtalet 2022."],
+ ["par","Vilket parti ligger längst till vänster?",["Socialdemokraterna","Miljöpartiet","Vänsterpartiet","Centerpartiet"],2,"Vänsterpartiet, som bygger på socialism."],
+ ["par","Vilket parti bygger främst på ekologism?",["Centerpartiet","Miljöpartiet","Liberalerna","Kristdemokraterna"],1,"Miljöpartiet de gröna."],
+ ["par","Vilket parti kallas ofta mittenparti och är inte med i något block?",["Centerpartiet","Moderaterna","Vänsterpartiet","Liberalerna"],0,"Centerpartiet: liberalism, landsbygd och företagande."],
+ ["par","Vad står partier till höger på skalan ofta för?",["Högre skatter","Mer jämlikhet genom staten","Lägre skatter och mer frihet för individen","Mer offentlig sektor"],2,"Vänster: mer jämlikhet, högre skatter. Höger: lägre skatter, mer frihet."],
+ ["par","Vilket parti fokuserar mest på familjen, vården och äldreomsorgen?",["Kristdemokraterna","Vänsterpartiet","Miljöpartiet","Centerpartiet"],0,"Kristdemokraterna."],
+ ["par","Vilka två ideologier är Liberalerna och Centerpartiet främst byggda på?",["Båda på socialism","Båda på liberalism","Båda på nationalism","Båda på ekologism"],1,"Båda är liberala partier."],
+ ["lag","Hur många grundlagar har Sverige?",["2","3","4","10"],2,"Regeringsformen, tryckfrihetsförordningen, yttrandefrihetsgrundlagen och successionsordningen."],
+ ["lag","Vilken är den viktigaste grundlagen?",["Successionsordningen","Regeringsformen","Tryckfrihetsförordningen","Yttrandefrihetsgrundlagen"],1,"Regeringsformen beskriver hur Sverige ska styras."],
+ ["lag","Vilken grundlag handlar om tronföljden?",["Regeringsformen","Successionsordningen","Tryckfrihetsförordningen","Yttrandefrihetsgrundlagen"],1,"Successionsordningen säger vem som blir kung eller drottning."],
+ ["lag","Vilken grundlag skyddar rätten att uttrycka sig i radio, tv och film?",["Tryckfrihetsförordningen","Yttrandefrihetsgrundlagen","Regeringsformen","Successionsordningen"],1,"Tryckfrihetsförordningen gäller skrift, yttrandefrihetsgrundlagen gäller radio, tv och film."],
+ ["lag","Var finns offentlighetsprincipen?",["Tryckfrihetsförordningen","Successionsordningen","EU:s lagar","Kommunens budget"],0,"Alla får läsa allmänna handlingar hos myndigheter."],
+ ["lag","Vad krävs för att ändra en grundlag?",["Kungen säger ja","Två omröstningar i riksdagen med ett val emellan","En folkomröstning","Regeringen bestämmer"],1,"Två beslut med ett riksdagsval mellan. Det ska vara svårt."],
+ ["lag","Vad ändrades i successionsordningen 1979?",["Kvinnlig rösträtt","Äldsta barnet ärver tronen oavsett kön","Sverige blev republik","Rösträttsåldern blev 18"],1,"Könsneutral tronföljd. Därför är Victoria kronprinsessa."],
+ ["val","Vilka fyra församlingar väljer vi i Sverige?",["Riksdag, regering, kommun, EU-kommissionen","Riksdag, kommunfullmäktige, regionfullmäktige, Europaparlamentet","Regering, länsstyrelse, kommun, region","Riksdag, Europeiska rådet, kommun, region"],1,"Riksdagsvalet, kommunvalet och regionvalet hålls samma dag. Europaparlamentet väljs separat."],
+ ["val","Vilken färg har valsedeln till riksdagen?",["Vit","Blå","Gul","Röd"],2,"Gul = riksdag, blå = region, vit = kommun."],
+ ["val","Vilken färg har valsedeln till kommunfullmäktige?",["Vit","Blå","Gul","Grön"],0,"Vit = kommun."],
+ ["val","Vem är röstberättigad i riksdagsvalet?",["Alla som bor i Sverige","Svenska medborgare som fyllt 18 år","Alla över 16 år","Bara de som betalar skatt"],1,"Man ska vara svensk medborgare och ha fyllt 18 senast på valdagen."],
+ ["val","Hur stor andel av rösterna måste ett parti få för att komma in i riksdagen?",["2 %","4 %","10 %","50 %"],1,"Fyraprocentsspärren."],
+ ["val","Vad betyder det att förtidsrösta?",["Rösta två gånger","Rösta innan valdagen","Rösta via internet","Rösta när man är 16"],1,"Man röstar i en röstningslokal före valdagen."],
+ ["val","Vad är att rösta med bud?",["Rösta på internet","Någon annan lämnar in ens röst","Rösta på två partier","Rösta blankt"],1,"För den som inte själv kan ta sig till röstningslokalen."],
+ ["val","Vad är en valrörelse?",["Tiden när partierna försöker vinna väljare inför valet","Rösträkningen","En demonstration","Ett EU-möte"],0,"Valaffischer, debatter och valstugor."],
+ ["val","Vad är ett mandat?",["En lag","En plats i riksdagen eller fullmäktige","En valsedel","En minister"],1,"Riksdagen har 349 mandat."],
+ ["val","Vilken myndighet ansvarar för valen?",["Skolverket","Valmyndigheten","Länsstyrelsen","Riksbanken"],1,"Valmyndigheten gör röstlängden och skickar ut röstkort."],
+ ["mak","Hur många ledamöter har riksdagen?",["290","349","400","720"],1,"349 riksdagsledamöter."],
+ ["mak","Vad är ett förslag från en riksdagsledamot?",["Proposition","Motion","Direktiv","Förordning"],1,"Motion = ledaMot. Proposition kommer från regeringen."],
+ ["mak","Vad kallas ett förslag från regeringen?",["Motion","Proposition","Medborgarförslag","Utskott"],1,"Regeringen lämnar propositioner till riksdagen."],
+ ["mak","Vad betyder parlamentarism?",["Regeringen behöver riksdagens stöd","Kungen styr","EU styr Sverige","Kommunerna stiftar lagar"],0,"Om riksdagen röstar nej får regeringen inte igenom sina förslag."],
+ ["mak","Vem är ordförande i riksdagen?",["Statsministern","Kungen","Talmannen","Landshövdingen"],2,"Talmannen leder riksdagens arbete."],
+ ["mak","Vad gör riksdagen INTE?",["Stiftar lagar","Beslutar om statsbudgeten","Granskar regeringen","Leder polisens arbete i en kommun"],3,"Riksdagen stiftar lagar, beslutar om budget, väljer statsminister och granskar regeringen."],
+ ["mak","Vad är en minoritetsregering?",["En regering utan statsminister","Regeringspartierna har mindre än hälften av platserna i riksdagen","En regering i en kommun","En regering i EU"],1,"Den behöver stöd från andra partier för att få igenom förslag."],
+ ["mak","Vad heter chefen för länsstyrelsen?",["Talman","Landshövding","Borgmästare","Kommissionär"],1,"Det finns en länsstyrelse i vart och ett av de 21 länen."],
+ ["kom","Hur många kommuner finns det i Sverige?",["21","29","290","349"],2,"290 kommuner och 21 regioner."],
+ ["kom","Vad ansvarar regionen för?",["Skolan","Hälso- och sjukvård","Vatten och avlopp","Räddningstjänsten"],1,"Regionen ansvarar för sjukvård och tandvård, ofta kollektivtrafik."],
+ ["kom","Vad ansvarar kommunen för?",["Sjukhusen","Försvaret","Skolan och äldreomsorgen","Utrikespolitiken"],2,"Kommunen: skola, socialtjänst, äldreomsorg, räddningstjänst, vatten och avlopp."],
+ ["kom","Vad är ett medborgarförslag?",["Ett förslag från en invånare till kommunen","En lag från riksdagen","Ett EU-direktiv","En valsedel"],0,"Ett sätt för invånare att påverka i kommunen."],
+ ["kom","Vad heter den beslutande församlingen i en kommun?",["Riksdagen","Kommunfullmäktige","Regionfullmäktige","Länsstyrelsen"],1,"Kommunfullmäktige väljs vart fjärde år samtidigt som riksdagen."],
+ ["eu","Hur många länder är med i EU?",["15","20","27","35"],2,"27 medlemsländer."],
+ ["eu","Varför startade samarbetet som blev EU?",["För att skapa fred efter andra världskriget","För att bygga en armé","För att införa euron","För att få fler turister"],0,"Det började med kol- och stålgemenskapen efter kriget."],
+ ["eu","Vad betyder att EU är överstatligt?",["Länderna bestämmer allt själva","Länderna har lämnat över en del av sin makt till EU","EU är ett land","EU har ingen makt"],1,"EU:s beslut måste följas av medlemsländerna."],
+ ["eu","Vilka är de fyra friheterna?",["Varor, tjänster, kapital och personer","Tal, tryck, religion och möten","Skola, vård, omsorg och polis","Mat, vatten, luft och energi"],0,"Fri rörlighet inom EU:s inre marknad."],
+ ["eu","Vad är skillnaden mellan förordning och direktiv?",["Ingen skillnad","Förordning gäller direkt, direktiv är ett mål länderna själva ska nå","Direktiv gäller direkt, förordning är frivillig","Båda är rekommendationer"],1,"Förordning = gäller direkt. Direktiv = mål, ofta 2 år på sig."],
+ ["eu","Vilken EU-institution får lägga lagförslag?",["Europaparlamentet","EU-kommissionen","EU-domstolen","Europeiska centralbanken"],1,"Bara kommissionen får föreslå lagar."],
+ ["eu","Vilka beslutar om EU:s lagar?",["EU-domstolen och kommissionen","Europaparlamentet och ministerrådet","Riksdagen och regeringen","Europeiska rådet och ECB"],1,"Parlamentet och ministerrådet beslutar tillsammans."],
+ ["eu","Hur ofta väljs Europaparlamentet?",["Vart fjärde år","Vart femte år","Varje år","Vart tionde år"],1,"EU-valet hålls vart femte år."],
+ ["eu","Vilka sitter i Europeiska rådet?",["Domare","Stats- och regeringscheferna","Alla EU-medborgare","Lobbyister"],1,"De träffas på toppmöten fyra gånger per år."],
+ ["eu","Vad gör EU-domstolen?",["Lägger lagförslag","Löser tvister och dömer om EU:s regler följs","Trycker euro","Väljer statsminister"],1,"Sverige har t.ex. fällts för för höga luftföroreningar."],
+ ["eu","Vad beslutar EU INTE om?",["Importregler","Barnbidrag och pension","Miljökrav","Regler för varor"],1,"Barnbidrag, pension, försvar och skola bestämmer Sverige själv."],
+ ["eu","Hur kan du påverka EU?",["Rösta i Europaparlamentsvalet","Rösta i riksdagsvalet","Skriva under ett medborgarinitiativ","Alla alternativen"],3,"Alla är sätt att påverka EU."],
+ ["eu","Vilken valuta har Sverige?",["Euro","Kronor","Dollar","Pund"],1,"Sverige röstade nej till euron 2003 och har kvar kronan."]
+];
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = "samh-val-known";
+let known = new Set();
+try { known = new Set(JSON.parse(localStorage.getItem(KEY)||"[]")); } catch(e){}
+function saveKnown(){ try{ localStorage.setItem(KEY, JSON.stringify([...known])); }catch(e){} }
+function homeProgress(){ $("homeProgress").textContent = `Du kan ${known.size} av ${CARDS.length} begrepp.`; }
+
+function show(id){
+  ["home","cards","parties","quiz"].forEach(s=>$(s).classList.toggle("hidden", s!==id));
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>{
+  const g=b.dataset.go;
+  if(g==="home"){ homeProgress(); show("home"); }
+  if(g==="cards"){ startCards(); show("cards"); }
+  if(g==="parties"){ show("parties"); }
+  if(g==="quiz"){ startQuiz(10); show("quiz"); }
+  if(g==="exam"){ startQuiz(25); show("quiz"); }
+}));
+
+// ---------- kort ----------
+let section="alla", deck=[], cur=null;
+const chips=$("cardChips");
+chips.innerHTML = `<button class="chip" data-sec="alla" aria-pressed="true">Alla</button>` +
+  Object.entries(SECTIONS).map(([k,[n,c]])=>`<button class="chip" data-sec="${k}" aria-pressed="false"><i style="background:${c}"></i>${n}</button>`).join("");
+chips.addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  section=b.dataset.sec;
+  chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", String(c===b)));
+  startCards();
+});
+const keyOf = c => c[0]+"|"+c[1];
+const pool = () => CARDS.filter(c=>section==="alla"||c[0]===section);
+function startCards(){ deck = shuffle(pool().filter(c=>!known.has(keyOf(c)))); nextCard(); }
+function nextCard(){
+  $("flash").classList.remove("flipped");
+  const p=pool(), done=p.filter(c=>known.has(keyOf(c))).length;
+  $("cardCount").textContent = `${done} av ${p.length} kan du`;
+  const empty = deck.length===0;
+  ["flash","cardHint","cardBtns"].forEach(id=>$(id).classList.toggle("hidden",empty));
+  $("cardsDone").classList.toggle("hidden",!empty);
+  if(empty) return;
+  cur = deck.shift();
+  const [n,c] = SECTIONS[cur[0]];
+  $("flash").style.setProperty("--stripe", c);
+  $("cardSec").textContent = n; $("cardSec2").textContent = cur[1];
+  $("cardTerm").textContent = cur[1];
+  $("cardDef").innerHTML = esc(cur[2]) + (cur[3] ? `<em>Exempel: ${esc(cur[3])}</em>` : "");
+}
+const flip=()=>$("flash").classList.toggle("flipped");
+$("flash").addEventListener("click",flip);
+$("flash").addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); flip(); } });
+$("cardKnow").addEventListener("click",()=>{ known.add(keyOf(cur)); saveKnown(); nextCard(); });
+$("cardAgain").addEventListener("click",()=>{ deck.splice(Math.min(3,deck.length),0,cur); nextCard(); });
+$("cardsReset").addEventListener("click",()=>{ pool().forEach(c=>known.delete(keyOf(c))); saveKnown(); startCards(); });
+
+// ---------- partier ----------
+$("track").innerHTML = PARTIES.map((p,i)=>`<button class="party" data-i="${i}" aria-pressed="${i===0}" style="background:${p[2]}" aria-label="${p[1]}">${p[0]}</button>`).join("");
+function showParty(i){
+  const p=PARTIES[i];
+  $("track").querySelectorAll(".party").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.i===i)));
+  $("pinfo").innerHTML = `<h3>${p[1]} (${p[0]})</h3><dl><dt>Block</dt><dd>${p[3]}</dd><dt>Ideologi</dt><dd>${p[4]}</dd><dt>Viktiga frågor</dt><dd>${p[5]}</dd></dl>`;
+}
+$("track").addEventListener("click",e=>{ const b=e.target.closest(".party"); if(b) showParty(+b.dataset.i); });
+showParty(0);
+
+// ---------- quiz ----------
+let qs=[], qi=0, score=0, missed=[], marks=[];
+function startQuiz(n){
+  qs=shuffle(QUIZ).slice(0,n); qi=0; score=0; missed=[]; marks=Array(qs.length).fill("");
+  $("qBox").classList.remove("hidden"); $("qResult").classList.add("hidden");
+  renderQ();
+}
+function drawMeter(){ $("meter").innerHTML = marks.map((m,i)=>`<b class="${m || (i===qi ? "now" : "")}"></b>`).join(""); }
+function renderQ(){
+  const [sec,text,opts] = qs[qi];
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qSec").textContent = SECTIONS[sec][0];
+  $("qText").textContent = text;
+  $("qExplain").classList.add("hidden"); $("qNext").classList.add("hidden");
+  const fixed = opts.some(o=>/^Alla /.test(o));
+  const order = fixed ? opts.map((o,i)=>i) : shuffle(opts.map((o,i)=>i));
+  $("qOpts").innerHTML = order.map(i=>`<button class="opt" data-i="${i}">${esc(opts[i])}</button>`).join("");
+  drawMeter();
+}
+$("qOpts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||b.disabled) return;
+  const [sec,text,opts,right,why] = qs[qi];
+  const pick=+b.dataset.i;
+  $("qOpts").querySelectorAll(".opt").forEach(o=>{ o.disabled=true; if(+o.dataset.i===right) o.classList.add("right"); });
+  if(pick===right){ score++; marks[qi]="ok"; $("qExplain").textContent="Rätt! "+why; }
+  else { b.classList.add("wrong"); marks[qi]="bad"; missed.push(qs[qi]); $("qExplain").textContent="Inte riktigt. "+why; }
+  drawMeter();
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qExplain").classList.remove("hidden");
+  $("qNext").textContent = qi===qs.length-1 ? "Se resultat" : "Nästa fråga";
+  $("qNext").classList.remove("hidden"); $("qNext").focus();
+});
+$("qNext").addEventListener("click",()=>{
+  qi++;
+  if(qi<qs.length){ renderQ(); return; }
+  drawMeter();
+  $("qBox").classList.add("hidden"); $("qResult").classList.remove("hidden");
+  $("qScore").textContent = `${score}/${qs.length}`;
+  const p=score/qs.length;
+  $("qVerdict").textContent = p===1 ? "Alla rätt. Du är redo!" : p>=0.8 ? "Riktigt bra. Titta på frågorna nedan en gång till." : p>=0.5 ? "Bra jobbat. Öva på frågorna nedan och kör igen." : "Fortsätt öva. Läs igenom frågorna nedan och testa begreppskorten.";
+  $("qMissed").innerHTML = missed.length ? "<h3>Öva mer på</h3><ul>"+missed.map(m=>`<li><strong>${esc(m[1])}</strong><br>${esc(m[2][m[3]])}</li>`).join("")+"</ul>" : "";
+  $("quizCount").textContent = "Klart";
+});
+$("qAgain").addEventListener("click",()=>startQuiz(qs.length));
+
+homeProgress();
+</script>
+
+</body>
+</html>
