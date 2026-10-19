@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Internet och IT-säkerhet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Ett smalt flöde, som ett datapaket på väg genom nätet. Fiberblått = system, paketorange = vägen, osv. */
+:root{
+  --bg:#EEF2F2; --card:#FFFFFF; --ink:#13202A; --soft:#56656F; --line:#D2DBDD;
+  --fiber:#0E9AA7; --paket:#E58A2E; --iot:#3A9A5C; --data:#7A4CC2; --sak:#D2384B; --int:#C2457F; --sam:#3B6CD4;
+  --ok:#2F9A5B; --bad:#D2384B; --okbg:#DCF2E3; --badbg:#FBE1E5; --chipbg:#FFFFFF; --msg:#E9EEF0;
+  --display:"Sora","Atkinson Hyperlegible",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F171C; --card:#18232A; --ink:#E8EFF1; --soft:#9FAEB5; --line:#2D3B43;
+    --okbg:#163A25; --badbg:#47202A; --chipbg:#18232A; --msg:#22313A; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F171C; --card:#18232A; --ink:#E8EFF1; --soft:#9FAEB5; --line:#2D3B43;
+  --okbg:#163A25; --badbg:#47202A; --chipbg:#18232A; --msg:#22313A; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:1.5rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--fiber);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:22px 16px 48px}
+.hidden{display:none!important}
+.mono{font-family:var(--mono)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.hero h1{font-size:clamp(1.9rem,7.5vw,2.5rem);font-weight:800;letter-spacing:-.02em}
+.hero p{margin:6px 0 0;color:var(--soft)}
+.net{width:104px;height:96px}
+.net line{stroke:var(--line);stroke-width:3}
+.net circle.n{fill:var(--card);stroke:var(--ink);stroke-width:2.5}
+.net circle.pk{fill:var(--paket)}
+
+.modes{display:grid;gap:10px;margin-top:22px}
+.mode{display:flex;gap:14px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:14px 16px}
+.mode:hover{border-color:var(--ink)}
+.tag{flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.8rem;color:#fff}
+.mode h2{font-size:1.15rem}
+.mode p{margin:2px 0 0;color:var(--soft);font-size:.93rem}
+.note{color:var(--soft);font-size:.92rem;text-align:center;margin-top:16px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.backbtn{background:none;border:none;padding:6px 0;color:var(--soft);font-weight:700}
+.count{color:var(--soft);font-size:.95rem;font-variant-numeric:tabular-nums}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--chipbg);border-radius:999px;padding:5px 13px;font-size:.9rem}
+.chip i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+
+/* begreppskort = datapaket */
+.flash{perspective:1200px;margin-top:14px;cursor:pointer}
+.flash-inner{position:relative;min-height:310px;transition:transform .45s ease;transform-style:preserve-3d}
+.flash.flipped .flash-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:54px 22px 22px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:auto}
+.face.backside{transform:rotateY(180deg)}
+.hdr{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;gap:8px;padding:8px 14px;background:var(--stripe,var(--fiber));color:#fff;font-family:var(--mono);font-size:.74rem;font-weight:700;border-radius:10px 10px 0 0;letter-spacing:.02em}
+.term{font-family:var(--display);font-size:clamp(1.55rem,7vw,2.05rem);font-weight:800;text-align:center;overflow-wrap:anywhere}
+.def{font-size:1.05rem}
+.def b{display:block;font-family:var(--display);font-size:1.15rem;margin-bottom:6px}
+.def em{display:block;margin-top:10px;color:var(--soft);font-style:normal}
+.hint{text-align:center;color:var(--soft);font-size:.9rem;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{border:none;border-radius:12px;padding:14px;font-weight:700;font-size:1rem}
+.btn.again{background:var(--badbg)}
+.btn.know{background:var(--okbg)}
+.btn.main{background:var(--ink);color:var(--bg);width:100%;margin-top:16px}
+.btn.ghost{background:var(--card);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* paketens resa */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:4px;margin-top:14px}
+.seg button{border:none;background:none;border-radius:9px;padding:9px 6px;font-weight:700;font-size:.95rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.route{list-style:none;margin:16px 0 0;padding:0}
+.hop{position:relative;display:grid;grid-template-columns:40px 1fr;gap:12px;padding-bottom:14px}
+.hop::before{content:"";position:absolute;left:19px;top:40px;bottom:-2px;width:3px;background:var(--line)}
+.hop:last-child::before{display:none}
+.hop.past::before{background:var(--paket)}
+.dot{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--line);background:var(--card);display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--soft);position:relative;z-index:1}
+.hop.past .dot{border-color:var(--paket);color:var(--paket)}
+.hop.on .dot{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.hop h3{font-size:1.02rem;padding-top:8px;color:var(--soft);font-weight:600}
+.hop.on h3,.hop.past h3{color:var(--ink)}
+.hop .txt{display:none;margin-top:6px;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:12px 14px}
+.hop.on .txt{display:block}
+.pk{display:flex;gap:4px;margin-top:8px}
+.pk span{width:12px;height:12px;border-radius:2px;background:var(--paket);animation:hop 1.2s ease-in-out infinite}
+.pk span:nth-child(2){animation-delay:.15s}.pk span:nth-child(3){animation-delay:.3s}.pk span:nth-child(4){animation-delay:.45s}
+@keyframes hop{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(-5px);opacity:1}}
+.key{display:block;margin-top:8px;font-size:.92rem;color:var(--soft)}
+.key b{color:var(--ink)}
+.navrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+
+/* ordning */
+.pool,.placed{display:grid;gap:8px;margin-top:12px}
+.step{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:11px 14px;font-size:.98rem}
+.step:hover{border-color:var(--ink)}
+.placed .step{display:flex;gap:10px;background:var(--okbg);border-color:var(--ok);cursor:default}
+.placed .step b{font-family:var(--mono)}
+.shake{animation:shake .35s;border-color:var(--bad)!important;background:var(--badbg)!important}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.sub{color:var(--soft);font-size:.95rem;margin:6px 0 0}
+
+/* bluff eller äkta */
+.phone{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:22px;padding:16px}
+.chan{display:flex;justify-content:space-between;color:var(--soft);font-size:.85rem;font-family:var(--mono)}
+.from{font-weight:700;margin-top:8px;overflow-wrap:anywhere}
+.bubble{margin-top:10px;background:var(--msg);border-radius:4px 16px 16px 16px;padding:12px 14px;overflow-wrap:anywhere}
+.bubble u{color:var(--sam);text-decoration-thickness:1px}
+.verdict{margin-top:14px;border-radius:12px;padding:14px;border:2px solid}
+.verdict.ok{background:var(--okbg);border-color:var(--ok)}
+.verdict.bad{background:var(--badbg);border-color:var(--bad)}
+.verdict h3{font-size:1.15rem}
+.verdict ul{margin:8px 0 0;padding-left:20px}
+.bluffbtn{background:var(--badbg)}
+.akta{background:var(--okbg)}
+
+/* instuderingsfrågor */
+.sq{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:20px;margin-top:12px}
+.sq h3{font-size:1.2rem;font-weight:700}
+.answer{margin-top:14px;padding:12px 14px;border-left:4px solid var(--stripe,var(--fiber));background:var(--bg);border-radius:0 8px 8px 0}
+.answer p{margin:0 0 8px}.answer p:last-child{margin:0}
+.answer ul,.answer ol{margin:4px 0 0;padding-left:20px}
+
+/* quiz */
+.meter{display:flex;gap:3px;margin:8px 0 2px}
+.meter b{flex:1;height:10px;border-radius:2px;background:var(--line)}
+.meter b.ok{background:var(--ok)}.meter b.bad{background:var(--bad)}.meter b.now{background:var(--ink)}
+.q{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:22px;margin-top:12px}
+.qsec{color:var(--soft);font-size:.85rem;margin-bottom:6px}
+.q h3{font-size:1.25rem;font-weight:700}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opt{text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--okbg);border-color:var(--ok)}
+.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.explain{margin-top:14px;padding:12px 14px;border-left:4px solid var(--fiber);background:var(--bg);border-radius:0 8px 8px 0}
+.result{text-align:center;margin-top:28px}
+.result .big{font-family:var(--display);font-size:3.8rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.result p{color:var(--soft)}
+.missed{text-align:left;margin-top:18px}
+.missed li{margin-bottom:10px}
+@media (prefers-reduced-motion:reduce){.flash-inner{transition:none}.pk span{animation:none}.shake{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="home">
+  <div class="hero">
+    <div>
+      <h1>Internet och IT-säkerhet</h1>
+      <p>Teknik åk 8: hur internet fungerar, data och algoritmer, säkerhet och integritet.</p>
+    </div>
+    <svg class="net" viewBox="0 0 104 96" aria-hidden="true">
+      <line x1="16" y1="76" x2="40" y2="44"/><line x1="40" y1="44" x2="72" y2="22"/><line x1="40" y1="44" x2="70" y2="62"/><line x1="72" y1="22" x2="92" y2="50"/><line x1="70" y1="62" x2="92" y2="50"/>
+      <circle class="n" cx="16" cy="76" r="8"/><circle class="n" cx="40" cy="44" r="8"/><circle class="n" cx="72" cy="22" r="8"/><circle class="n" cx="70" cy="62" r="8"/><circle class="n" cx="92" cy="50" r="8"/>
+      <circle class="pk" r="5"><animateMotion dur="3s" repeatCount="indefinite" path="M16 76 L40 44 L72 22 L92 50"/></circle>
+      <circle class="pk" r="5" style="fill:var(--fiber)"><animateMotion dur="3s" begin="1.2s" repeatCount="indefinite" path="M16 76 L40 44 L70 62 L92 50"/></circle>
+    </svg>
+  </div>
+  <div class="modes">
+    <button class="mode" data-go="cards"><span class="tag" style="background:var(--fiber)">ABC</span><span><h2>Begrepp</h2><p>Kort att vända. Säg förklaringen högt och vänd sedan.</p></span></button>
+    <button class="mode" data-go="route"><span class="tag" style="background:var(--paket)">→→</span><span><h2>Paketens resa</h2><p>Följ en bild och en webbsida genom nätet, steg för steg. Sätt sedan stegen i ordning.</p></span></button>
+    <button class="mode" data-go="bluff"><span class="tag" style="background:var(--sak)">?!</span><span><h2>Bluff eller äkta?</h2><p>Granska meddelanden och hitta varningssignalerna.</p></span></button>
+    <button class="mode" data-go="study"><span class="tag" style="background:var(--data)">Q&amp;A</span><span><h2>Instuderingsfrågorna</h2><p>Lärarens frågor. Svara själv först, visa sedan ett exempelsvar.</p></span></button>
+    <button class="mode" data-go="quiz"><span class="tag" style="background:var(--sam)">10</span><span><h2>Quiz</h2><p>10 frågor i taget, med förklaring efter varje svar.</p></span></button>
+    <button class="mode" data-go="exam"><span class="tag" style="background:var(--ink)">25</span><span><h2>Övningsprov</h2><p>25 blandade frågor från alla områden.</p></span></button>
+  </div>
+  <p class="note" id="homeProgress"></p>
+</section>
+
+<section id="cards" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="cardCount"></span></div>
+  <h2>Begrepp</h2>
+  <div class="chips" id="cardChips" role="group" aria-label="Välj område"></div>
+  <div class="flash" id="flash" tabindex="0" role="button" aria-label="Vänd kortet">
+    <div class="flash-inner">
+      <div class="face front"><div class="hdr"><span id="cardSec"></span><span id="cardNo"></span></div><div class="term" id="cardTerm"></div></div>
+      <div class="face backside"><div class="hdr"><span id="cardSec2"></span><span id="cardNo2"></span></div><div class="def" id="cardDef"></div></div>
+    </div>
+  </div>
+  <p class="hint" id="cardHint">Tryck på kortet för att vända det.</p>
+  <div class="row" id="cardBtns">
+    <button class="btn again" id="cardAgain">Öva mer</button>
+    <button class="btn know" id="cardKnow">Jag kan den</button>
+  </div>
+  <div class="result hidden" id="cardsDone">
+    <div class="big">Klart!</div>
+    <p>Du kan alla kort i det här området.</p>
+    <button class="btn main" id="cardsReset">Börja om med de här korten</button>
+  </div>
+</section>
+
+<section id="route" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="routeCount"></span></div>
+  <h2>Paketens resa</h2>
+  <div class="seg" role="group" aria-label="Välj exempel">
+    <button data-sc="bild" aria-pressed="true">Skicka en bild</button>
+    <button data-sc="webb" aria-pressed="false">Öppna en webbsida</button>
+  </div>
+  <div id="routeWalk">
+    <ol class="route" id="routeList"></ol>
+    <div class="navrow">
+      <button class="btn ghost" id="routePrev">‹ Föregående</button>
+      <button class="btn main" id="routeNext" style="margin-top:0">Nästa steg ›</button>
+    </div>
+  </div>
+  <div id="routeOrder" class="hidden">
+    <p class="sub">Tryck på stegen i rätt ordning, från första till sista.</p>
+    <div class="placed" id="placed"></div>
+    <div class="pool" id="poolList"></div>
+    <div class="result hidden" id="orderDone">
+      <div class="big" id="orderScore"></div>
+      <p id="orderVerdict"></p>
+      <button class="btn main" id="orderAgain">Försök igen</button>
+      <button class="btn ghost" id="orderBack" style="width:100%;margin-top:10px">Gå igenom stegen igen</button>
+    </div>
+  </div>
+</section>
+
+<section id="bluff" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="bluffCount"></span></div>
+  <h2>Bluff eller äkta?</h2>
+  <div id="bluffGame">
+    <div class="phone">
+      <div class="chan"><span id="bChan"></span><span id="bTime"></span></div>
+      <div class="from" id="bFrom"></div>
+      <div class="bubble" id="bText"></div>
+    </div>
+    <div class="row" id="bBtns">
+      <button class="btn bluffbtn" data-b="1">Bluff</button>
+      <button class="btn akta" data-b="0">Äkta</button>
+    </div>
+    <div id="bVerdict"></div>
+    <button class="btn main hidden" id="bNext">Nästa meddelande</button>
+  </div>
+  <div class="result hidden" id="bluffDone">
+    <div class="big" id="bScore"></div>
+    <p>Tre varningssignaler att minnas: <strong>bråttom</strong>, <strong>oväntad länk eller fråga om lösenord</strong> och <strong>konstig avsändare eller adress</strong>. Kontrollera alltid via tjänstens officiella app eller webbplats.</p>
+    <button class="btn main" id="bAgain">Kör igen</button>
+  </div>
+</section>
+
+<section id="study" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="studyCount"></span></div>
+  <h2>Instuderingsfrågorna</h2>
+  <div class="chips" id="studyChips" role="group" aria-label="Välj avsnitt"></div>
+  <div class="sq" id="sqBox">
+    <div class="qsec" id="sqSec"></div>
+    <h3 id="sqText"></h3>
+    <button class="btn main" id="sqShow">Visa exempelsvar</button>
+    <div class="answer hidden" id="sqAns"></div>
+    <div class="row hidden" id="sqBtns">
+      <button class="btn again" id="sqAgain">Öva mer</button>
+      <button class="btn know" id="sqKnow">Det kunde jag</button>
+    </div>
+  </div>
+  <div class="result hidden" id="studyDone">
+    <div class="big">Klart!</div>
+    <p>Du har gått igenom alla frågor i det här avsnittet.</p>
+    <button class="btn main" id="studyReset">Börja om med de här frågorna</button>
+  </div>
+</section>
+
+<section id="quiz" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="quizCount"></span></div>
+  <div class="meter" id="meter" aria-hidden="true"></div>
+  <div class="q" id="qBox">
+    <div class="qsec" id="qSec"></div>
+    <h3 id="qText"></h3>
+    <div class="opts" id="qOpts"></div>
+    <div class="explain hidden" id="qExplain"></div>
+    <button class="btn main hidden" id="qNext">Nästa fråga</button>
+  </div>
+  <div class="result hidden" id="qResult">
+    <div class="big" id="qScore"></div>
+    <p id="qVerdict"></p>
+    <div class="missed" id="qMissed"></div>
+    <button class="btn main" id="qAgain">Kör igen</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+const SECTIONS = {
+  sys:["Internet som system","var(--fiber)"],
+  vag:["Paket, IP och DNS","var(--paket)"],
+  iot:["Sakernas internet","var(--iot)"],
+  data:["Data och algoritmer","var(--data)"],
+  sak:["IT-säkerhet","var(--sak)"],
+  int:["Integritet och ansvar","var(--int)"],
+  sam:["Internet i samhället","var(--sam)"]
+};
+
+// [område, begrepp, förklaring, exempel]
+const CARDS = [
+ ["sys","Internet","Ett världsomspännande nätverk där många mindre nätverk är sammankopplade. Information som lagras där blir tillgänglig för alla som är uppkopplade.","Webbsidor, mejl, videosamtal och onlinespel går via internet."],
+ ["sys","Tekniskt system","Flera delar som samarbetar för att lösa en uppgift. Internet består av enheter, routrar, servrar, kablar och protokoll.","Om en viktig del slutar fungera påverkas hela systemet."],
+ ["sys","Enhet","En apparat som skickar och tar emot information över nätet.","Mobil, surfplatta, dator eller smartklocka."],
+ ["sys","Router","Leder information vidare mellan nätverk och bestämmer vilken väg datapaketen ska ta.","Routern hemma kopplar ihop hemnätverket med internet."],
+ ["sys","Server","En dator som lagrar information och tillhandahåller tjänster. Den skickar och tar emot data via nätverket.","Servern som lagrar en webbplats, eller alla filmer i en videotjänst."],
+ ["sys","Fiber (fiberoptik)","Tunna trådar av glas som överför information som ljuspulser. Kan skicka stora mängder data snabbt över långa avstånd.","Kablar i marken och på havsbotten mellan länder och kontinenter."],
+ ["sys","Wifi","Trådlös anslutning med radiovågor mellan din enhet och en trådlös router. Räcker korta sträckor.","Wifi hemma, i skolan eller på ett hotell."],
+ ["sys","Mobilnät","Trådlös anslutning med radiovågor mellan mobilen och mobiloperatörens basstationer. Fungerar även när du förflyttar dig.","4G och 5G. Du betalar för ett mobilabonnemang."],
+ ["sys","Basstation (telemast)","En mast med antenner som skickar och tar emot radiovågor från mobiler. Den är kopplad vidare med kablar.","Marias mobil på savannen skickar paketen till närmaste telemast."],
+ ["sys","Wifi vs mobilnät","Båda använder radiovågor. Wifi går till en trådlös router på en plats. Mobilnät går till basstationer och följer med när du rör dig. Båda ansluter sedan vidare till internet, ofta via fiber.","Hemma: wifi. På bussen: mobilnät."],
+ ["sys","Protokoll","Gemensamma regler som gör att olika enheter kan kommunicera med varandra. Hela internet bygger på protokoll.","IP är ett protokoll för adressering och för att skicka paket vidare."],
+ ["vag","Datapaket","En liten bit data. När en fil skickas delas den upp i många små paket, som var och ett får information om vart det ska.","En bild kan bli tusentals paket."],
+ ["vag","Varför paket?","Små paket kan ta olika vägar och undvika köer. Om ett paket försvinner behöver bara det skickas om. Hos mottagaren sätts paketen ihop igen.","Som att skicka en stor möbel i flera kartonger."],
+ ["vag","IP-adress","En adress som gör att information kan skickas till rätt enhet eller anslutning i ett nätverk.","Ser ut ungefär som 192.168.1.15."],
+ ["vag","DNS","Internets ”telefonbok”. DNS översätter ett domännamn till en IP-adress.","skolverket.se → en IP-adress som datorn kan använda."],
+ ["vag","Domännamn","Namnet i en webbadress som är lätt för människor att komma ihåg.","youtube.com eller borlange.se."],
+ ["vag","Webbläsare","Programmet som hämtar och visar webbsidor. Tar hjälp av DNS för att hitta rätt server.","Chrome, Safari eller Firefox."],
+ ["iot","Sakernas internet","Föremål med sensorer och programvara som är uppkopplade och kan skicka data till varandra.","Kims kylskåp som mejlar när mjölken är slut. Smartklockor och uppkopplade lampor."],
+ ["iot","Sensor","Känner av något i omgivningen, t.ex. ljus, temperatur eller rörelse, och gör om det till en signal.","Ljussensorn i Kims kylskåp."],
+ ["iot","Mikrokontroller","En liten dator som används för att styra ett elektroniskt system.","Läser av ljussensorn och skickar värdet vidare."],
+ ["iot","Lysdiod (LED)","En halvledare som avger ljus när elektrisk ström går igenom den.","Lyser på ljussensorn när mjölken är slut."],
+ ["iot","Bluetooth","Trådlös teknik som kopplar ihop enheter över korta avstånd.","Trådlösa hörlurar. Kims mikrokontroller skickar till datorn."],
+ ["data","Data","Information i digital form.","Text, bilder, sökningar, klick, visningstid och platsuppgifter."],
+ ["data","Information","Kunskap eller budskap i en konkret form. Består ofta av en samling fakta.","En busstidtabell eller en nyhetsartikel."],
+ ["data","Algoritm","En tydlig följd av instruktioner för att utföra en uppgift eller lösa ett problem.","”Om ljusvärdet är högre än 100, skicka ett mejl till Kim.”"],
+ ["data","Algoritm som recept","Ett recept är instruktioner som ska följas i en viss ordning. Det är precis vad en algoritm är.","Sortera låtar efter hur ofta du spelat dem."],
+ ["data","Rekommendationssystem","En tjänst som med hjälp av data och algoritmer väljer vad du får se eller får förslag på.","Nästa film i YouTube, en spellista i Spotify."],
+ ["data","Datainsamling","När tjänster sparar uppgifter om hur du använder dem, t.ex. sökningar, klick, visningstid och plats.","Används för att anpassa innehåll och annonser."],
+ ["data","Ensidigt flöde","När du mest får se sådant som liknar det du redan tittat på eller håller med om.","Risk med rekommendationssystem."],
+ ["data","Kartläggning","När insamlad data används för att bygga en bild av vem du är och vad du gör.","Baksidan av att data kan förbättra tjänster."],
+ ["sak","Starkt lösenord","Långt och unikt för varje konto, så att det är svårt att gissa.","En lösenfras av flera ord. Samma lösenord överallt är riskabelt."],
+ ["sak","Lösenordshanterare","Ett program som skapar och sparar starka lösenord åt dig.","Du behöver bara komma ihåg ett huvudlösenord."],
+ ["sak","Tvåfaktorsautentisering","Ett extra skydd utöver lösenordet, t.ex. en kod eller en bekräftelse i en app.","Även om någon får tag på ditt lösenord kommer de inte in utan din mobil."],
+ ["sak","Nätfiske (phishing)","Falska mejl, meddelanden eller sidor som försöker lura dig att lämna lösenord eller andra uppgifter.","”Ditt konto stängs! Logga in här.”"],
+ ["sak","Bluffmeddelande","Ett falskt meddelande via mejl, sms, chatt eller sociala medier. Tre varningssignaler: det är bråttom, en oväntad länk eller fråga om lösenord, och en konstig avsändare eller adress.","Kontrollera via tjänstens officiella app i stället för att klicka på länken."],
+ ["sak","Kryptering","Gör information oläsbar för den som saknar rätt nyckel.","Säker kommunikation, t.ex. när du loggar in eller betalar."],
+ ["sak","Appbehörigheter","Tillstånd som en app begär, t.ex. tillgång till kamera, kontakter eller plats.","Behöver ett ficklampsprogram verkligen dina kontakter?"],
+ ["int","Personlig information","Uppgifter som kan kopplas till en person.","Namn, bilder, plats, telefonnummer och mejladress."],
+ ["int","Integritet","Rätten att ha kontroll över uppgifter och bilder som rör dig.","Du bestämmer vad andra får veta om dig."],
+ ["int","Samtycke","Att någon frivilligt och tydligt går med på något, och vet vad hen säger ja till.","Fråga innan du lägger upp en bild på en kompis."],
+ ["int","Dela bilder","Att få en bild skickad till sig betyder inte att man får sprida den vidare. En bild kan sparas, spridas och få konsekvenser, och viss bilddelning är brottslig.","Polisens material ”Är det delbart?”."],
+ ["int","Grooming","När en vuxen bygger kontakt med ett barn i syfte att begå sexuella övergrepp.","Berätta för en vuxen du litar på om något känns fel."],
+ ["sam","Informationssamhället","Ett samhälle där mycket handlar om att snabbt hantera och förmedla information.","Mobilen är kamera, karta, tidning och uppslagsverk i ett."],
+ ["sam","Samhällsviktig verksamhet","Verksamhet som samhället inte klarar sig utan. Många av dem är beroende av internet.","Sjukvård, betalningar, kollektivtrafik och kommunikation."],
+ ["sam","Driftavbrott","När ett system eller nätverk slutar fungera en tid.","Kortbetalningar fungerar inte i affären."],
+ ["sam","Cyberattack","Ett angrepp mot datorer eller nätverk för att störa, stjäla eller förstöra.","Vårdpersonal kommer inte åt journaler."],
+ ["sam","Skydd vid störningar","Säkerhetskopior, reservrutiner och skydd mot obehörig åtkomst.","Ha kontanter hemma om kortbetalningar slutar fungera."],
+ ["sam","Källkritik","Att granska om information är pålitlig. Allt på nätet är inte sant och en del är medvetna osanningar.","Ju mer du kan om ett ämne, desto lättare avslöjar du falska uppgifter."]
+];
+
+// Paketens resa
+const ROUTES = {
+ bild:[
+  ["1","Bilden delas upp i paket","Mobilen delar upp bilden i små <b>datapaket</b>. Varje paket får information om vart det ska, bland annat en <b>IP-adress</b>.","Datapaket, IP-adress"],
+  ["2","Trådlöst ut från mobilen","Paketen skickas med radiovågor, antingen via <b>wifi</b> till en trådlös router eller via <b>mobilnätet</b> till en basstation (telemast).","Wifi, mobilnät"],
+  ["3","Vidare i kablar","Från routern eller basstationen går paketen vidare i kablar, ofta <b>fiber</b>, där data skickas som ljuspulser.","Fiber"],
+  ["4","Routrar väljer väg","<b>Routrar</b> läser adressen i varje paket och skickar det vidare den snabbaste vägen. Paketen kan ta olika vägar genom nätet.","Router"],
+  ["5","Fram till tjänstens server","Paketen når <b>servern</b> hos tjänsten du använder, t.ex. en chattapp. Där sätts de ihop och bilden lagras.","Server"],
+  ["6","Ut till kompisen","Servern delar upp bilden i paket igen, nu med kompisens adress. Routrar och kablar för dem vidare.","Datapaket, router"],
+  ["7","Sista biten trådlöst","Paketen når kompisens mobil via wifi eller mobilnät.","Wifi, mobilnät"],
+  ["8","Paketen sätts ihop","Kompisens mobil sätter ihop paketen i rätt ordning och bilden visas. Det fungerar för att alla delar följer samma <b>protokoll</b>.","Protokoll"]
+ ],
+ webb:[
+  ["1","Du skriver en webbadress","Du skriver t.ex. <b>skolverket.se</b> i webbläsaren. Det är ett <b>domännamn</b>, lätt för människor att komma ihåg.","Domännamn"],
+  ["2","DNS slår upp adressen","Webbläsaren frågar <b>DNS</b>, internets telefonbok, som översätter domännamnet till serverns <b>IP-adress</b>.","DNS, IP-adress"],
+  ["3","Förfrågan skickas","Din förfrågan skickas i datapaket via wifi eller mobilnät, routrar och kablar till servern.","Datapaket, router"],
+  ["4","Servern svarar","<b>Servern</b> tar emot förfrågan och skickar tillbaka webbsidan, uppdelad i paket med <b>din</b> IP-adress.","Server"],
+  ["5","Sidan visas","Din enhet sätter ihop paketen och webbläsaren visar sidan.","Protokoll"]
+ ]
+};
+
+// [kanal, avsändare, text (html), bluff?, rubrik, [signaler]]
+const MSGS = [
+ ["SMS","PostNord · +46 76 943 21 07","Ditt paket kan inte levereras. Betala tullavgift 19 kr inom 24 timmar, annars returneras det: <u>postnord-leverans.info/betala</u>",true,"Bluff",["Bråttom: ”inom 24 timmar”.","Oväntad länk där du ska betala.","Konstig adress som inte är företagets riktiga webbplats, och sms:et kommer från ett vanligt mobilnummer."]],
+ ["Mejl","Instagram &lt;security@lnstagram-help.com&gt;","Vi har upptäckt misstänkt aktivitet. Ditt konto stängs om 2 timmar om du inte bekräftar ditt lösenord: <u>Logga in här</u>",true,"Bluff (nätfiske)",["Hotar med att stänga kontot snart.","Ber dig logga in via en länk.","Avsändaren stavas ”lnstagram” med litet L i stället för I."]],
+ ["SMS","Google","G-482913 är din verifieringskod. Dela inte koden med någon.",false,"Äkta",["Du begärde själv koden genom att logga in nyss.","Den ber dig inte klicka på någon länk eller lämna något lösenord.","Det här är tvåfaktorsautentisering. Koden ska aldrig lämnas till någon annan, inte ens någon som säger att de jobbar på Google."]],
+ ["Chatt i spel","xX_FreeSkinz_Xx","GRATTIS!! Du har vunnit 10 000 V-bucks 🎉 Skriv ditt användarnamn och lösenord på <u>free-vbucks-now.net</u> så skickar vi dem direkt!",true,"Bluff",["För bra för att vara sant.","Ber om lösenord.","Okänd avsändare och konstig adress."]],
+ ["SMS","Okänt nummer · +46 73 118 40 52","Hej mamma, jag har tappat min mobil, det här är mitt nya nummer. Kan du swisha 2 400 kr? Det är bråttom, förklarar sen ❤️",true,"Bluff",["Okänt nummer som påstår sig vara någon du känner.","Bråttom och kräver pengar.","Ring personen på det gamla numret och kontrollera innan du gör något."]],
+ ["Notis i Spotify-appen","Spotify","En ny enhet loggade in på ditt konto. Var det inte du? Gå till Konto i appen och byt lösenord.",false,"Troligen äkta",["Kommer i tjänstens officiella app, inte via en länk.","Ber dig inte lämna lösenord till någon.","Är du osäker gör du rätt som det står: öppnar appen själv och kollar."]],
+ ["Popup på en webbsida","Windows Säkerhet ⚠️","VARNING! Din dator är infekterad med 5 virus. Ring Microsoft Support omedelbart på 020-XX XX XX och lås inte upp skärmen.",true,"Bluff",["Skrämmer och kräver att du agerar omedelbart.","Riktiga företag ringer inte upp dig via en popup på en webbsida.","Stäng sidan. Ring aldrig numret."]],
+ ["Mejl","Skolans lärplattform &lt;noreply@skolplattformen&gt;","Ny händelse i kursen Teknik åk 8: provet i Internet och IT-säkerhet. Logga in i appen som vanligt för att se mer.",false,"Troligen äkta",["Ingen länk, inget krav på lösenord och ingen brådska.","Säger åt dig att logga in i appen som vanligt, alltså den officiella vägen.","Förväntat: du vet att du har prov."]]
+];
+
+// Instuderingsfrågor: [område, fråga, svar (html)]
+const STUDY = [
+ ["sys","Vad är internet? Beskriv med egna ord.","<p>Internet är ett världsomspännande nätverk där massor av mindre nätverk och datorer är sammankopplade. Informationen som finns där blir tillgänglig för alla som är uppkopplade.</p>"],
+ ["sys","Vilka olika delar (komponenter) ingår i internet som tekniskt system?","<ul><li><b>Enheter</b> som skickar och tar emot (mobil, dator).</li><li><b>Routrar</b> som leder paketen rätt väg.</li><li><b>Servrar</b> som lagrar information och tjänster.</li><li><b>Kablar</b>, ofta fiber, och trådlösa nät (wifi, mobilnät).</li><li><b>Protokoll</b>, alltså de gemensamma reglerna.</li></ul>"],
+ ["sys","Förklara vad en server är.","<p>En dator som lagrar information eller tjänster, t.ex. en webbplats eller alla filmer i en videotjänst. Den skickar och tar emot data via nätverket när någon vill använda den.</p>"],
+ ["sys","Vad gör en router i ett nätverk?","<p>Routern leder information vidare mellan nätverk. Den läser adressen i varje datapaket och bestämmer vilken väg paketet ska ta, helst den snabbaste. Hemma kopplar routern ihop hemnätverket med internet.</p>"],
+ ["sys","Vad är en IP-adress och varför behöver varje uppkopplad apparat en?","<p>En IP-adress är en adress i nätverket, ungefär som en gatuadress. Varje uppkopplad enhet behöver en så att datapaketen vet vart de ska och så att svaret hittar tillbaka till rätt enhet.</p>"],
+ ["sys","Förklara skillnaden mellan wifi och mobilnät.","<p>Båda använder radiovågor. <b>Wifi</b> går mellan enheten och en trådlös router på en plats, t.ex. hemma eller i skolan, och räcker en kort sträcka. <b>Mobilnät</b> går mellan mobilen och mobiloperatörens basstationer och fungerar när du rör dig mellan olika platser. Båda kopplas sedan vidare till internet, ofta via fiber.</p>"],
+ ["sys","Vad är fiberoptik och varför används det för att skicka stora mängder data?","<p>Fiberoptik är tunna glastrådar där information skickas som ljuspulser. Ljuset går mycket snabbt och kan bära väldigt mycket data, så det passar för långa avstånd, t.ex. kablar mellan städer och under havet.</p>"],
+ ["sys","Beskriv hur de olika delarna samverkar för att internet ska fungera som helhet.","<p>Din enhet ansluter via wifi eller mobilnät. Data delas upp i paket med IP-adresser. Paketen går vidare i kablar, ofta fiber, och routrar skickar dem rätt väg mot servern. Servern svarar på samma sätt tillbaka. Allt fungerar för att alla delar följer samma protokoll. Om en del saknas fungerar inte helheten.</p>"],
+ ["vag","Vad är ett datapaket, och varför delas information upp i flera paket när den skickas över internet?","<p>Ett datapaket är en liten bit av en större fil, med information om vart det ska. Små paket kan ta olika vägar, undvika köer och dela på nätet med andra. Försvinner ett paket behöver bara det skickas om. Hos mottagaren sätts paketen ihop igen.</p>"],
+ ["vag","Förklara vad ett protokoll är. Ge ett exempel på ett protokoll.","<p>Ett protokoll är gemensamma regler för hur enheter ska kommunicera, så att utrustning från olika företag och länder förstår varandra. Exempel: <b>IP</b> (Internet Protocol), som används för adressering och för att skicka paket vidare.</p>"],
+ ["vag","Beskriv steg för steg vad som händer när du skickar ett meddelande från din mobil till en kompis.","<ol><li>Meddelandet blir data som delas upp i datapaket med adressinformation.</li><li>Paketen skickas trådlöst via wifi eller mobilnät.</li><li>De går vidare i kablar och via routrar, som väljer väg.</li><li>De når tjänstens server.</li><li>Servern skickar vidare mot kompisens mobil, via routrar och wifi eller mobilnät.</li><li>Kompisens mobil sätter ihop paketen och meddelandet visas.</li></ol><p>IP-adresser hjälper paketen att hitta rätt, och protokoll gör att alla delar förstår varandra.</p>"],
+ ["data","Vad är data? Ge egna exempel på olika typer av data.","<p>Data är information i digital form. Exempel: text i ett meddelande, bilder, filmer, sökningar, vilka videor du gillar, hur länge du tittar och var du befinner dig.</p>"],
+ ["data","Vilken typ av data kan samlas in om dig när du använder internet?","<p>Sökningar, klick, gillningar, visningstid, vilka du följer, din plats, vilken enhet du använder, tid på dygnet och vad du köper.</p>"],
+ ["data","Ge exempel på hur ett företag kan använda den data de samlar in om sina användare.","<ul><li>Rekommendera filmer eller musik du troligen gillar.</li><li>Visa annonser som passar just dig.</li><li>Förbättra appen, t.ex. se vilka funktioner som används mest.</li><li>Sälja eller dela uppgifter vidare (en risk).</li></ul>"],
+ ["data","Vad är en algoritm? Förklara med egna ord och ge ett eget exempel.","<p>En algoritm är en tydlig lista med instruktioner som följs i ordning för att lösa en uppgift. Exempel: ”Om det regnar, ta paraply. Annars, ta keps.” Eller: ”Sortera låtarna efter hur många gånger de spelats.”</p>"],
+ ["data","Varför kan man jämföra en algoritm med ett recept?","<p>Ett recept består av steg som ska göras i en bestämd ordning för att få ett visst resultat. En algoritm är också instruktioner i en viss ordning som ger ett resultat.</p>"],
+ ["data","Vad är ett rekommendationssystem?","<p>En tjänst som använder data om dig och algoritmer för att välja vad du får se eller får förslag på.</p>"],
+ ["data","Ge exempel på appar eller tjänster där du stöter på rekommendationssystem.","<p>YouTube (nästa video), Spotify (spellistor), TikTok och Instagram (flödet), Netflix (filmförslag) och nätbutiker (”andra köpte också”).</p>"],
+ ["data","Hur ”vet” en app vad den ska rekommendera just dig? Använd begreppen data och algoritm.","<p>Appen samlar in <b>data</b> om vad du gör, t.ex. vilka filmer du tittar länge på. En <b>algoritm</b> jämför det med andra filmer och användare och väljer liknande innehåll. Tittar du mycket på träningsfilmer får du fler träningsfilmer.</p>"],
+ ["int","Ge ett exempel på en fördel med att data samlas in om oss på internet.","<p>Du får förslag på saker du gillar, t.ex. ny musik. Tjänster kan bli bättre och enklare. Kartappar kan visa var det är bilköer.</p>"],
+ ["int","Ge ett exempel på en risk med att data samlas in om oss på internet.","<p>Företag kan kartlägga dig och veta mer än du vill. Uppgifter kan läcka eller säljas. Du kan få ett ensidigt flöde där du bara ser sådant du redan gillar eller håller med om.</p>"],
+ ["int","Vad är personlig information? Ge egna exempel.","<p>Uppgifter som kan kopplas till en person: namn, bilder, adress, telefonnummer, mejladress, var man befinner sig och vilken skola man går på.</p>"],
+ ["int","Vad betyder integritet i det här sammanhanget?","<p>Rätten att själv ha kontroll över uppgifter och bilder som handlar om dig, alltså vad andra får veta, spara och sprida.</p>"],
+ ["int","Vad är samtycke, och varför är det viktigt att förstå vad man samtycker till?","<p>Samtycke betyder att man frivilligt och tydligt säger ja, och vet vad man säger ja till. Det är viktigt eftersom man annars kan godkänna att en app samlar in mycket mer data än man tror, eller att bilder sprids. Att få en bild skickad betyder inte att man får sprida den.</p>"],
+ ["sak","Vad är phishing? Beskriv hur ett phishingförsök kan se ut.","<p>Phishing (nätfiske) är falska mejl, meddelanden eller sidor som försöker lura dig att lämna lösenord eller andra uppgifter. Exempel: ett mejl som ser ut att komma från Instagram och säger att kontot stängs om du inte loggar in via en länk. Länken leder till en falsk sida.</p>"],
+ ["sak","Vad är ett bluffmeddelande, och på vilka sätt kan det komma till dig?","<p>Ett falskt meddelande som försöker lura dig att klicka, betala eller lämna uppgifter. Det kan komma via mejl, sms, chatt (t.ex. i spel) och sociala medier.</p>"],
+ ["sak","Ge tre tips på hur man känner igen ett bluffmeddelande eller ett phishingförsök.","<ol><li>Det kräver att du agerar <b>omedelbart</b>.</li><li>Det ber dig klicka på en <b>oväntad länk</b> eller lämna <b>lösenord</b>.</li><li><b>Avsändaren eller adressen ser konstig ut.</b></li></ol><p>Kontrollera via tjänstens officiella app eller webbplats i stället för att följa länken.</p>"],
+ ["sak","Vad är tvåfaktorsautentisering, och varför gör den det svårare för obehöriga?","<p>Ett extra steg utöver lösenordet, t.ex. en kod i sms eller en bekräftelse i en app. Även om någon kommer över ditt lösenord kommer de inte in, eftersom de också behöver något bara du har, t.ex. din mobil.</p>"],
+ ["sak","Vad är kryptering, och varför används den för att skydda data?","<p>Kryptering gör informationen oläsbar för alla som saknar rätt nyckel. Om någon snappar upp datan på vägen kan de ändå inte läsa den. Används t.ex. när du loggar in, betalar eller chattar.</p>"],
+ ["sak","Ge tre egna tips på hur man kan skydda sina lösenord och konton.","<ul><li>Använd långa, unika lösenord, gärna en lösenordshanterare.</li><li>Slå på tvåfaktorsautentisering.</li><li>Dela aldrig inloggningsuppgifter eller koder, och logga inte in via länkar i meddelanden.</li></ul>"],
+ ["sam","Dilemma: En app vill ha tillgång till din plats och dina kontakter. Vilka fördelar och risker finns? Vad vill du veta innan du säger ja?","<p><b>Fördelar:</b> appen kan visa saker nära dig och hitta kompisar som också använder den.</p><p><b>Risker:</b> appen kan kartlägga var du är, och dina kontakters uppgifter delas utan att de själva har gett samtycke.</p><p><b>Innan jag säger ja:</b> Behöver appen verkligen det här för att fungera? Vem får uppgifterna och vad används de till? Kan jag säga ja bara medan appen används?</p><p>Motivera ditt eget svar, t.ex. ”Jag säger ja till plats bara när appen används, men nej till kontakter.”</p>"],
+ ["sam","Hur är samhället beroende av internet, och vad kan hända vid störningar?","<p>Sjukvård, betalningar, kollektivtrafik och kommunikation använder internet. Vid ett driftavbrott eller en cyberattack kan kortbetalningar sluta fungera eller vårdpersonal få svårt att nå viktig information. Därför behövs säkerhetskopior, reservrutiner och skydd mot obehörig åtkomst.</p>"]
+];
+
+// [område, fråga, [alternativ], rätt index, förklaring]
+const QUIZ = [
+ ["sys","Vad är internet?",["Ett enda stort datorprogram","Ett världsomspännande nätverk av sammankopplade nätverk","En webbläsare","Ett företag som säljer wifi"],1,"Internet består av många mindre nätverk som är kopplade till varandra över hela världen."],
+ ["sys","Vad gör en router?",["Lagrar alla filmer","Leder datapaket vidare och väljer väg","Gör om ljud till bild","Laddar mobilen"],1,"Routern läser adressen i paketen och skickar dem åt rätt håll."],
+ ["sys","Vad är en server?",["En dator som lagrar information och tillhandahåller tjänster","En kabel under havet","Ett lösenord","En sorts router för mobiler"],0,"Servern lagrar t.ex. webbplatser och skickar data när någon ber om den."],
+ ["sys","Hur skickas information i en fiberkabel?",["Som ljud","Som ljuspulser","Som vatten","Som radiovågor"],1,"Fiber är tunna glastrådar där data skickas som ljus."],
+ ["sys","Varför används fiber för långa avstånd?",["Det är billigast att gräva ner","Det kan skicka stora mängder data snabbt","Det behöver ingen el alls","Det fungerar utan protokoll"],1,"Fiber klarar mycket data i hög fart över långa sträckor."],
+ ["sys","Vad har wifi och mobilnät gemensamt?",["Båda använder radiovågor","Båda använder fiber hela vägen till mobilen","Båda kräver sladd","Båda fungerar bara utomhus"],0,"Båda är trådlösa och använder radiovågor."],
+ ["sys","Vad är typiskt för mobilnätet jämfört med wifi?",["Det fungerar bara hemma","Det fungerar även när du rör dig mellan platser","Det kräver en router i varje rum","Det använder ljus"],1,"Mobilen kopplar upp mot operatörens basstationer, som finns överallt."],
+ ["sys","Vad är en basstation?",["En mast som skickar och tar emot radiovågor från mobiler","En server hos YouTube","En sorts lösenord","En webbläsare"],0,"Kallas också telemast."],
+ ["sys","Vilken del hör INTE till internet som tekniskt system?",["Routrar","Servrar","Protokoll","Kylskåpets kompressor"],3,"Internet = enheter, routrar, servrar, kablar och protokoll."],
+ ["sys","Vad är ett protokoll?",["En lag från riksdagen","Gemensamma regler för hur enheter kommunicerar","En typ av kabel","Ett virus"],1,"Tack vare protokollen kan utrustning från olika företag och länder samarbeta."],
+ ["sys","Vilket är ett exempel på ett protokoll?",["IP","USB-sticka","Fiber","Router"],0,"IP (Internet Protocol) sköter adressering och vidarebefordran av paket."],
+ ["vag","Vad händer med en bild när den skickas över internet?",["Den skickas i ett enda stort stycke","Den delas upp i små datapaket","Den skrivs ut","Den krypteras bort"],1,"Bilden delas i paket som sätts ihop hos mottagaren."],
+ ["vag","Tar alla paket från samma bild samma väg?",["Ja, alltid","Nej, de kan ta olika vägar","Bara på natten","Bara via wifi"],1,"Routrarna väljer snabbaste vägen för varje paket. Är det kö på en väg tas en annan."],
+ ["vag","Vad händer med paketen hos mottagaren?",["De raderas","De sätts ihop igen","De skickas tillbaka","De blir till ljus"],1,"Mottagarens enhet sätter ihop paketen i rätt ordning."],
+ ["vag","Vad är en IP-adress?",["Ett lösenord","En adress som gör att data hittar rätt enhet","Namnet på en webbsida","En app"],1,"Ungefär som en gatuadress för enheter i nätverket."],
+ ["vag","Vad gör DNS?",["Krypterar lösenord","Översätter domännamn till IP-adresser","Laddar ner appar","Stoppar virus"],1,"DNS är internets ”telefonbok”."],
+ ["vag","Vad är ”youtube.com” ett exempel på?",["IP-adress","Domännamn","Protokoll","Router"],1,"Ett domännamn är lätt för människor att komma ihåg. DNS gör om det till en IP-adress."],
+ ["vag","Vad händer först när du skriver en webbadress?",["Servern skickar sidan direkt","Webbläsaren tar hjälp av DNS för att hitta serverns IP-adress","Routern startar om","Sidan krypteras"],1,"Först DNS-uppslag, sedan skickas förfrågan till servern som svarar."],
+ ["vag","Varför delas data upp i paket?",["För att det blir roligare","Paket kan ta olika vägar och bara ett tappat paket behöver skickas om","För att filer blir mindre","För att slippa använda routrar"],1,"Det gör nätet snabbare och tåligare."],
+ ["vag","Maria laddar upp en film från savannen utan wifi. Hur når den internet?",["Via mobilnätet till närmaste telemast","Via Bluetooth till Lina","Den går inte att ladda upp","Via en lysdiod"],0,"Hon har ett mobilabonnemang. Telemasten är kopplad vidare med kablar."],
+ ["iot","Vad är sakernas internet?",["Alla appar i en mobil","Föremål med sensorer som är uppkopplade och kan skicka data","En sorts sökmotor","Internet för företag"],1,"T.ex. Kims kylskåp, smartklockor och uppkopplade lampor."],
+ ["iot","Vad är en mikrokontroller?",["En liten dator som styr ett elektroniskt system","En sorts kabel","En server","Ett lösenord"],0,"I Kims kylskåp läser den av ljussensorn."],
+ ["iot","Vad är en lysdiod?",["En halvledare som lyser när ström går igenom den","En sensor som känner av värme","En router","En fiberkabel"],0,"LED = Light Emitting Diode."],
+ ["iot","Vad används Bluetooth till?",["Ansluta enheter över korta avstånd","Skicka data mellan kontinenter","Översätta domännamn","Kryptera mejl"],0,"T.ex. trådlösa hörlurar."],
+ ["iot","Hur vet Kims kylskåp att mjölken är slut?",["Mjölken skickar ett sms","Ljuset från lysdioden når ljussensorn när förpackningen är borta","Kim tittar själv","Kylskåpet väger mjölken"],1,"Ljussensorn ger ett högre värde och datorn skickar ett mejl."],
+ ["data","Vad är data?",["Information i digital form","En sorts dator","Bara siffror","Ett lösenord"],0,"Text, bilder, sökningar och platsuppgifter är exempel på data."],
+ ["data","Vad är en algoritm?",["En tydlig följd av instruktioner för att lösa en uppgift","Ett datorvirus","En sorts kabel","En webbsida"],0,"Som ett recept: steg i en viss ordning."],
+ ["data","Varför jämförs en algoritm med ett recept?",["Båda handlar om mat","Båda är instruktioner som följs i en viss ordning","Båda kräver internet","Båda är hemliga"],1,"Följer man stegen i rätt ordning får man resultatet."],
+ ["data","Vad är ett rekommendationssystem?",["En tjänst som med data och algoritmer föreslår innehåll åt dig","En lista med lösenord","Ett protokoll","En router"],0,"T.ex. YouTube, Spotify och TikTok."],
+ ["data","Du tittar på många träningsfilmer. Vad händer troligen?",["Du får fler träningsfilmer föreslagna","Appen slutar visa filmer","Du blir utloggad","Inget"],0,"Algoritmen använder din data och föreslår liknande innehåll."],
+ ["data","Vad är en risk med rekommendationssystem?",["De gör mobilen tyngre","Du kan få ett ensidigt flöde","De fungerar bara på natten","De kräver fiber"],1,"Du ser mest det du redan gillar eller håller med om."],
+ ["data","Vilken data kan ett företag samla in om dig?",["Sökningar och klick","Visningstid","Plats","Alla alternativen"],3,"Företag kan använda allt detta för att anpassa innehåll och annonser."],
+ ["data","Vad är en fördel med att data samlas in?",["Tjänster kan bli bättre och mer anpassade","Du kan aldrig bli lurad","Mobilen laddas snabbare","Internet blir gratis"],0,"Men insamlad data kan också användas för att kartlägga användare."],
+ ["sak","Vad kännetecknar ett starkt lösenord?",["Kort och lätt att komma ihåg","Långt och unikt för varje konto","Ditt namn och födelseår","Samma på alla konton"],1,"En lösenordshanterare kan skapa och spara starka lösenord."],
+ ["sak","Vad är tvåfaktorsautentisering?",["Två lösenord på samma konto","Ett extra skydd utöver lösenordet, t.ex. en kod i en app","Att två personer delar konto","Att byta lösenord två gånger"],1,"Även med ditt lösenord kommer en obehörig inte in utan den andra faktorn."],
+ ["sak","Vad är nätfiske (phishing)?",["Att söka efter fiskvideor","Falska meddelanden som försöker lura dig att lämna lösenord eller uppgifter","Ett sätt att kryptera","En sorts router"],1,"Ofta ett mejl eller sms med en länk till en falsk sida."],
+ ["sak","Vilken är en varningssignal för ett bluffmeddelande?",["Det kräver att du agerar omedelbart","Det kommer i den officiella appen","Det har ingen länk","Du väntade på det"],0,"De tre signalerna: bråttom, oväntad länk eller lösenord, konstig avsändare."],
+ ["sak","Du får ett sms om att ditt konto stängs om du inte loggar in via en länk. Vad gör du?",["Klickar snabbt","Svarar med ditt lösenord","Öppnar tjänstens officiella app själv och kollar","Skickar vidare till kompisar"],2,"Följ aldrig länken. Gå den officiella vägen."],
+ ["sak","Vad gör kryptering?",["Gör informationen oläsbar för den som saknar rätt nyckel","Gör filer större","Tar bort virus","Delar upp data i paket"],0,"Används vid säker kommunikation, t.ex. inloggning och betalning."],
+ ["sak","Vad är appbehörigheter?",["Tillstånd som en app begär, t.ex. till kamera eller plats","Appens pris","Appens betyg","Hur stor appen är"],0,"Fundera på om appen verkligen behöver dem."],
+ ["sak","Vilket tips skyddar ditt konto bäst?",["Dela lösenordet med bästa kompisen","Använd samma lösenord överallt","Slå på tvåfaktorsautentisering","Skriv lösenordet i bion"],2,"Kombinera med långa, unika lösenord."],
+ ["sak","På vilka sätt kan ett bluffmeddelande komma?",["Mejl","Sms","Chatt och sociala medier","Alla alternativen"],3,"Bluffar kan komma via alla kanaler."],
+ ["int","Vad är personlig information?",["Uppgifter som kan kopplas till en person","Bara ditt personnummer","Information om datorer","Hemliga dokument från staten"],0,"Namn, bilder, plats och kontaktuppgifter är exempel."],
+ ["int","Vad betyder integritet i det här sammanhanget?",["Att vara ärlig","Rätten att ha kontroll över uppgifter och bilder som rör dig","Att ha snabbt internet","Att ha många följare"],1,"Du ska kunna bestämma över information om dig själv."],
+ ["int","Vad är samtycke?",["Att någon frivilligt och tydligt går med på något","Att man inte säger nej","Att en vuxen bestämmer","Att alla i klassen tycker lika"],0,"Man ska också veta vad man säger ja till."],
+ ["int","Du får en bild på en klasskompis skickad till dig. Får du sprida den vidare?",["Ja, den skickades ju till mig","Nej, inte utan personens samtycke","Ja, om den är rolig","Ja, om den har filter"],1,"Att få en bild betyder inte att man får sprida den. Viss bilddelning är brottslig."],
+ ["int","Vad är grooming?",["När en vuxen bygger kontakt med ett barn i syfte att begå sexuella övergrepp","Att städa sitt flöde","Ett säkerhetsprotokoll","Att sortera bilder"],0,"Berätta för en vuxen du litar på om något känns fel."],
+ ["sam","Vilken samhällsviktig verksamhet är beroende av internet?",["Sjukvård","Betalningar","Kollektivtrafik","Alla alternativen"],3,"Därför blir det allvarligt när nätet störs."],
+ ["sam","Vad kan hända vid en cyberattack mot vården?",["Personalen kan få svårt att nå viktig information","Sjukhuset får snabbare internet","Inget alls","Patienterna får gratis wifi"],0,"Därför behövs reservrutiner och skydd."],
+ ["sam","Vad hjälper samhället att klara störningar i nätet?",["Säkerhetskopior och reservrutiner","Att stänga av alla routrar","Fler appar","Kortare lösenord"],0,"Också skydd mot obehörig åtkomst."],
+ ["sam","Vad är källkritik?",["Att granska om information är pålitlig","Att kritisera alla som skriver på nätet","Att bara läsa böcker","Att stänga av internet"],0,"All information på nätet är inte sann."],
+ ["sam","Två personer får helt olika bild av verkligheten. Vad kan vara en orsak?",["De litar på olika källor och informationskanaler","De har olika mobiler","Den ena har wifi och den andra mobilnät","De har olika IP-adresser"],0,"Vi väljer ofta information som stämmer med det vi redan tycker."],
+ ["sam","Vad är en fördel med informationssamhället enligt filmen?",["Det går snabbt att hitta information och diskutera med andra","All information är sann","Man behöver aldrig tänka själv","Det finns inga åsikter"],0,"Diskussion och debatt är grundläggande för demokratin."]
+];
+
+// ---------- hjälpfunktioner ----------
+const $ = id => document.getElementById(id);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function load(k){ try{ return new Set(JSON.parse(localStorage.getItem(k)||"[]")); }catch(e){ return new Set(); } }
+function save(k,s){ try{ localStorage.setItem(k, JSON.stringify([...s])); }catch(e){} }
+const KEY="teknik-internet-known", SKEY="teknik-internet-study";
+let known=load(KEY), studied=load(SKEY);
+function homeProgress(){ $("homeProgress").textContent = `Du kan ${known.size} av ${CARDS.length} begrepp och ${studied.size} av ${STUDY.length} instuderingsfrågor.`; }
+
+const VIEWS=["home","cards","route","bluff","study","quiz"];
+function show(id){ VIEWS.forEach(s=>$(s).classList.toggle("hidden", s!==id)); window.scrollTo(0,0); }
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>{
+  const g=b.dataset.go;
+  if(g==="home"){ homeProgress(); show("home"); }
+  if(g==="cards"){ startCards(); show("cards"); }
+  if(g==="route"){ startRoute(); show("route"); }
+  if(g==="bluff"){ startBluff(); show("bluff"); }
+  if(g==="study"){ startStudy(); show("study"); }
+  if(g==="quiz"){ startQuiz(10); show("quiz"); }
+  if(g==="exam"){ startQuiz(25); show("quiz"); }
+}));
+function makeChips(el, onPick){
+  el.innerHTML = `<button class="chip" data-sec="alla" aria-pressed="true">Alla</button>` +
+    Object.entries(SECTIONS).map(([k,[n,c]])=>`<button class="chip" data-sec="${k}" aria-pressed="false"><i style="background:${c}"></i>${n}</button>`).join("");
+  el.addEventListener("click",e=>{
+    const b=e.target.closest(".chip"); if(!b) return;
+    el.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", String(c===b)));
+    onPick(b.dataset.sec);
+  });
+}
+
+// ---------- begreppskort ----------
+let section="alla", deck=[], cur=null;
+makeChips($("cardChips"), s=>{ section=s; startCards(); });
+const keyOf = c => c[0]+"|"+c[1];
+const pool = () => CARDS.filter(c=>section==="alla"||c[0]===section);
+function startCards(){ deck = shuffle(pool().filter(c=>!known.has(keyOf(c)))); nextCard(); }
+function nextCard(){
+  $("flash").classList.remove("flipped");
+  const p=pool(), done=p.filter(c=>known.has(keyOf(c))).length;
+  $("cardCount").textContent = `${done} av ${p.length} kan du`;
+  const empty = deck.length===0;
+  ["flash","cardHint","cardBtns"].forEach(id=>$(id).classList.toggle("hidden",empty));
+  $("cardsDone").classList.toggle("hidden",!empty);
+  if(empty) return;
+  cur = deck.shift();
+  const [n,c] = SECTIONS[cur[0]];
+  const no = "PAKET "+String(CARDS.indexOf(cur)+1).padStart(2,"0")+"/"+CARDS.length;
+  $("flash").style.setProperty("--stripe", c);
+  $("cardSec").textContent = n.toUpperCase(); $("cardSec2").textContent = n.toUpperCase();
+  $("cardNo").textContent = no; $("cardNo2").textContent = no;
+  $("cardTerm").textContent = cur[1];
+  $("cardDef").innerHTML = `<b>${esc(cur[1])}</b>` + esc(cur[2]) + (cur[3] ? `<em>Exempel: ${esc(cur[3])}</em>` : "");
+}
+const flip=()=>$("flash").classList.toggle("flipped");
+$("flash").addEventListener("click",flip);
+$("flash").addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); flip(); } });
+$("cardKnow").addEventListener("click",()=>{ known.add(keyOf(cur)); save(KEY,known); nextCard(); });
+$("cardAgain").addEventListener("click",()=>{ deck.splice(Math.min(3,deck.length),0,cur); nextCard(); });
+$("cardsReset").addEventListener("click",()=>{ pool().forEach(c=>known.delete(keyOf(c))); save(KEY,known); startCards(); });
+
+// ---------- paketens resa ----------
+let sc="bild", step=0;
+document.querySelectorAll("[data-sc]").forEach(b=>b.addEventListener("click",()=>{
+  sc=b.dataset.sc;
+  document.querySelectorAll("[data-sc]").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+  startRoute();
+}));
+function startRoute(){ step=0; $("routeWalk").classList.remove("hidden"); $("routeOrder").classList.add("hidden"); drawRoute(); }
+function drawRoute(){
+  const R=ROUTES[sc];
+  $("routeCount").textContent = `Steg ${step+1} av ${R.length}`;
+  $("routeList").innerHTML = R.map((r,i)=>`<li class="hop ${i<step?"past":i===step?"on":""}">
+    <span class="dot">${r[0]}</span>
+    <div><h3>${r[1]}</h3><div class="txt">${r[2]}<div class="pk" aria-hidden="true"><span></span><span></span><span></span><span></span></div><span class="key">Begrepp: <b>${r[3]}</b></span></div></div></li>`).join("");
+  $("routePrev").disabled = step===0;
+  $("routeNext").textContent = step===R.length-1 ? "Testa dig: sätt i ordning ›" : "Nästa steg ›";
+}
+$("routePrev").addEventListener("click",()=>{ if(step>0){ step--; drawRoute(); } });
+$("routeNext").addEventListener("click",()=>{
+  const R=ROUTES[sc];
+  if(step<R.length-1){ step++; drawRoute(); const on=document.querySelector(".hop.on"); if(on) on.scrollIntoView({block:"nearest",behavior:"smooth"}); }
+  else startOrder();
+});
+let nextIdx=0, mistakes=0;
+function startOrder(){
+  nextIdx=0; mistakes=0;
+  $("routeWalk").classList.add("hidden"); $("routeOrder").classList.remove("hidden");
+  $("orderDone").classList.add("hidden");
+  $("placed").innerHTML="";
+  const R=ROUTES[sc];
+  $("poolList").innerHTML = shuffle(R.map((r,i)=>i)).map(i=>`<button class="step" data-i="${i}">${R[i][1]}</button>`).join("");
+  $("routeCount").textContent = `0 av ${R.length} på plats`;
+}
+$("poolList").addEventListener("click",e=>{
+  const b=e.target.closest(".step"); if(!b) return;
+  const R=ROUTES[sc], i=+b.dataset.i;
+  if(i===nextIdx){
+    b.remove();
+    $("placed").insertAdjacentHTML("beforeend",`<div class="step"><b>${nextIdx+1}</b><span>${R[i][1]}</span></div>`);
+    nextIdx++;
+    $("routeCount").textContent = `${nextIdx} av ${R.length} på plats`;
+    if(nextIdx===R.length){
+      $("orderDone").classList.remove("hidden");
+      $("orderScore").textContent = mistakes===0 ? "Perfekt!" : `${mistakes} fel`;
+      $("orderVerdict").textContent = mistakes===0 ? "Alla steg i rätt ordning på första försöket." : mistakes<=2 ? "Nästan. Kör en gång till så sitter det." : "Gå igenom stegen igen och försök sedan på nytt.";
+    }
+  } else {
+    mistakes++;
+    b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
+    setTimeout(()=>b.classList.remove("shake"),600);
+  }
+});
+$("orderAgain").addEventListener("click",startOrder);
+$("orderBack").addEventListener("click",startRoute);
+
+// ---------- bluff eller äkta ----------
+let msgs=[], mi=0, bscore=0;
+function startBluff(){ msgs=shuffle(MSGS); mi=0; bscore=0; $("bluffGame").classList.remove("hidden"); $("bluffDone").classList.add("hidden"); drawMsg(); }
+function drawMsg(){
+  const m=msgs[mi];
+  $("bluffCount").textContent = `Meddelande ${mi+1} av ${msgs.length} · ${bscore} rätt`;
+  $("bChan").textContent=m[0]; $("bTime").textContent=["08:14","12:47","15:32","19:05","21:58"][mi%5];
+  $("bFrom").innerHTML=m[1]; $("bText").innerHTML=m[2];
+  $("bVerdict").innerHTML=""; $("bNext").classList.add("hidden");
+  $("bBtns").querySelectorAll("button").forEach(x=>x.disabled=false);
+}
+$("bBtns").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b||b.disabled) return;
+  const m=msgs[mi], said=b.dataset.b==="1", right=said===m[3];
+  if(right) bscore++;
+  $("bBtns").querySelectorAll("button").forEach(x=>x.disabled=true);
+  $("bVerdict").innerHTML = `<div class="verdict ${right?"ok":"bad"}"><h3>${right?"Rätt!":"Inte riktigt."} Det här är: ${m[4]}</h3><ul>${m[5].map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div>`;
+  $("bluffCount").textContent = `Meddelande ${mi+1} av ${msgs.length} · ${bscore} rätt`;
+  $("bNext").textContent = mi===msgs.length-1 ? "Se resultat" : "Nästa meddelande";
+  $("bNext").classList.remove("hidden"); $("bNext").focus();
+});
+$("bNext").addEventListener("click",()=>{
+  mi++;
+  if(mi<msgs.length){ drawMsg(); window.scrollTo(0,0); return; }
+  $("bluffGame").classList.add("hidden"); $("bluffDone").classList.remove("hidden");
+  $("bScore").textContent = `${bscore}/${msgs.length}`;
+  $("bluffCount").textContent="Klart";
+});
+$("bAgain").addEventListener("click",startBluff);
+
+// ---------- instuderingsfrågor ----------
+let ssec="alla", sdeck=[], scur=null;
+makeChips($("studyChips"), s=>{ ssec=s; startStudy(); });
+const skey = q => q[0]+"|"+q[1];
+const spool = () => STUDY.filter(q=>ssec==="alla"||q[0]===ssec);
+function startStudy(){ sdeck = spool().filter(q=>!studied.has(skey(q))); nextStudy(); }
+function nextStudy(){
+  const p=spool(), done=p.filter(q=>studied.has(skey(q))).length;
+  $("studyCount").textContent = `${done} av ${p.length} klara`;
+  const empty=sdeck.length===0;
+  $("sqBox").classList.toggle("hidden",empty); $("studyDone").classList.toggle("hidden",!empty);
+  if(p.length===0){ $("studyDone").querySelector("p").textContent="Inga instuderingsfrågor i det här området. Välj ett annat."; }
+  else $("studyDone").querySelector("p").textContent="Du har gått igenom alla frågor i det här avsnittet.";
+  if(empty) return;
+  scur=sdeck.shift();
+  const [n,c]=SECTIONS[scur[0]];
+  $("sqBox").style.setProperty("--stripe",c);
+  $("sqSec").textContent=n; $("sqText").textContent=scur[1];
+  $("sqAns").innerHTML=scur[2]; $("sqAns").classList.add("hidden");
+  $("sqBtns").classList.add("hidden"); $("sqShow").classList.remove("hidden");
+}
+$("sqShow").addEventListener("click",()=>{ $("sqAns").classList.remove("hidden"); $("sqBtns").classList.remove("hidden"); $("sqShow").classList.add("hidden"); });
+$("sqKnow").addEventListener("click",()=>{ studied.add(skey(scur)); save(SKEY,studied); nextStudy(); window.scrollTo(0,0); });
+$("sqAgain").addEventListener("click",()=>{ sdeck.push(scur); nextStudy(); window.scrollTo(0,0); });
+$("studyReset").addEventListener("click",()=>{ spool().forEach(q=>studied.delete(skey(q))); save(SKEY,studied); startStudy(); });
+
+// ---------- quiz ----------
+let qs=[], qi=0, score=0, missed=[], marks=[];
+function startQuiz(n){
+  qs=shuffle(QUIZ).slice(0,n); qi=0; score=0; missed=[]; marks=Array(qs.length).fill("");
+  $("qBox").classList.remove("hidden"); $("qResult").classList.add("hidden");
+  renderQ();
+}
+function drawMeter(){ $("meter").innerHTML = marks.map((m,i)=>`<b class="${m || (i===qi ? "now" : "")}"></b>`).join(""); }
+function renderQ(){
+  const [sec,text,opts] = qs[qi];
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qSec").textContent = SECTIONS[sec][0];
+  $("qText").textContent = text;
+  $("qExplain").classList.add("hidden"); $("qNext").classList.add("hidden");
+  const fixed = opts.some(o=>/^Alla /.test(o));
+  const order = fixed ? opts.map((o,i)=>i) : shuffle(opts.map((o,i)=>i));
+  $("qOpts").innerHTML = order.map(i=>`<button class="opt" data-i="${i}">${esc(opts[i])}</button>`).join("");
+  drawMeter();
+}
+$("qOpts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||b.disabled) return;
+  const [sec,text,opts,right,why] = qs[qi];
+  const pick=+b.dataset.i;
+  $("qOpts").querySelectorAll(".opt").forEach(o=>{ o.disabled=true; if(+o.dataset.i===right) o.classList.add("right"); });
+  if(pick===right){ score++; marks[qi]="ok"; $("qExplain").textContent="Rätt! "+why; }
+  else { b.classList.add("wrong"); marks[qi]="bad"; missed.push(qs[qi]); $("qExplain").textContent="Inte riktigt. "+why; }
+  drawMeter();
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qExplain").classList.remove("hidden");
+  $("qNext").textContent = qi===qs.length-1 ? "Se resultat" : "Nästa fråga";
+  $("qNext").classList.remove("hidden"); $("qNext").focus();
+});
+$("qNext").addEventListener("click",()=>{
+  qi++;
+  if(qi<qs.length){ renderQ(); return; }
+  drawMeter();
+  $("qBox").classList.add("hidden"); $("qResult").classList.remove("hidden");
+  $("qScore").textContent = `${score}/${qs.length}`;
+  const p=score/qs.length;
+  $("qVerdict").textContent = p===1 ? "Alla rätt. Du är redo!" : p>=0.8 ? "Riktigt bra. Titta på frågorna nedan en gång till." : p>=0.5 ? "Bra jobbat. Öva på frågorna nedan och kör igen." : "Fortsätt öva. Läs igenom frågorna nedan och testa begreppskorten.";
+  $("qMissed").innerHTML = missed.length ? "<h3>Öva mer på</h3><ul>"+missed.map(m=>`<li><strong>${esc(m[1])}</strong><br>${esc(m[2][m[3]])}</li>`).join("")+"</ul>" : "";
+  $("quizCount").textContent = "Klart";
+});
+$("qAgain").addEventListener("click",()=>startQuiz(qs.length));
+
+homeProgress();
+</script>
+</body>
+</html>
