@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mat och hälsa – plugg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f1e7; --card:#fffdf8; --ink:#2b2a26; --muted:#6f6a5f; --line:#e4dccb;
+  --green:#3f7d4e; --green-soft:#e2efe3; --carrot:#d9762b; --carrot-soft:#fbe8d6;
+  --red:#b9473a; --red-soft:#f7e0dc; --plum:#7a4e8c; --plum-soft:#efe4f3; --yellow:#e8b93a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:17px;line-height:1.5}
+header{padding:22px 18px 8px;max-width:760px;margin:0 auto}
+h1{font-family:Fraunces,Georgia,serif;font-size:1.9rem;margin:0;line-height:1.1}
+h1 span{color:var(--green)}
+.sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav .in{max-width:760px;margin:0 auto;display:flex;gap:6px;padding:10px 12px;overflow-x:auto}
+nav button{flex:1 0 auto;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font:700 .92rem Nunito,sans-serif;color:var(--ink);cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+.view{display:none}.view.on{display:block}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font:700 .85rem Nunito;cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 2px 0 var(--line)}
+.meta{font-size:.8rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.q{font-family:Fraunces,Georgia,serif;font-size:1.35rem;line-height:1.3;margin:8px 0 14px}
+ul.ans{margin:0;padding-left:20px}ul.ans li{margin:4px 0}
+.obs{margin-top:14px;background:var(--carrot-soft);border-left:4px solid var(--carrot);padding:10px 12px;border-radius:8px;font-size:.93rem}
+.obs b{color:#9a4a12}
+.btn{border:0;border-radius:12px;padding:12px 16px;font:800 1rem Nunito;cursor:pointer}
+.btn.big{width:100%;background:var(--ink);color:#fff;margin-top:14px}
+.btn.ok{background:var(--green);color:#fff;flex:1}
+.btn.no{background:var(--red-soft);color:var(--red);flex:1}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0 4px}
+.bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+.small{font-size:.85rem;color:var(--muted)}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;font:600 1rem Nunito;cursor:pointer;color:var(--ink)}
+.opt.right{background:var(--green-soft);border-color:var(--green)}
+.opt.wrong{background:var(--red-soft);border-color:var(--red)}
+.opt:disabled{cursor:default}
+.expl{margin-top:12px;font-size:.95rem;background:var(--plum-soft);padding:10px 12px;border-radius:10px}
+.center{text-align:center}
+.score{font-family:Fraunces,serif;font-size:3rem;margin:6px 0}
+/* tallrik */
+.plates{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 14px}
+.plate{text-align:center;font-size:.85rem;font-weight:700}
+.plate svg{width:100%;max-width:220px}
+.fieldbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.fb{border:0;border-radius:12px;padding:12px 6px;font:800 .9rem Nunito;cursor:pointer;color:#fff}
+.f1{background:var(--green)}.f2{background:var(--yellow);color:#4a3a06}.f3{background:var(--carrot)}
+.food{font-family:Fraunces,serif;font-size:2rem;text-align:center;margin:8px 0 2px}
+.fix{border-bottom:1px solid var(--line);padding:12px 0}
+.fix:last-child{border:0}
+.fix .qq{font-weight:800}
+.fix .was{color:var(--red);font-size:.92rem}
+.fix .now{color:var(--green);font-size:.95rem}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.85rem;margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mat <span>&amp;</span> hälsa</h1>
+  <p class="sub">Hemkunskap åk 8 · Instuderingsfrågor lektion 1 och 2</p>
+</header>
+<nav><div class="in">
+  <button data-v="plugg" class="on">📇 Plugga</button>
+  <button data-v="quiz">✅ Quiz</button>
+  <button data-v="tallrik">🍽️ Tallriken</button>
+  <button data-v="bladet">✏️ Kolla bladet</button>
+</div></nav>
+
+<main>
+<!-- PLUGGA -->
+<section id="plugg" class="view on">
+  <div class="row" id="lekFilter">
+    <button class="chip on" data-l="0">Alla</button>
+    <button class="chip" data-l="1">Lektion 1</button>
+    <button class="chip" data-l="2">Lektion 2</button>
+    <button class="chip" data-l="9">Öva mer</button>
+    <span style="flex:1"></span>
+    <button class="chip" id="shuffle">🔀 Blanda</button>
+  </div>
+  <div class="bar"><i id="pBar"></i></div>
+  <div class="small" id="pStat"></div>
+  <div class="card" style="margin-top:12px" id="fc"></div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="view">
+  <div class="card" id="qz"></div>
+</section>
+
+<!-- TALLRIK -->
+<section id="tallrik" class="view">
+  <div class="card">
+    <div class="meta">Två tallriksmodeller</div>
+    <div class="plates">
+      <div class="plate">
+        <svg viewBox="0 0 200 200" aria-label="Tallrik för den som rör sig lite">
+          <circle cx="100" cy="100" r="96" fill="#fff" stroke="#d8cfbd" stroke-width="3"/>
+          <path d="M100 100 L100 12 A88 88 0 0 1 100 188 Z" fill="#3f7d4e"/>
+          <path d="M100 100 L100 188 A88 88 0 0 1 23.8 56 Z" fill="#e8b93a"/>
+          <path d="M100 100 L23.8 56 A88 88 0 0 1 100 12 Z" fill="#d9762b"/>
+          <text x="140" y="105" fill="#fff" font-size="26" font-weight="800" text-anchor="middle">1</text>
+          <text x="58" y="135" fill="#4a3a06" font-size="26" font-weight="800" text-anchor="middle">2</text>
+          <text x="70" y="60" fill="#fff" font-size="26" font-weight="800" text-anchor="middle">3</text>
+        </svg>
+        Rör sig lite / stillasittande<br><span class="small">Halva tallriken grönsaker</span>
+      </div>
+      <div class="plate">
+        <svg viewBox="0 0 200 200" aria-label="Tallrik för den som rör sig mycket">
+          <circle cx="100" cy="100" r="96" fill="#fff" stroke="#d8cfbd" stroke-width="3"/>
+          <path d="M100 100 L100 12 A88 88 0 0 1 176.2 144 Z" fill="#3f7d4e"/>
+          <path d="M100 100 L176.2 144 A88 88 0 0 1 23.8 144 Z" fill="#d9762b"/>
+          <path d="M100 100 L23.8 144 A88 88 0 0 1 100 12 Z" fill="#e8b93a"/>
+          <text x="140" y="85" fill="#fff" font-size="26" font-weight="800" text-anchor="middle">1</text>
+          <text x="100" y="160" fill="#fff" font-size="26" font-weight="800" text-anchor="middle">3</text>
+          <text x="58" y="90" fill="#4a3a06" font-size="26" font-weight="800" text-anchor="middle">2</text>
+        </svg>
+        Rör sig mycket / tränar<br><span class="small">Lika stora delar – mer energi</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span style="--c:var(--green)">1 Grönsaker, rotfrukter, frukt</span>
+      <span style="--c:var(--yellow)">2 Potatis, pasta, ris, bröd</span>
+      <span style="--c:var(--carrot)">3 Kött, fisk, ägg, bönor</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px" id="game"></div>
+</section>
+
+<!-- BLADET -->
+<section id="bladet" class="view">
+  <div class="card">
+    <div class="meta">Svar på bladet som behöver fixas</div>
+    <p class="small" style="margin-top:6px">Det mesta stämmer! Här är svaren som är fel, saknas eller kan göras bättre för att få full pott.</p>
+    <div id="fixes"></div>
+  </div>
+</section>
+</main>
+
+<script>
+/* ---------- FRÅGOR & SVAR ---------- */
+const QA = [
+// Lektion 1
+{l:1,n:"1a",q:"Tallriksmodellen: vilka livsmedel kan vara i fält 1?",a:["Grönsaker och rotfrukter (t.ex. morot, broccoli, kål, sallad, tomat)","Även frukt, bär och baljväxter passar här","Fält 1 är störst på tallriken"]},
+{l:1,n:"1b",q:"Vilka livsmedel kan vara i fält 2?",a:["Potatis, pasta, ris, bulgur, matvete, bröd, gryn","Välj helst fullkorn: fullkornspasta, fullkornsris, grovt bröd"],obs:"Du skrev vitt bröd. Det funkar, men det är bättre att skriva fullkornsbröd/grovt bröd, och gärna potatis och ris också."},
+{l:1,n:"1c",q:"Vilka livsmedel kan vara i fält 3?",a:["Kött, fisk, kyckling, ägg","Baljväxter: bönor, linser, kikärtor, sojabönor, tofu","Fält 3 är minst"]},
+{l:1,n:"1d",q:"Vilka näringsämnen består livsmedlen i de olika fälten i första hand av?",a:["Fält 1: vitaminer, mineraler och fibrer","Fält 2: kolhydrater (stärkelse)","Fält 3: protein"],obs:"Fett hör inte till något eget fält. Svaret ska knytas till fälten: 1 = vitaminer/mineraler/fibrer, 2 = kolhydrater, 3 = protein."},
+{l:1,n:"2",q:"Vilka näringsämnen ger energi?",a:["Kolhydrater, fett och protein (alkohol ger också energi)","Fett ger mest: ca 9 kcal per gram. Kolhydrater och protein ca 4 kcal per gram"]},
+{l:1,n:"3",q:"Vad menas med att äta varierat och varför ska vi göra det?",a:["Att äta många olika sorters livsmedel, inte samma sak hela tiden","Inget livsmedel innehåller allt, så man behöver blanda för att få i sig alla näringsämnen"]},
+{l:1,n:"4",q:"Vad menas med att äta regelbundet och varför ska vi göra det?",a:["Äta på ungefär samma tider varje dag: frukost, lunch, middag + 1–3 mellanmål","Inte småäta hela tiden och inte hoppa över måltider","Ger jämnt blodsocker, bättre ork och koncentration","Tänderna hinner återhämta sig mellan måltiderna (mindre karies)"]},
+{l:1,n:"5",q:"Vad händer om man äter mer energi än man gör av med? Motivera.",a:["Energiöverskott: kroppen sparar överskottet som fett","Man går upp i vikt över tid"]},
+{l:1,n:"6",q:"Vad händer om man förbrukar mer energi än man fyller på med? Motivera.",a:["Energiunderskott: kroppen tar energi från sina lager (fett, och till slut muskler)","Man går ner i vikt, blir trött och orkar mindre"]},
+{l:1,n:"7",q:"Med vilken enhet mäter man energiinnehåll i livsmedel?",a:["Kilokalorier (kcal) eller kilojoule (kJ)","1 kcal ≈ 4,2 kJ"],obs:"Skriv kilokalorier (kcal) och kilojoule (kJ), inte bara \"kalorier\"."},
+{l:1,n:"8",q:"Vilket kroppsorgan kräver mest energi?",a:["Hjärnan – den använder ungefär 20 % av kroppens energi i vila, fast den bara väger ca 2 % av kroppsvikten"]},
+{l:1,n:"9",q:"Rita tallriksmodellen för Johan, Samira, Jenny och Erik och motivera.",a:["Johan (14 år, tränar varje dag, äter inte kött): tallriken för aktiva, stort fält 2. Protein från bönor, linser, tofu, ägg","Samira (kontor, tränar inte): tallriken med halva tallriken grönsaker","Jenny (pensionär, går 2 h/dag, klimatsmart): baljväxter, säsongsgrönsaker, potatis","Erik (cykelbud + gym, veganskt): tallriken för aktiva. Protein från tofu, bönor, linser – inget kött, fisk, ägg eller mjölk"],obs:"Erik äter veganskt – då kan du inte ge honom fisk! Byt till tofu, linser eller bönor. Samira har \"pommes\" – byt till potatis eller fullkornsris. Skriv också en kort motivering till varje tallrik."},
+{l:1,n:"10",q:"Vem behöver äta mest, näst mest, näst minst och minst? Varför?",a:["Mest: Erik – cykelbud rör sig hela arbetsdagen + gym","Näst mest: Johan – tränar varje dag och växer fortfarande","Näst minst: Samira – sitter still mycket, men är yngre och väger mer än Jenny","Minst: Jenny – äldst och lättast (men hon promenerar mycket, så Jenny/Samira kan bytas om man motiverar)","Energibehovet beror på ålder, vikt, kön och hur mycket man rör sig"],obs:"Svaret är inte klart. Skriv alla fyra i ordning OCH motivera varför. Johan och Erik kan byta plats om du motiverar."},
+{l:1,n:"11",q:"Rita din egen hälsosamma tallrik.",a:["Fält 1 störst: grönsaker (t.ex. tomat, gurka, morot, broccoli)","Fält 2: potatis, ris, pasta eller bröd","Fält 3 minst: t.ex. kyckling, fisk, bönor"],obs:"Pommes frites och kebab är inte så hälsosamt. Byt t.ex. till ugnspotatis och kyckling."},
+{l:1,n:"12",q:"Smarrig wok: byt ingredienser så maten blir mer hälsosam, ekonomisk och klimatsmart.",a:["Köttfärs → bönor, linser, sojafärs (eller kycklingfärs). Mindre klimatpåverkan och billigare","Ananas, bambuskott, vattenkastanjer (importerat på burk) → svenska säsongsgrönsaker som broccoli, purjolök, kål, palsternacka","Ris → fullkornsris eller matvete (mer fibrer)","Mindre sweet chili (mycket socker) och mindre soja (mycket salt)"],obs:"Nötfärs ÄR köttfärs – och nöt har störst klimatpåverkan. Byt till bönor/linser/sojafärs. Tomat är inte i säsong på hösten – välj hellre kål, broccoli eller rotfrukter. Glöm inte att motivera!"},
+{l:1,n:"13",q:"Vad betyder nyckelhålsmärkningen?",a:["Livsmedlet är ett nyttigare val jämfört med andra av samma sort","Det innehåller mindre socker och salt, mer fibrer och fullkorn och/eller nyttigare (eller mindre) fett"]},
+{l:1,n:"14",q:"Varför är det bra att äta fullkornsprodukter?",a:["Mer fibrer, vitaminer och mineraler än vitt mjöl","Mättar längre och ger jämnare blodsocker","Minskar risken för hjärt-kärlsjukdom, typ 2-diabetes och tjocktarmscancer"]},
+{l:1,n:"15",q:"Ge exempel på nyttiga fetter att använda när du lagar mat.",a:["Rapsolja, olivolja","Flytande margarin / flytande matfett"],obs:"Lägg gärna till rapsolja och olivolja."},
+{l:1,n:"16",q:"Vad menas med att energin i godis är \"tomma kalorier\"?",a:["Godis ger mycket energi (socker) men nästan inga vitaminer, mineraler eller fibrer","Man blir inte mätt länge och kroppen får ingen nyttig näring"]},
+{l:1,n:"17",q:"Varför ska vi äta säsongens frukt och grönt?",a:["Det är billigare och godare (färskt)","Kortare transporter och inga uppvärmda växthus → bättre för klimatet","Ofta mer vitaminer när det är färskt"]},
+{l:1,n:"18",q:"Ge exempel på närproducerade rotfrukter, frukter och grönsaker vid olika tider på året.",a:["Vår: rabarber, sparris, spenat, rädisor","Sommar: jordgubbar, blåbär, färskpotatis, ärtor, tomat, gurka","Höst: äpplen, päron, plommon, svamp, kål, broccoli","Vinter: lagrade rotfrukter (morot, palsternacka, rödbetor, kålrot), potatis, lök, vitkål, äpplen"]},
+{l:1,n:"19",q:"Vad ska vi tänka på när vi planerar måltider och varför är det bra?",a:["Tänk på: tallriksmodellen/näring, variation, budget, säsong och klimat, tid, vad som redan finns hemma","Bra för att: det blir billigare, mindre matsvinn, nyttigare, mindre stress och färre onödiga köp"]},
+{l:1,n:"20",q:"Hur många timmars sömn behöver en person i din ålder?",a:["Tonåringar (13–18 år) behöver ungefär 8–10 timmar per natt"]},
+{l:1,n:"21",q:"Varför är det viktigt att sova?",a:["Kroppen och hjärnan återhämtar sig","Minnet sparar det man lärt sig – bättre koncentration i skolan","Tillväxthormon frisätts – man växer och musklerna repareras","Bättre immunförsvar och humör, och hungern regleras bättre"]},
+{l:1,n:"22",q:"Något litet du kan förändra i din vardag för hållbar hälsa, miljö och ekonomi?",a:["Exempel: äta vegetariskt några dagar i veckan","Ta med vattenflaska i stället för att köpa läsk","Äta upp rester – mindre matsvinn","Välja säsongens frukt och grönt","Motivera hur det hjälper hälsa, miljö OCH ekonomi"]},
+// Lektion 2
+{l:2,n:"1",q:"Varför behöver vi äta kolhydrater?",a:["De är kroppens viktigaste energikälla – särskilt för hjärnan och musklerna"]},
+{l:2,n:"2",q:"Kolhydrater finns i tre olika former, vilka?",a:["Socker, stärkelse och fibrer"]},
+{l:2,n:"3",q:"Ge exempel på livsmedel med snabba kolhydrater.",a:["Läsk, saft, godis, glass, kakor, vitt bröd, sockrade flingor"]},
+{l:2,n:"4",q:"Ge exempel på livsmedel med långsamma kolhydrater.",a:["Fullkornsbröd, havregryn, fullkornspasta, baljväxter (bönor, linser)"],obs:"Flingor är ofta sockrade och snabba. Skriv hellre havregryn eller müsli utan socker."},
+{l:2,n:"5",q:"Varför ska vi äta mycket fibrer?",a:["Bra för magen och tarmen – motverkar förstoppning","Mättar längre och ger jämnare blodsocker","Minskar risken för bl.a. hjärt-kärlsjukdom och typ 2-diabetes"],obs:"Här står bara \"för att\". Svaret \"kan motverka förstoppningar\" hamnade på fråga 6 – flytta upp det hit."},
+{l:2,n:"6",q:"Ge exempel på fiberrika livsmedel.",a:["Fullkornsbröd, havregryn, bönor, linser, kikärtor","Grönsaker, rotfrukter, frukt, bär, nötter och frön"],obs:"Här står svaret till fråga 5. Skriv i stället exempel på livsmedel."},
+{l:2,n:"7",q:"När är det bra att äta snabba respektive långsamma kolhydrater?",a:["Snabba: när kroppen behöver energi snabbt, t.ex. under eller direkt efter lång, hård träning","Långsamma: till vardags – ger jämn energi och håller dig mätt länge, utan blodsockerdipp"]},
+{l:2,n:"8",q:"Vad är glykemiskt index (GI)?",a:["Ett mått på hur snabbt ett livsmedel höjer blodsockret","Högt GI = snabbt (t.ex. vitt bröd, läsk). Lågt GI = långsamt (t.ex. bönor, fullkorn)"],obs:"Skriv \"ett mått på hur snabbt blodsockret stiger\" – inte \"medel\"."},
+{l:2,n:"9",q:"Varför behöver vi kroppsfett?",a:["Energilager","Håller värmen (isolerar)","Skyddar de inre organen","Behövs för hormoner och celler"],obs:"Lägg till energilager och skydd för organen."},
+{l:2,n:"10",q:"Varför behöver vi äta fett?",a:["För att få livsviktiga (essentiella) fettsyror som kroppen inte kan tillverka själv, t.ex. omega-3","För att ta upp de fettlösliga vitaminerna A, D, E och K","Fett ger också energi"]},
+{l:2,n:"11",q:"Vilken sorts fett bör vi äta lite av?",a:["Mättat fett (finns i smör, ost, grädde, korv, kakor) – och transfett"]},
+{l:2,n:"12",q:"Vilken sorts fett är bra för oss?",a:["Omättat fett – enkelomättat och fleromättat (t.ex. omega-3)"]},
+{l:2,n:"13",q:"Ge exempel på livsmedel med bra fett.",a:["Rapsolja, olivolja, flytande margarin","Nötter, frön, avokado","Fet fisk: lax, sill, makrill"],obs:"Ge fler exempel än avokado – t.ex. rapsolja, nötter och lax."},
+{l:2,n:"14",q:"Tumregel för att känna igen nyttigt fett?",a:["Flytande i rumstemperatur (olja) = mest omättat = nyttigare","Hårt i rumstemperatur (smör, kokosfett) = mer mättat"]},
+{l:2,n:"15",q:"Varför behöver vi äta protein?",a:["Protein är kroppens byggstenar","Bygger och reparerar celler, muskler, hud och hår","Behövs till enzymer, hormoner och antikroppar (immunförsvaret)"]},
+{l:2,n:"16",q:"Äter vi mer eller mindre protein än vi behöver i Sverige? Varför?",a:["Mer än vi behöver","Vi äter mycket kött, chark och mjölkprodukter – nästan alla får i sig tillräckligt"],obs:"Rätt att det är mer, men orsaken är att vi äter mycket kött och mejeriprodukter – inte att många tränar."},
+{l:2,n:"17",q:"Ge exempel på livsmedel som innehåller protein.",a:["Kött, fisk, kyckling, ägg, mjölk, ost, kvarg","Bönor, linser, tofu"]},
+{l:2,n:"18",q:"Ge exempel på proteinrika vegetabiliska livsmedel.",a:["Bönor, linser, kikärtor, ärtor","Sojabönor, tofu, sojafärs","Nötter, frön, quinoa"]},
+{l:2,n:"19",q:"Hur mycket vatten innehåller vår kropp?",a:["Ungefär 60 % (lite mer hos barn)"]},
+{l:2,n:"20",q:"Vilken är vattnets funktion i kroppen?",a:["Reglerar temperaturen (svett)","Transporterar näring och syre i blodet","För bort avfall via urinen","Löser näringsämnen, smörjer leder och finns i alla celler"],obs:"Lägg till fler funktioner: transport av näring och att föra bort avfall."},
+{l:2,n:"21",q:"Varför ska vi undvika läsk och energidrycker?",a:["Mycket socker = tomma kalorier","Socker och syra skadar tänderna (karies, erosion)","Ger snabb blodsockertopp och sedan dipp – man blir trött","Energidrycker har mycket koffein: sömnproblem, hjärtklappning, oro. Avråds för barn och unga"]},
+{l:2,n:"22",q:"Vitaminer delas upp i två huvudgrupper, vilka?",a:["Fettlösliga: A, D, E, K (lagras i kroppen)","Vattenlösliga: B-vitaminerna och C (lagras inte, kissas ut)"]},
+{l:2,n:"23",q:"Tips för att få i dig alla vitaminer och mineraler?",a:["Ät varierat och följ tallriksmodellen","Mycket frukt och grönt – ca 500 g om dagen","Välj fullkorn och nyckelhålsmärkt","Fisk 2–3 gånger i veckan","Ät regelbundet, även frukost"]},
+{l:2,n:"24",q:"Vilka risker finns med kosttillskott?",a:["Överdos – särskilt fettlösliga vitaminer (A, D) som lagras och kan bli giftiga","Kan innehålla otillåtna eller odeklarerade ämnen (även dopningsklassade)","Dyrt, och kan ge falsk trygghet så man äter sämre"]},
+{l:2,n:"25",q:"Varför är det bättre att äta riktig mat än kosttillskott för en frisk person?",a:["Maten ger en blandning av näringsämnen, fibrer och energi tillsammans","Kroppen tar upp näringen bättre från mat","Svårt att överdosera, man blir mätt, och det är billigare"]}
+];
+
+/* ---------- QUIZ ---------- */
+const QUIZ = [
+["Vilket näringsämne ger mest energi per gram?",["Fett","Protein","Kolhydrater","Vitaminer"],0,"Fett ger ca 9 kcal/g. Kolhydrater och protein ger ca 4 kcal/g."],
+["Vad finns i första hand i fält 2 på tallriken?",["Kolhydrater","Protein","Vitaminer","Fett"],0,"Potatis, pasta, ris och bröd = mest kolhydrater (stärkelse)."],
+["Vilket fält är störst på tallriken för någon som rör sig lite?",["Fält 1 – grönsaker","Fält 2 – potatis, pasta","Fält 3 – protein","Alla är lika stora"],0,"Halva tallriken grönsaker när energibehovet är lågt."],
+["Vilken enhet mäter energi i mat?",["kcal eller kJ","gram","liter","procent"],0,"Kilokalorier eller kilojoule."],
+["Vilket organ använder mest energi?",["Hjärnan","Hjärtat","Magen","Huden"],0,"Hjärnan tar ca 20 % av energin i vila."],
+["Erik äter veganskt. Vilket protein passar honom?",["Tofu","Lax","Ägg","Kyckling"],0,"Veganer äter inget från djur – inte fisk, ägg eller mjölk heller."],
+["Vad är mest klimatsmart i en wok?",["Linser","Nötfärs","Fläskfärs","Lammfärs"],0,"Baljväxter har mycket lägre klimatpåverkan än kött. Nöt har högst."],
+["Nyckelhålet betyder att maten…",["…är ett nyttigare val bland liknande livsmedel","…är ekologisk","…är svensk","…är vegansk"],0,"Mindre socker/salt, mer fibrer/fullkorn, nyttigare fett."],
+["Vad betyder \"tomma kalorier\"?",["Energi men nästan ingen näring","Mat utan energi","Mat utan socker","Light-produkter"],0,"Godis ger energi men nästan inga vitaminer, mineraler eller fibrer."],
+["Hur mycket sömn behöver en tonåring?",["8–10 timmar","5–6 timmar","6–7 timmar","12–14 timmar"],0,""],
+["Vilket är INTE en form av kolhydrat?",["Protein","Socker","Stärkelse","Fibrer"],0,"De tre formerna är socker, stärkelse och fibrer."],
+["Vilket innehåller långsamma kolhydrater?",["Havregryn","Läsk","Godis","Vitt bröd"],0,"Fullkorn och baljväxter ger långsamma kolhydrater."],
+["Vad är glykemiskt index (GI)?",["Hur snabbt blodsockret stiger","Hur mycket fett maten har","Hur mycket protein maten har","Hur många kcal maten har"],0,"Högt GI = blodsockret stiger snabbt."],
+["När passar snabba kolhydrater bäst?",["Under/efter lång, hård träning","Till frukost varje dag","Innan man sover","När man sitter still"],0,"Då behöver musklerna energi snabbt."],
+["Vilken sorts fett ska vi äta lite av?",["Mättat fett","Omättat fett","Omega-3","Fleromättat fett"],0,"Mättat fett finns i smör, ost, grädde, korv och kakor."],
+["Tumregeln för nyttigt fett:",["Flytande = nyttigare","Hårt = nyttigare","Gult = nyttigare","Dyrt = nyttigare"],0,"Flytande i rumstemperatur = mer omättat fett."],
+["Vilket livsmedel har mycket bra fett?",["Lax","Smör","Grädde","Korv"],0,"Fet fisk ger omega-3."],
+["Vad är proteinets viktigaste uppgift?",["Bygga och reparera celler","Hålla värmen","Ge snabb energi","Ge fibrer"],0,"Protein är kroppens byggstenar."],
+["Äter vi i Sverige mer eller mindre protein än vi behöver?",["Mer","Mindre","Exakt lagom","Nästan inget"],0,"Vi äter mycket kött och mejeriprodukter."],
+["Vilket är ett vegetabiliskt proteinrikt livsmedel?",["Linser","Ost","Ägg","Kyckling"],0,"Baljväxter är proteinrika växter."],
+["Hur stor del av kroppen är vatten?",["Ca 60 %","Ca 20 %","Ca 40 %","Ca 90 %"],0,""],
+["Vilka vitaminer är fettlösliga?",["A, D, E, K","B och C","Bara C","A och C"],0,"Fettlösliga lagras i kroppen. B och C är vattenlösliga."],
+["Varför kan för mycket kosttillskott vara farligt?",["Vissa vitaminer lagras och kan bli giftiga","De innehåller för mycket fibrer","De gör en hungrig","De har för mycket protein"],0,"Särskilt A- och D-vitamin kan överdoseras."],
+["Varför är fullkorn bra?",["Mer fibrer, mättar längre","Mer socker","Mindre näring","Mer salt"],0,"Minskar risk för hjärt-kärlsjukdom och typ 2-diabetes."],
+["Vilket är i säsong i Sverige på vintern?",["Morot och kålrot","Jordgubbar","Färsk tomat","Sparris"],0,"Lagrade rotfrukter håller hela vintern."],
+["Vem behöver mest energi?",["Erik, cykelbud som även gymmar","Samira, kontor och Netflix","Jenny, 73 år","Alla lika mycket"],0,"Mycket rörelse = högt energibehov."],
+["Varför ska man äta regelbundet?",["Jämnt blodsocker och bättre ork","För att gå upp i vikt","Det spelar ingen roll","För att slippa frukost"],0,"Och tänderna får vila mellan måltiderna."],
+["Vad händer vid energiöverskott?",["Överskottet lagras som fett","Man går ner i vikt","Ingenting","Man blir längre"],0,""]
+];
+
+/* ---------- TALLRIKSSPEL ---------- */
+const FOODS = [
+["🥦","Broccoli",1],["🥕","Morot",1],["🍅","Tomat",1],["🥬","Vitkål",1],["🍎","Äpple",1],["🥒","Gurka",1],["🫑","Paprika",1],
+["🥔","Potatis",2],["🍝","Fullkornspasta",2],["🍚","Ris",2],["🍞","Grovt bröd",2],["🌾","Bulgur",2],["🌾","Matvete",2],
+["🐟","Lax",3],["🍗","Kyckling",3],["🥚","Ägg",3],["🫘","Bönor",3],["🧈","Tofu",3],["🥩","Nötkött",3],["🫛","Linser",3],["🫘","Kikärtor",3]
+];
+const FIELDNAME={1:"fält 1 – grönsaker/frukt",2:"fält 2 – kolhydrater",3:"fält 3 – protein"};
+
+/* ---------- LAGRING ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let known=store.get("mh_known",{});
+
+/* ---------- NAV ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id===b.dataset.v));
+  window.scrollTo(0,0);
+});
+
+/* ---------- FLASHCARDS ---------- */
+const key=c=>c.l+"-"+c.n;
+let filter=0,deck=[],idx=0,shown=false;
+function buildDeck(shuffle){
+  deck=QA.filter(c=>filter===0||c.l===filter||(filter===9&&known[key(c)]!==true));
+  if(shuffle)deck.sort(()=>Math.random()-.5);
+  idx=0;shown=false;renderCard();
+}
+function stats(){
+  const k=QA.filter(c=>known[key(c)]===true).length;
+  document.getElementById("pBar").style.width=(k/QA.length*100)+"%";
+  document.getElementById("pStat").textContent=`Du kan ${k} av ${QA.length} frågor`;
+}
+function renderCard(){
+  stats();
+  const el=document.getElementById("fc");
+  if(!deck.length){el.innerHTML=`<div class="center"><div class="score">🎉</div><p><b>Inga frågor kvar att öva på här!</b></p><button class="btn ghost" id="reset">Börja om från noll</button></div>`;
+    document.getElementById("reset").onclick=()=>{known={};store.set("mh_known",known);buildDeck(false)};return}
+  if(idx>=deck.length){el.innerHTML=`<div class="center"><div class="score">👏</div><p><b>Bunten klar!</b></p><button class="btn big" id="again">Kör igen</button></div>`;
+    document.getElementById("again").onclick=()=>buildDeck(true);return}
+  const c=deck[idx];
+  el.innerHTML=`<div class="meta">Lektion ${c.l} · fråga ${c.n} · ${idx+1}/${deck.length}</div>
+  <div class="q">${c.q}</div>
+  ${shown?`<ul class="ans">${c.a.map(x=>`<li>${x}</li>`).join("")}</ul>${c.obs?`<div class="obs"><b>Obs, ditt blad:</b> ${c.obs}</div>`:""}
+  <div class="row" style="margin-top:16px"><button class="btn no" id="no">Öva mer</button><button class="btn ok" id="yes">Kunde den!</button></div>`
+  :`<p class="small">Tänk ut ditt svar – säg det högt eller skriv ner det. Tryck sedan för att se facit.</p><button class="btn big" id="show">Visa svar</button>`}`;
+  if(shown){
+    document.getElementById("yes").onclick=()=>mark(true);
+    document.getElementById("no").onclick=()=>mark(false);
+  }else document.getElementById("show").onclick=()=>{shown=true;renderCard()};
+}
+function mark(ok){known[key(deck[idx])]=ok;store.set("mh_known",known);idx++;shown=false;renderCard()}
+document.querySelectorAll("#lekFilter .chip[data-l]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#lekFilter .chip[data-l]").forEach(x=>x.classList.toggle("on",x===b));
+  filter=+b.dataset.l;buildDeck(false);
+});
+document.getElementById("shuffle").onclick=()=>buildDeck(true);
+buildDeck(false);
+
+/* ---------- QUIZ ---------- */
+let qset=[],qi=0,qscore=0;
+function startQuiz(){
+  qset=QUIZ.map(q=>{const o=q[1].map((t,i)=>({t,r:i===q[2]}));o.sort(()=>Math.random()-.5);return{q:q[0],o,e:q[3]}}).sort(()=>Math.random()-.5).slice(0,15);
+  qi=0;qscore=0;renderQ();
+}
+function renderQ(){
+  const el=document.getElementById("qz");
+  if(qi>=qset.length){
+    const p=Math.round(qscore/qset.length*100);
+    el.innerHTML=`<div class="center"><div class="meta">Resultat</div><div class="score">${qscore}/${qset.length}</div>
+    <p>${p>=90?"Grymt! Du är redo 🌟":p>=70?"Bra jobbat! Plugga lite till på det du missade 💪":"Kör flashcards en runda till och testa igen 📇"}</p>
+    <button class="btn big" id="qa">Nytt quiz</button></div>`;
+    document.getElementById("qa").onclick=startQuiz;return}
+  const q=qset[qi];
+  el.innerHTML=`<div class="meta">Fråga ${qi+1} av ${qset.length} · ${qscore} rätt</div><div class="q">${q.q}</div>
+  <div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${o.t}</button>`).join("")}</div><div id="qe"></div>`;
+  el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const o=q.o[+b.dataset.i];if(o.r)qscore++;
+    el.querySelectorAll(".opt").forEach((x,i)=>{x.disabled=true;if(q.o[i].r)x.classList.add("right")});
+    if(!o.r)b.classList.add("wrong");
+    document.getElementById("qe").innerHTML=`${q.e?`<div class="expl">${o.r?"✅ Rätt! ":"❌ "}${q.e}</div>`:`<div class="expl">${o.r?"✅ Rätt!":"❌ Inte riktigt."}</div>`}<button class="btn big" id="nx">Nästa</button>`;
+    document.getElementById("nx").onclick=()=>{qi++;renderQ()};
+  });
+}
+startQuiz();
+
+/* ---------- TALLRIKSSPEL ---------- */
+let gset=[],gi=0,gs=0;
+function startGame(){gset=[...FOODS].sort(()=>Math.random()-.5).slice(0,12);gi=0;gs=0;renderGame()}
+function renderGame(msg){
+  const el=document.getElementById("game");
+  if(gi>=gset.length){el.innerHTML=`<div class="center"><div class="meta">Sortera maten</div><div class="score">${gs}/${gset.length}</div><button class="btn big" id="gr">Spela igen</button></div>`;
+    document.getElementById("gr").onclick=startGame;return}
+  const f=gset[gi];
+  el.innerHTML=`<div class="meta">Sortera maten · ${gi+1}/${gset.length} · ${gs} rätt</div>
+  <div class="food">${f[0]}</div><div class="center" style="font-weight:800;font-size:1.2rem">${f[1]}</div>
+  <p class="small center">Vilket fält hör den till?</p>
+  <div class="fieldbtns"><button class="fb f1" data-f="1">Fält 1</button><button class="fb f2" data-f="2">Fält 2</button><button class="fb f3" data-f="3">Fält 3</button></div>
+  <div id="gm">${msg||""}</div>`;
+  el.querySelectorAll(".fb").forEach(b=>b.onclick=()=>{
+    const ok=+b.dataset.f===f[2];if(ok)gs++;
+    const m=`<div class="expl">${ok?"✅ Rätt!":"❌ Nej –"} ${f[1]} hör till ${FIELDNAME[f[2]]}.</div>`;
+    gi++;renderGame(m);
+  });
+}
+startGame();
+
+/* ---------- BLADET ---------- */
+const fx=QA.filter(c=>c.obs);
+document.getElementById("fixes").innerHTML=fx.map(c=>`<div class="fix"><div class="qq">L${c.l} · ${c.n}. ${c.q}</div><div class="now">✏️ ${c.obs}</div></div>`).join("")+
+`<div class="fix"><div class="qq">Lektion 1: fråga 16–22 och lektion 2: fråga 22–25</div><div class="now">✏️ Inte ifyllda ännu – facit finns under 📇 Plugga.</div></div>`;
+</script>
+</body>
+</html>
