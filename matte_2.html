@@ -11,7 +11,7 @@
 /* Hundrarutan: hela = 100 rutor. Varje avsnitt har sin färg. */
 :root{
   --bg:#F5F1E8; --card:#FFFFFF; --ink:#1C1A24; --soft:#5E5A66; --line:#DCD5C7; --paper:#FBF8F2;
-  --s21:#2F6FDB; --s22:#E0633A; --s23:#2E9E6B; --s24:#8A4FD1; --s25:#C98F0E; --pl:#C2457F;
+  --s21:#2F6FDB; --s22:#E0633A; --s23:#2E9E6B; --s24:#8A4FD1; --s25:#C98F0E; --pl:#C2457F; --pe:#0E8F9A;
   --ok:#2F9A5B; --bad:#D2384B; --okbg:#DCF2E3; --badbg:#FBE1E5; --chipbg:#FFFFFF;
   --display:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -177,12 +177,12 @@ svg.chart text{font-family:var(--body);font-size:11px;fill:var(--soft)}
     <div class="grid100" id="grid100" aria-hidden="true"></div>
   </div>
   <div class="modes">
-    <button class="mode" data-go="learn"><span class="tag" style="background:var(--s21)">Aa</span><span><h2>Lär dig</h2><p>Genomgång av 2.1–2.5 med formler, exempel och filmer.</p></span></button>
+    <button class="mode" data-go="learn"><span class="tag" style="background:var(--s21)">Aa</span><span><h2>Lär dig</h2><p>Genomgång av 2.1–2.5 och prefix och enheter, med formler, exempel och filmer.</p></span></button>
     <button class="mode" data-go="train"><span class="tag" style="background:var(--s22)">1+1</span><span><h2>Räkneträning</h2><p>Nya uppgifter varje gång. Ledtråd och lösning steg för steg.</p></span></button>
-    <button class="mode" data-go="cards"><span class="tag" style="background:var(--s23)">ABC</span><span><h2>Begrepp</h2><p>Kort att vända: procentenhet, förändringsfaktor, räntesats …</p></span></button>
+    <button class="mode" data-go="cards"><span class="tag" style="background:var(--s23)">ABC</span><span><h2>Begrepp</h2><p>Kort att vända: procentenhet, förändringsfaktor, räntesats, prefix …</p></span></button>
     <button class="mode" data-go="lab"><span class="tag" style="background:var(--s25)">%↗</span><span><h2>Räntelabbet</h2><p>Dra i reglagen och se skillnaden mellan enkel ränta och ränta på ränta.</p></span></button>
     <button class="mode" data-go="quiz"><span class="tag" style="background:var(--s24)">10</span><span><h2>Quiz</h2><p>10 snabba frågor om begrepp och rimlighet.</p></span></button>
-    <button class="mode" data-go="exam"><span class="tag" style="background:var(--ink)">16</span><span><h2>Övningsprov</h2><p>12 räkneuppgifter och 4 problemlösningsuppgifter. Rättas på slutet.</p></span></button>
+    <button class="mode" data-go="exam"><span class="tag" style="background:var(--ink)">18</span><span><h2>Övningsprov</h2><p>14 räkneuppgifter och 4 problemlösningsuppgifter. Rättas på slutet.</p></span></button>
   </div>
   <div class="prog" id="progBox"></div>
   <p class="note">Tips: räkna på papper med miniräknare bredvid, precis som på provet.</p>
@@ -288,9 +288,12 @@ const rnd=(x,d=4)=>Math.round(x*10**d)/10**d;
 const f=(x,d=3)=>rnd(x,d).toLocaleString('sv-SE',{maximumFractionDigits:d}).replace('−','−');
 const kr=x=>f(x,2)+' kr';
 const steps=a=>'<ol class="sol">'+a.map(s=>'<li>'+s+'</li>').join('')+'</ol>';
-const SEC={'2.1':{n:'Andelen',c:'var(--s21)'},'2.2':{n:'Jämförelser och förändringar',c:'var(--s22)'},'2.3':{n:'Det hela',c:'var(--s23)'},'2.4':{n:'Delen',c:'var(--s24)'},'2.5':{n:'Ränta',c:'var(--s25)'},'PL':{n:'Problemlösning',c:'var(--pl)'}};
+const SEC={'2.1':{n:'Andelen',c:'var(--s21)'},'2.2':{n:'Jämförelser och förändringar',c:'var(--s22)'},'2.3':{n:'Det hela',c:'var(--s23)'},'2.4':{n:'Delen',c:'var(--s24)'},'2.5':{n:'Ränta',c:'var(--s25)'},'PL':{n:'Problemlösning',c:'var(--pl)'},'PE':{n:'Prefix och enheter',c:'var(--pe)'}};
+const secName=k=>k==='PL'?'Problemlösning':k==='PE'?'Prefix och enheter':k+' '+SEC[k].n;
 function parseNum(s){
-  s=String(s).trim().replace(/[\s ]/g,'').replace(/[−–]/g,'-').replace(/(%|kr|st|elever|procentenheter|procent)/gi,'');
+  s=String(s).trim().replace(/[\s ]/g,'').replace(/[−–]/g,'-').replace(/%/g,'').replace(/[a-zA-Zµåäö\/.]+$/,'');
+  const pw=s.replace(',','.').match(/^(-?\d*\.?\d+)?[*·x]?10\^\(?(-?\d+)\)?$/);
+  if(pw) return (pw[1]?Number(pw[1]):1)*Math.pow(10,Number(pw[2]));
   if(/^-?\d+\/\d+$/.test(s)){const [a,b]=s.split('/').map(Number);return a/b}
   s=s.replace(',','.');
   if(!/^-?\d*\.?\d+$/.test(s)) return NaN;
@@ -541,6 +544,71 @@ function(){
     hint:'Enkel ränta: samma ränta varje år. Ränta på ränta: K · faktor^år.',
     sol:steps([`Enkel ränta: ${f(r/100,2)} · ${f(K)} = ${kr(K*r/100)} per år → ${f(K)} + ${n} · ${f(K*r/100)} = ${kr(E)}`,`Ränta på ränta: ${f(K)} · ${f(1+r/100,2)}<sup>${n}</sup> = ${kr(A)}`,`Skillnad: <b>${f(Math.round(A-E))} kr</b>`])};
 }];
+// Prefix och enheter
+const PREF=[['giga','G',1e9,'10^9','miljard'],['mega','M',1e6,'10^6','miljon'],['kilo','k',1e3,'10^3','tusen'],['hekto','h',100,'10^2','hundra'],['deci','d',0.1,'10^−1','tiondel'],['centi','c',0.01,'10^−2','hundradel'],['milli','m',0.001,'10^−3','tusendel'],['mikro','µ',1e-6,'10^−6','miljondel']];
+const ex=e=>e.replace(/10\^(−?\d+)/,'10<sup>$1</sup>');
+function conv(units,vals,ctx){
+  const ks=Object.keys(units);const a=pick(ks);let b=pick(ks);while(b===a)b=pick(ks);
+  const v=pick(vals),r=rnd(v*units[a]/units[b],10),fac=units[a]/units[b];
+  return {q:(ctx?ctx+' ':'')+`Skriv ${f(v,4)} ${a} i ${b}.`,a:r,unit:b,tol:Math.max(1e-9,Math.abs(r)*1e-6),show:f(r,8)+' '+b,
+    hint:`Hur många ${b} går det på 1 ${a}? ${fac>=1?'Större enhet till mindre: multiplicera.':'Mindre enhet till större: dividera.'}`,
+    sol:steps([`1 ${a} = ${f(fac,8)} ${b}`,`${f(v,4)} · ${f(fac,8)} = <b>${f(r,8)} ${b}</b>`])};
+}
+G['PE']=[
+function(){
+  const p=pick(PREF);
+  return {q:`Vad betyder prefixet <b>${p[0]}</b> (${p[1]})? Skriv som ett tal, t.ex. 1000 eller 0,01. Du kan också skriva tiopotens, t.ex. 10^3.`,a:p[2],unit:'',tol:p[2]*1e-6,show:f(p[2],8)+' = '+ex(p[3]),
+    hint:'Stora prefix: kilo = tusen, mega = miljon, giga = miljard. Små: deci = tiondel, centi = hundradel, milli = tusendel, mikro = miljondel.',
+    sol:steps([`${p[0]} betyder ${p[4]}`,`${p[0]} = <b>${f(p[2],8)}</b> = ${ex(p[3])}`])};
+},
+function(){
+  const p=pick(PREF.filter(x=>x[0]!=='hekto'));const u=pick(['m','g','W','byte']);
+  const v=pick([2,3,5,7,4.5,12]);const r=v*p[2];
+  return {q:`Skriv ${f(v)} ${p[1]}${u==='byte'?'B':u} i grundenheten ${u==='byte'?'byte (B)':u}. Svara gärna i tiopotensform, t.ex. 5·10^6.`,a:r,unit:u==='byte'?'B':u,tol:Math.abs(r)*1e-6,show:f(v)+' · '+ex(p[3]),
+    hint:`${p[0]} betyder ${f(p[2],8)}. Multiplicera ${f(v)} med det.`,
+    sol:steps([`${p[1]} = ${p[0]} = ${ex(p[3])}`,`${f(v)} ${p[1]}${u==='byte'?'B':u} = <b>${f(v)} · ${ex(p[3])} ${u==='byte'?'B':u}</b> = ${f(r,8)} ${u==='byte'?'B':u}`])};
+},
+()=>conv({km:1000,m:1,dm:0.1,cm:0.01,mm:0.001},[2.5,0.75,340,1200,45,0.08,3.2,15,600,1.8]),
+()=>conv({kg:1000,hg:100,g:1,mg:0.001},[2.5,0.4,350,1250,4,0.75,80]),
+()=>conv({l:1,dl:0.1,cl:0.01,ml:0.001},[1.5,0.33,250,4,75,2.25,500]),
+()=>conv({GB:1e9,MB:1e6,kB:1e3},[4.2,0.5,350,1200,64,2.5],'(Räkna med 1 kB = 1 000 byte.)'),
+function(){
+  const v=pick([5,10,12,15,20,25,30,8,2.5]);
+  return {q:`En cyklist håller farten ${f(v)} m/s. Hur många km/h är det?`,a:v*3.6,unit:'km/h',tol:0.011,
+    hint:'1 m/s = 3,6 km/h. Från m/s till km/h: gånger 3,6.',
+    sol:steps(['1 m/s = 3 600 m per timme = 3,6 km/h',`${f(v)} · 3,6 = <b>${f(v*3.6,2)} km/h</b>`])};
+},
+function(){
+  const v=pick([18,36,54,72,90,108,45,27,120]);
+  return {q:`En bil kör i ${v} km/h. Hur många m/s är det? Avrunda till en decimal om det behövs.`,a:v/3.6,unit:'m/s',tol:0.06,
+    hint:'Från km/h till m/s: dela med 3,6.',
+    sol:steps([`${v} km/h = ${f(v*1000)} m på 3 600 s`,`${v} / 3,6 = <b>${f(v/3.6,1)} m/s</b>`])};
+},
+function(){
+  const [s,t]=pick([[30,1.5],[45,1.5],[12,0.5],[80,2],[150,2.5],[9,0.75],[25,1.25]]);
+  return {q:`Alice cyklar ${f(s)} km på ${f(t)} timmar. Vilken är hennes medelhastighet i km/h?`,a:s/t,unit:'km/h',tol:0.011,
+    hint:'Hastighet = sträcka / tid.',
+    sol:steps([`v = s / t = ${f(s)} / ${f(t)}`,`= <b>${f(s/t,2)} km/h</b>`])};
+},
+function(){
+  const [s,t]=pick([[100,12.5],[100,10],[200,25],[400,80],[60,7.5],[1500,300]]);
+  return {q:`En löpare springer ${s} m på ${f(t)} sekunder. Vilken är medelhastigheten i m/s?`,a:s/t,unit:'m/s',tol:0.011,
+    hint:'Hastighet = sträcka / tid.',
+    sol:steps([`v = ${s} / ${f(t)} = <b>${f(s/t,2)} m/s</b>`,`I km/h: ${f(s/t,2)} · 3,6 = ${f(s/t*3.6,2)} km/h`])};
+},
+function(){
+  const [v,t]=pick([[60,20],[90,40],[30,15],[120,45],[72,10],[45,20]]);
+  return {q:`Ett tåg kör i ${v} km/h i ${t} minuter. Hur många km kör tåget?`,a:v*t/60,unit:'km',tol:0.011,
+    hint:'Sträcka = hastighet · tid. Gör om minuterna till timmar först (dela med 60).',
+    sol:steps([`${t} min = ${t}/60 h = ${f(t/60,4)} h`,`s = ${v} · ${f(t/60,4)} = <b>${f(v*t/60,2)} km</b>`])};
+},
+function(){
+  const [a,b]=pick([[50,60],[90,72],[40,50],[30,36],[80,100],[100,80],[70,56]]);
+  const p=Math.abs(b-a)/a*100,up=b>a;
+  return {q:`Hastighetsgränsen ${up?'höjs':'sänks'} från ${a} km/h till ${b} km/h. Med hur många procent ${up?'höjs':'sänks'} den?`,a:p,unit:'%',tol:0.011,
+    hint:'Förändring / ursprungligt värde.',
+    sol:steps([`Förändring: ${Math.abs(b-a)} km/h`,`${Math.abs(b-a)} / ${a} = ${f(Math.abs(b-a)/a,4)} = <b>${f(p)} %</b>`])};
+}];
 // Problemlösning (fasta)
 const PL=[
  {q:'Burkar med läsk kostar 18 kr styck. Butik A har "köp 3, betala för 2". Butik B ger 30 % rabatt. Du köper 3 burkar. Hur många kronor billigare är det billigaste alternativet?',a:1.8,unit:'kr',tol:0.01,
@@ -565,7 +633,7 @@ const PL=[
   hint:'Räntan år 2 räknas på det lån som är kvar.',sol:steps(['Kvar att betala: 20 000 − 5 000 = 15 000 kr','Ränta år 2: 0,06 · 15 000 = <b>900 kr</b>'])},
 ];
 PL.forEach(p=>{p.sec='PL';if(p.tol==null)p.tol=0.011});
-function gen(sec){const g=pick(G[sec])();g.sec=sec;if(g.tol==null)g.tol=0.011;return g}
+function gen(sec){const g=pick(G[sec])();if(sec==='PE'&&g.unit){}g.sec=sec;if(g.tol==null)g.tol=0.011;return g}
 
 /* ---------- navigering ---------- */
 function go(id){
@@ -589,11 +657,11 @@ function renderHome(){
   let k=0;const amount=[22,18,15,12,10];
   setTimeout(()=>{amount.forEach((n,ci)=>{for(let j=0;j<n;j++){const c=g.children[k++];if(c)c.style.background=cols[ci]}})},120);
   let h='<h3>Din räkneträning</h3>';
-  ['2.1','2.2','2.3','2.4','2.5'].forEach(s=>{
+  ['2.1','2.2','2.3','2.4','2.5','PE'].forEach(s=>{
     const d=S.sec[s]||{r:0,t:0};const pct=d.t?Math.round(d.r/d.t*100):0;
-    h+=`<div class="pbar"><span class="mono">${s}</span><span class="t"><b style="width:${Math.min(100,d.r*10)}%;background:${SEC[s].c}"></b></span><span>${d.r} rätt</span></div>`;
+    h+=`<div class="pbar"><span class="mono">${s==='PE'?'Pref':s}</span><span class="t"><b style="width:${Math.min(100,d.r*10)}%;background:${SEC[s].c}"></b></span><span>${d.r} rätt</span></div>`;
   });
-  h+='<p class="note" style="margin:8px 0 0;text-align:left">Målet: 10 rätt i varje avsnitt.'+(S.exam!=null?` Senaste övningsprov: ${S.exam} av 16.`:'')+'</p>';
+  h+='<p class="note" style="margin:8px 0 0;text-align:left">Målet: 10 rätt i varje avsnitt.'+(S.exam!=null?` Senaste övningsprov: ${S.exam} av ${S.examN||16}.`:'')+'</p>';
   $('#progBox').innerHTML=h;
 }
 
@@ -664,6 +732,19 @@ På miniräknaren: 10000 × 1,05 x<sup>y</sup> 3, eller 10000 × 1,05 × 1,05 ×
 <p>Med enkel ränta växer pengarna lika mycket varje år (en rät linje i en graf). Med ränta på ränta växer de mer och mer för varje år (en kurva som böjer uppåt). Prova i Räntelabbet!</p>
 <p><b>Lån:</b> räntan räknas på det du har kvar att betala. När du <b>amorterar</b> (betalar av) minskar lånet och räntan blir lägre.</p>`}
 ];
+LESSONS.push({s:'PE',t:'Prefix och enheter',h:`
+<p>Ett <b>prefix</b> sätts framför en enhet och talar om hur många gånger större eller mindre den är. <b>k</b>m = <b>kilo</b>meter = tusen meter.</p>
+<table class="conv"><tr><th>Prefix</th><th>Tecken</th><th>Betyder</th><th>Tiopotens</th></tr>
+${PREF.map(p=>`<tr><td>${p[0]}</td><td>${p[1]}</td><td>${f(p[2],8)}</td><td>${ex(p[3])}</td></tr>`).join('')}</table>
+<p>Exempel: 1 GB = 1 000 000 000 byte, 1 MW = 1 000 000 W, 1 mm = 0,001 m, 1 µg = 0,000001 g.</p>
+<div class="ex" style="--c:var(--pe)"><b class="lbl">Byta enhet</b>Gå från <b>större till mindre</b> enhet → svaret blir ett <b>större tal</b> (multiplicera). Gå från <b>mindre till större</b> → <b>mindre tal</b> (dividera).
+<ol><li>2,5 km = 2,5 · 1 000 = 2 500 m</li><li>340 mm = 340 / 1 000 = 0,34 m</li><li>250 ml = 2,5 dl = 0,25 l</li></ol></div>
+<div class="ex" style="--c:var(--pe)"><b class="lbl">Trappan för längd</b>km → (·1000) → m → (·10) → dm → (·10) → cm → (·10) → mm.<br>Samma för liter: l → dl → cl → ml, och för vikt: kg → hg → g (sedan ·1000 till mg).</div>
+<p><b>Hastighet</b> = sträcka / tid. Sträcka = hastighet · tid. Tid = sträcka / hastighet.</p>
+<div class="formula">m/s · 3,6 = km/h &nbsp;&nbsp; km/h / 3,6 = m/s</div>
+<div class="ex" style="--c:var(--pe)"><b class="lbl">Varför 3,6?</b>1 m/s betyder 1 meter varje sekund. På en timme (3 600 s) blir det 3 600 m = 3,6 km. Alltså är 1 m/s = 3,6 km/h.
+<ol><li>10 m/s · 3,6 = 36 km/h</li><li>90 km/h / 3,6 = 25 m/s</li></ol></div>
+<div class="warn"><b>Tänk på minuter:</b> 20 minuter är inte 0,20 timmar. Det är 20/60 = 1/3 h ≈ 0,33 h.</div>`});
 const LINKS=[
  ['2.1','Binogi: Andelen, delen och det hela','https://app.binogi.se/l/andelen-delen-och-det-hela?subject=55686'],
  ['2.1','Film från veckoplaneringen (1)','https://www.youtube.com/watch?v=yjE-97Wduws'],
@@ -684,18 +765,18 @@ renderLessons();
 
 /* ---------- räkneträning ---------- */
 let tSec='alla',cur=null,answered=false,hintShown=false,streak=0;
-const TCH=[['alla','Alla','var(--ink)'],['2.1','2.1 Andelen',SEC['2.1'].c],['2.2','2.2 Förändring',SEC['2.2'].c],['2.3','2.3 Det hela',SEC['2.3'].c],['2.4','2.4 Delen',SEC['2.4'].c],['2.5','2.5 Ränta',SEC['2.5'].c],['PL','Problemlösning',SEC.PL.c]];
+const TCH=[['alla','Alla','var(--ink)'],['2.1','2.1 Andelen',SEC['2.1'].c],['2.2','2.2 Förändring',SEC['2.2'].c],['2.3','2.3 Det hela',SEC['2.3'].c],['2.4','2.4 Delen',SEC['2.4'].c],['2.5','2.5 Ränta',SEC['2.5'].c],['PE','Prefix och enheter',SEC.PE.c],['PL','Problemlösning',SEC.PL.c]];
 $('#trainChips').innerHTML=TCH.map(([k,t,c])=>`<button class="chip" data-k="${k}" aria-pressed="${k==='alla'}"><i style="background:${c}"></i>${t}</button>`).join('');
 $('#trainChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;tSec=b.dataset.k;$('#trainChips').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));newTask()};
 let plBag=[];
 function newTask(){
   let s=tSec;
-  if(s==='alla') s=pick(['2.1','2.2','2.2','2.3','2.4','2.5','2.5']);
+  if(s==='alla') s=pick(['2.1','2.2','2.2','2.3','2.4','2.5','2.5','PE']);
   if(s==='PL'){if(!plBag.length)plBag=shuffle(PL);cur=Object.assign({},plBag.pop())}
   else cur=gen(s);
   answered=false;hintShown=false;
   $('#tTask').style.setProperty('--c',SEC[cur.sec].c);
-  $('#tSec').textContent=cur.sec==='PL'?'Problemlösning':cur.sec+' '+SEC[cur.sec].n;
+  $('#tSec').textContent=secName(cur.sec);
   $('#tQ').innerHTML=cur.q;
   $('#tUnit').textContent=cur.unit||'';
   const inp=$('#tIn');inp.value='';inp.className='';inp.disabled=false;
@@ -714,7 +795,7 @@ function check(){
   saveS();
   $('#tIn').className=ok?'right':'wrong';$('#tIn').disabled=true;
   const dd=cur.tol>=0.5?0:(cur.tol>0.02&&cur.tol<0.1)?1:(cur.unit==='kr'?2:4);
-  const shown=f(cur.a,dd)+(cur.unit?' '+cur.unit:'');
+  const shown=cur.show||(f(cur.a,dd)+(cur.unit?' '+cur.unit:''));
   $('#tFb').innerHTML=`<div class="fb ${ok?'ok':'bad'}"><h4>${ok?pick(['Rätt!','Snyggt!','Helt rätt!','Bra jobbat!']):'Inte riktigt'}</h4>${ok?'':'Rätt svar: <b>'+shown+'</b>'}${cur.sol}</div>`;
   $('#tCheck').disabled=true;$('#tHint').disabled=true;$('#tNext').classList.remove('hidden');
   $('#tStreak').textContent=streak;$('#tToday').textContent=S.today;
@@ -748,10 +829,21 @@ const CARDS=[
 ['2.5','Ränta på ränta','Räntan läggs till kapitalet, så man får ränta även på tidigare ränta.','K · 1,05ⁿ'],
 ['2.5','Ränta för del av år','Räkna ut årsräntan och ta så många tolftedelar som antalet månader.','6 månader = 6/12 av årsräntan'],
 ['2.5','Amortera','Betala tillbaka en del av ett lån. Lånet blir mindre och räntan lägre.',''],
+['PE','Prefix','Ord framför en enhet som visar hur många gånger större eller mindre den är.','kilo = 1 000, milli = 0,001'],
+['PE','Kilo (k)','Tusen.','1 km = 1 000 m, 1 kg = 1 000 g'],
+['PE','Mega (M)','Miljon.','1 MW = 1 000 000 W = 10⁶ W'],
+['PE','Giga (G)','Miljard.','1 GB = 1 000 000 000 byte = 10⁹ byte'],
+['PE','Hekto (h)','Hundra.','1 hg = 100 g'],
+['PE','Deci (d)','Tiondel.','1 dl = 0,1 l'],
+['PE','Centi (c)','Hundradel.','1 cm = 0,01 m'],
+['PE','Milli (m)','Tusendel.','1 mm = 0,001 m'],
+['PE','Mikro (µ)','Miljondel.','1 µm = 0,000001 m = 10⁻⁶ m'],
+['PE','Hastighet','Sträcka per tidsenhet.','v = s / t'],
+['PE','m/s till km/h','Multiplicera med 3,6. (Dela med 3,6 åt andra hållet.)','10 m/s = 36 km/h'],
 ['PL','Förändringstakt','Hur snabbt något förändras. Enkel ränta: lika mycket varje år (rät linje). Ränta på ränta: ökar mer och mer (kurva).','']
 ];
 let cSel='alla',cDeck=[],cIdx=0;
-const CCH=[['alla','Alla','var(--ink)'],['2.1','2.1',SEC['2.1'].c],['2.2','2.2',SEC['2.2'].c],['2.3','2.3–2.4',SEC['2.3'].c],['2.5','2.5 Ränta',SEC['2.5'].c]];
+const CCH=[['alla','Alla','var(--ink)'],['2.1','2.1',SEC['2.1'].c],['2.2','2.2',SEC['2.2'].c],['2.3','2.3–2.4',SEC['2.3'].c],['2.5','2.5 Ränta',SEC['2.5'].c],['PE','Prefix',SEC.PE.c]];
 $('#cardChips').innerHTML=CCH.map(([k,t,c])=>`<button class="chip" data-k="${k}" aria-pressed="${k==='alla'}"><i style="background:${c}"></i>${t}</button>`).join('');
 $('#cardChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;cSel=b.dataset.k;$('#cardChips').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));buildDeck();renderCard()};
 function inSel(c){if(cSel==='alla')return true;if(cSel==='2.3')return c[0]==='2.3'||c[0]==='2.4';if(cSel==='2.5')return c[0]==='2.5'||c[0]==='PL';return c[0]===cSel}
@@ -765,7 +857,7 @@ function renderCard(){
   $('#flash').classList.remove('hidden');$('#cBtns').classList.remove('hidden');$('#cHint').classList.remove('hidden');$('#cDone').classList.add('hidden');
   const c=cDeck[cIdx%cDeck.length];
   $('#flash').style.setProperty('--c',SEC[c[0]].c);
-  const sec=c[0]==='PL'?'Funktioner':c[0]+' '+SEC[c[0]].n;
+  const sec=c[0]==='PL'?'Funktioner':secName(c[0]);
   $('#cSec').textContent=$('#cSec2').textContent=sec;
   $('#cNo').textContent=$('#cNo2').textContent=`${cDeck.length} kvar`;
   $('#cTerm').textContent=c[1];
@@ -801,6 +893,12 @@ function drawLab(){
 
 /* ---------- quiz ---------- */
 const QZ=[
+['PE','Vad betyder prefixet milli?',['Tusen','Tusendel','Miljon','Hundradel'],1,'milli = 0,001. 1 mm = 0,001 m.'],
+['PE','Hur många meter är 3,2 km?',['32 m','320 m','3 200 m','0,0032 m'],2,'kilo = 1 000: 3,2 · 1 000 = 3 200 m.'],
+['PE','Hur många GB är 4 500 MB?',['45 GB','4,5 GB','0,45 GB','450 GB'],1,'1 GB = 1 000 MB, så 4 500 / 1 000 = 4,5 GB.'],
+['PE','10 m/s är ungefär …',['10 km/h','36 km/h','100 km/h','2,8 km/h'],1,'10 · 3,6 = 36 km/h.'],
+['PE','Vilken hastighet är störst?',['20 m/s','70 km/h','1 km/min','15 m/s'],0,'20 m/s = 72 km/h. 1 km/min = 60 km/h. 15 m/s = 54 km/h.'],
+['PE','Hur skrivs mega i tiopotensform?',['10³','10⁶','10⁹','10⁻⁶'],1,'mega = miljon = 10⁶.'],
 ['2.1','Vad betyder procent?',['Hundradel','Tiondel','Tusendel','Hela'],0,'Procent kommer från latinets "per centum", per hundra. 1 % = 1/100.'],
 ['2.1','Hur skrivs 0,4 i procentform?',['4 %','40 %','0,4 %','400 %'],1,'0,4 · 100 = 40 %.'],
 ['2.1','Hur skrivs 3/4 i decimalform?',['0,34','0,75','1,33','0,43'],1,'3 / 4 = 0,75.'],
@@ -843,7 +941,7 @@ function showQ(){
     $('#qBox').innerHTML=`<div class="result"><div class="big">${qScore}/10</div><p>${qScore>=9?'Superbra!':qScore>=7?'Bra! Kolla förklaringarna på de du missade.':'Läs igenom Lär dig och försök igen.'}</p><button class="btn main wide" id="qAgain">Nytt quiz</button><button class="btn ghost wide" data-go="home">Till startsidan</button></div>`;
     $('#qAgain').onclick=startQuiz;return}
   const q=qList[qi];$('#qCount').textContent=`Fråga ${qi+1} av 10`;
-  $('#qBox').innerHTML=`<div class="task" style="--c:${SEC[q.s].c}"><div class="qsec">${q.s} ${SEC[q.s].n}</div><h3>${q.q}</h3><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div><div id="qEx"></div></div>`;
+  $('#qBox').innerHTML=`<div class="task" style="--c:${SEC[q.s].c}"><div class="qsec">${secName(q.s)}</div><h3>${q.q}</h3><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div><div id="qEx"></div></div>`;
   $('#qBox').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.i,ok=i===q.a;if(ok)qScore++;qRes[qi]=ok;
     $('#qBox').querySelectorAll('.opt').forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add('right');else if(k===i)x.classList.add('wrong')});
@@ -854,9 +952,9 @@ function showQ(){
 }
 
 /* ---------- övningsprov ---------- */
-let eList=[],ei=0,eAns=[];
+let eList=[],ei=0,eAns=[],nA=14;
 function startExam(){
-  const plan=['2.1','2.1','2.2','2.2','2.2','2.3','2.3','2.4','2.4','2.5','2.5','2.5'];
+  const plan=['2.1','2.1','2.2','2.2','2.2','2.3','2.3','2.4','2.4','2.5','2.5','2.5','PE','PE'];nA=plan.length;
   eList=plan.map(s=>gen(s)).concat(shuffle(PL).slice(0,4).map(p=>Object.assign({},p)));
   ei=0;eAns=[];showE();
 }
@@ -865,7 +963,7 @@ function showE(){
   if(ei>=eList.length) return gradeE();
   const t=eList[ei];
   $('#eCount').textContent=`Uppgift ${ei+1} av ${eList.length}`;
-  $('#eBox').innerHTML=`<div class="task" style="--c:${SEC[t.sec].c}"><div class="qsec">${ei<12?'Del A':'Del B'} · ${t.sec==='PL'?'Problemlösning':t.sec+' '+SEC[t.sec].n}</div><h3>${t.q}</h3>
+  $('#eBox').innerHTML=`<div class="task" style="--c:${SEC[t.sec].c}"><div class="qsec">${ei<nA?'Del A':'Del B'} · ${secName(t.sec)}</div><h3>${t.q}</h3>
   <div class="ansrow"><input id="eIn" inputmode="decimal" autocomplete="off" placeholder="Ditt svar" aria-label="Ditt svar"><span class="unit">${t.unit||''}</span></div>
   <div class="row2"><button class="btn ghost" id="eSkip">Hoppa över</button><button class="btn main" id="eOk">${ei<eList.length-1?'Nästa':'Lämna in'}</button></div></div>
   <p class="tip">Provet rättas när du har svarat på alla uppgifter.</p>`;
@@ -878,13 +976,13 @@ function gradeE(){
   let score=0;const res=[],bySec={};
   eList.forEach((t,i)=>{const a=eAns[i];const ok=a&&!isNaN(a.v)&&Math.abs(a.v-t.a)<=t.tol;res[i]=!!ok;if(ok)score++;
     const k=t.sec;bySec[k]=bySec[k]||[0,0];bySec[k][1]++;if(ok)bySec[k][0]++});
-  S.exam=score;saveS();
+  S.exam=score;S.examN=eList.length;saveS();
   meter($('#eMeter'),eList.length,res,-1);
   $('#eCount').textContent='Resultat';
   const miss=eList.map((t,i)=>({t,i})).filter(x=>!res[x.i]);
   $('#eBox').innerHTML=`<div class="result"><div class="big">${score}/${eList.length}</div>
-  <p>${score>=14?'Riktigt starkt! Du är redo.':score>=11?'Bra! Träna lite till på de avsnitt där du tappade poäng.':'Kör räkneträning på avsnitten nedan och gör ett nytt prov.'}</p>
-  <div class="secscore">${Object.keys(SEC).filter(k=>bySec[k]).map(k=>`<div class="pbar"><span class="mono">${k==='PL'?'Prob':k}</span><span class="t"><b style="width:${bySec[k][0]/bySec[k][1]*100}%;background:${SEC[k].c}"></b></span><span>${bySec[k][0]}/${bySec[k][1]}</span></div>`).join('')}</div>
+  <p>${score>=eList.length-2?'Riktigt starkt! Du är redo.':score>=eList.length*0.7?'Bra! Träna lite till på de avsnitt där du tappade poäng.':'Kör räkneträning på avsnitten nedan och gör ett nytt prov.'}</p>
+  <div class="secscore">${Object.keys(SEC).filter(k=>bySec[k]).map(k=>`<div class="pbar"><span class="mono">${k==='PL'?'Prob':k==='PE'?'Pref':k}</span><span class="t"><b style="width:${bySec[k][0]/bySec[k][1]*100}%;background:${SEC[k].c}"></b></span><span>${bySec[k][0]}/${bySec[k][1]}</span></div>`).join('')}</div>
   ${miss.length?`<h3 style="text-align:left;margin-top:20px">Gå igenom de här</h3><ul class="missed">${miss.map(({t,i})=>`<li><b>Uppgift ${i+1}.</b> ${t.q}<br><span class="your">Ditt svar: ${eAns[i]&&eAns[i].raw.trim()?eAns[i].raw:'(inget svar)'}</span>${t.sol}</li>`).join('')}</ul>`:''}
   <button class="btn main wide" id="eAgain">Nytt övningsprov</button><button class="btn ghost wide" data-go="home">Till startsidan</button></div>`;
   $('#eAgain').onclick=startExam;
