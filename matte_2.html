@@ -161,6 +161,56 @@ svg.chart text{font-family:var(--body);font-size:11px;fill:var(--soft)}
 .missed>li{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
 .missed .your{color:var(--bad);font-weight:700}
 .secscore{display:grid;gap:4px;margin-top:14px;text-align:left}
+/* ränta på ränta-steg */
+.rdots{display:flex;gap:5px;margin:8px 0 4px}
+.rdots b{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.rdots b.done{background:var(--s25)}.rdots b.now{background:var(--ink)}
+.rcard{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:20px;margin-top:12px}
+.rcard h3{font-size:1.45rem;margin-bottom:6px}
+.rcard p{margin:8px 0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.who{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.who .em{font-size:2.2rem;line-height:1}
+.who b{display:block;font-family:var(--display);font-size:1.15rem;margin-top:4px}
+.who small{color:var(--soft);display:block;line-height:1.35}
+.who .amt{font-family:var(--mono);font-weight:700;font-size:1.05rem;margin-top:6px;display:block}
+.minirow{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.minirow input{width:130px;border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:1.05rem}
+.minirow input.right,.rtab input.right{border-color:var(--ok);background:var(--okbg)}
+.minirow input.wrong,.rtab input.wrong{border-color:var(--bad);background:var(--badbg)}
+.btn.sm{padding:10px 14px;font-size:.95rem}
+.pink{color:var(--pl);font-weight:700}
+.goldt{color:var(--s25);font-weight:700}
+.rtab{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums;font-size:.95rem}
+.rtab th{font-family:var(--display);font-size:.85rem;text-align:left;padding:4px;color:var(--soft)}
+.rtab td{padding:4px;border-top:1px solid var(--line)}
+.rtab input{width:100%;min-width:0;border:2px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 6px;font-family:var(--mono);font-size:.95rem}
+.chain{font-family:var(--mono);font-weight:700;background:var(--paper);border-radius:12px;padding:14px;margin-top:12px;font-size:1.05rem;overflow-wrap:anywhere;line-height:1.7}
+.chain .x{color:var(--s25)}
+.machine{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
+.machine .box{background:var(--s25);color:#fff;border-radius:14px;padding:14px 18px;font-family:var(--display);font-weight:800;font-size:1.3rem;border:none}
+.machine .box:active{transform:scale(.96)}
+.big2{font-family:var(--display);font-weight:800;font-size:2rem;text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
+.fbig{font-family:var(--mono);font-weight:700;text-align:center;font-size:1.15rem;background:var(--paper);border-radius:12px;padding:16px 10px;margin:12px 0;line-height:1.9}
+.fbig .k{background:var(--s21);color:#fff;border-radius:6px;padding:2px 6px}
+.fbig .f{background:var(--s25);color:#fff;border-radius:6px;padding:2px 6px}
+.fbig .n{background:var(--pl);color:#fff;border-radius:6px;padding:0 5px;font-size:.8em}
+.mist{list-style:none;padding:0;margin:8px 0}
+.mist li{background:var(--paper);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.mist li b{font-family:var(--mono)}
+.choice{display:grid;gap:10px;margin-top:12px}
+.choice button{text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:12px 14px}
+.choice button:hover{border-color:var(--ink)}
+.choice button.picked{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px;margin-top:10px}
+.days span{background:var(--paper);border-radius:8px;padding:6px 8px;font-size:.82rem;font-variant-numeric:tabular-nums}
+.days span b{display:block;font-family:var(--mono);font-size:.9rem}
+.days span.hot{background:var(--s25);color:#fff}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.88rem;margin-top:6px}
+.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+svg.snow{width:100%;height:auto;display:block;margin-top:10px}
+svg.snow text{font-family:var(--body);font-size:11px;fill:var(--soft)}
+.new{display:inline-block;background:var(--pl);color:#fff;font-size:.7rem;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px;font-family:var(--mono)}
 @media (prefers-reduced-motion:reduce){.flash-inner{transition:none}}
 </style>
 </head>
@@ -178,6 +228,7 @@ svg.chart text{font-family:var(--body);font-size:11px;fill:var(--soft)}
   </div>
   <div class="modes">
     <button class="mode" data-go="learn"><span class="tag" style="background:var(--s21)">Aa</span><span><h2>Lär dig</h2><p>Genomgång av 2.1–2.5 och prefix och enheter, med formler, exempel och filmer.</p></span></button>
+    <button class="mode" data-go="rpr"><span class="tag" style="background:var(--pl)">⛄</span><span><h2>Ränta på ränta, steg för steg<span class="new">NY</span></h2><p>Följ Saga och Sam och upptäck hur pengar kan rulla som en snöboll.</p></span></button>
     <button class="mode" data-go="train"><span class="tag" style="background:var(--s22)">1+1</span><span><h2>Räkneträning</h2><p>Nya uppgifter varje gång. Ledtråd och lösning steg för steg.</p></span></button>
     <button class="mode" data-go="cards"><span class="tag" style="background:var(--s23)">ABC</span><span><h2>Begrepp</h2><p>Kort att vända: procentenhet, förändringsfaktor, räntesats, prefix …</p></span></button>
     <button class="mode" data-go="lab"><span class="tag" style="background:var(--s25)">%↗</span><span><h2>Räntelabbet</h2><p>Dra i reglagen och se skillnaden mellan enkel ränta och ränta på ränta.</p></span></button>
@@ -260,6 +311,14 @@ svg.chart text{font-family:var(--body);font-size:11px;fill:var(--soft)}
     </div>
     <div class="ex" style="--c:var(--s25);margin-top:14px" id="labExplain"></div>
   </div>
+</section>
+
+<!-- RÄNTA PÅ RÄNTA STEG FÖR STEG -->
+<section id="rpr" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="rpCount"></span></div>
+  <div class="rdots" id="rpDots"></div>
+  <div class="rcard" id="rpCard"></div>
+  <div class="row2"><button class="btn ghost" id="rpPrev">‹ Förra</button><button class="btn main" id="rpNext">Nästa ›</button></div>
 </section>
 
 <!-- QUIZ -->
@@ -643,6 +702,7 @@ function go(id){
   if(id==='train'&&!cur) newTask();
   if(id==='cards') renderCard();
   if(id==='lab') drawLab();
+  if(id==='rpr') renderRpr();
   if(id==='quiz') startQuiz();
   if(id==='exam') startExam();
 }
@@ -730,6 +790,7 @@ Bara 4 månader? Ta 4/12 av årsräntan: 300 / 12 · 4 = <b>100 kr</b>.</div>
 <ol><li>Faktor: 1,05</li><li>10 000 · 1,05<sup>3</sup> = 11 576,25 kr</li><li>Räntan totalt: 1 576,25 kr (med enkel ränta: 1 500 kr)</li></ol>
 På miniräknaren: 10000 × 1,05 x<sup>y</sup> 3, eller 10000 × 1,05 × 1,05 × 1,05.</div>
 <p>Med enkel ränta växer pengarna lika mycket varje år (en rät linje i en graf). Med ränta på ränta växer de mer och mer för varje år (en kurva som böjer uppåt). Prova i Räntelabbet!</p>
+<p><b>Tycker du ränta på ränta är svårt?</b> Gå till <b>Ränta på ränta, steg för steg</b> på startsidan.</p>
 <p><b>Lån:</b> räntan räknas på det du har kvar att betala. När du <b>amorterar</b> (betalar av) minskar lånet och räntan blir lägre.</p>`}
 ];
 LESSONS.push({s:'PE',t:'Prefix och enheter',h:`
@@ -987,6 +1048,160 @@ function gradeE(){
   <button class="btn main wide" id="eAgain">Nytt övningsprov</button><button class="btn ghost wide" data-go="home">Till startsidan</button></div>`;
   $('#eAgain').onclick=startExam;
 }
+
+/* ---------- ränta på ränta, steg för steg ---------- */
+let rp=0;const RP={y:2,m:0,ch:null};
+function rpIn(id,ans,tol,fb,ok,bad){
+  const el=$('#'+id),v=parseNum(el.value);
+  if(isNaN(v)){$('#'+fb).innerHTML='<div class="fb hint">Skriv ett tal.</div>';return false}
+  const r=Math.abs(v-ans)<=tol;el.className=r?'right':'wrong';
+  $('#'+fb).innerHTML=`<div class="fb ${r?'ok':'bad'}">${r?ok:bad}</div>`;return r;
+}
+function snowSVG(Y){
+  const K=1000,r=.1,W=600,H=260,L=50,R=8,T=12,B=26;
+  const max=K*Math.pow(1+r,Math.max(Y,3));
+  const bw=(W-L-R)/(Y+1);const y=v=>H-B-(H-B-T)*v/max;
+  let s='';
+  for(let i=0;i<=4;i++){const v=max*i/4;s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+4}" text-anchor="end">${f(Math.round(v/100)*100)}</text>`}
+  for(let n=0;n<=Y;n++){
+    const tot=K*Math.pow(1+r,n),simple=n*K*r,extra=tot-K-simple;
+    const x=L+n*bw+bw*.15,w=bw*.7;
+    s+=`<rect x="${x}" y="${y(K)}" width="${w}" height="${y(0)-y(K)}" fill="var(--s21)" rx="2"/>`;
+    if(simple>0)s+=`<rect x="${x}" y="${y(K+simple)}" width="${w}" height="${y(K)-y(K+simple)}" fill="var(--s25)"/>`;
+    if(extra>0.5)s+=`<rect x="${x}" y="${y(tot)}" width="${w}" height="${y(K+simple)-y(tot)}" fill="var(--pl)"/>`;
+    if(Y<=12||n%5===0||n===Y)s+=`<text x="${x+w/2}" y="${H-8}" text-anchor="middle">${n}</text>`;
+  }
+  return `<svg class="snow" viewBox="0 0 ${W} ${H}" role="img" aria-label="Sagas pengar år för år">${s}</svg>`;
+}
+function rpGuided(){
+  RP.g={K:pick([2000,5000,8000,10000,20000]),r:pick([2,3,4,5,6,8]),n:pick([3,4,5,6,8,10])};
+}
+const RPS=[
+{t:'Möt Saga och Sam',r:()=>`
+<p>Saga och Sam får båda <b>1 000 kr</b> var i present. De sätter in pengarna på varsitt bankkonto. Banken ger <b>10 % ränta</b> per år. (I verkligheten är räntan lägre, men 10 % är lätt att räkna med.)</p>
+<div class="duo">
+ <div class="who"><div class="em">🫙</div><b>Sam</b><small>Tar ut räntan varje år och lägger den i en burk. På kontot ligger alltid 1 000 kr.</small></div>
+ <div class="who"><div class="em">⛄</div><b>Saga</b><small>Låter räntan ligga kvar på kontot. Hennes pengar rullar som en snöboll.</small></div>
+</div>
+<p><b>Gissa först:</b> vem har mest pengar efter 10 år?</p>
+<div class="choice" id="rpGuess">
+ <button data-v="sam">Sam</button><button data-v="saga">Saga</button><button data-v="lika">De har lika mycket</button>
+</div><div id="rpGfb"></div>`,
+ init(){$('#rpGuess').onclick=e=>{const b=e.target.closest('button');if(!b)return;RP.guess=b.dataset.v;$('#rpGuess').querySelectorAll('button').forEach(x=>x.classList.toggle('picked',x===b));
+  $('#rpGfb').innerHTML='<div class="fb hint">Bra, kom ihåg din gissning! Gå vidare så räknar vi ut det tillsammans.</div>'}}},
+{t:'År 1: lika för båda',r:()=>`
+<p>Efter ett år ger banken 10 % ränta. Båda har 1 000 kr på kontot.</p>
+<p><b>Hur mycket är 10 % av 1 000 kr?</b></p>
+<div class="minirow"><input id="rp1" inputmode="decimal" placeholder="kr"><button class="btn main sm" id="rp1b">Rätta</button></div><div id="rp1f"></div>`,
+ init(){$('#rp1b').onclick=()=>rpIn('rp1',100,.01,'rp1f',
+  `Rätt! 0,1 · 1 000 = 100 kr.<div class="duo"><div class="who"><div class="em">🫙</div><b>Sam</b><small>Konto: 1 000 kr<br>Burk: 100 kr</small><span class="amt">1 100 kr</span></div><div class="who"><div class="em">⛄</div><b>Saga</b><small>Konto: 1 100 kr</small><span class="amt">1 100 kr</span></div></div>Hittills har de exakt lika mycket.`,
+  'Tips: 10 % = 0,1. Räkna 0,1 · 1 000.')}},
+{t:'År 2: här händer det!',r:()=>`
+<p>Sam har fortfarande <b>1 000 kr</b> på kontot. Saga har <b>1 100 kr</b> på kontot, eftersom hennes ränta låg kvar.</p>
+<p><b>Hur mycket ränta får Saga år 2?</b> (10 % av 1 100 kr)</p>
+<div class="minirow"><input id="rp2" inputmode="decimal" placeholder="kr"><button class="btn main sm" id="rp2b">Rätta</button></div><div id="rp2f"></div>`,
+ init(){$('#rp2b').onclick=()=>rpIn('rp2',110,.01,'rp2f',
+  `Rätt, 110 kr! Sam får bara 100 kr, för han har bara 1 000 kr på kontot.<br><br>
+  Sagas 10 extra kronor kommer från att <b>hennes förra ränta (100 kr) också gav ränta</b>: 10 % av 100 kr = 10 kr.<br><br>
+  <span class="pink">Det är det som kallas ränta på ränta: räntan tjänar själv ränta.</span>`,
+  'Tips: 0,1 · 1 100 = ?')}},
+{t:'Spola fram åren',r:()=>`
+<p>Varje stapel visar Sagas pengar. Tryck fram år för år och titta på den <span class="pink">rosa</span> delen.</p>
+<div class="lg"><span><i style="background:var(--s21)"></i>Startpengarna 1 000 kr</span><span><i style="background:var(--s25)"></i>Ränta på startpengarna (100 kr/år, samma som Sam)</span><span><i style="background:var(--pl)"></i>Ränta på ränta</span></div>
+<div id="rpSnow"></div>
+<div class="row2"><button class="btn ghost sm" id="rpY1">+1 år</button><button class="btn ghost sm" id="rpY5">+5 år</button></div>
+<button class="btn ghost wide sm" id="rpY0">Börja om</button>
+<div id="rpSnowTxt"></div>`,
+ init(){const d=()=>{const Y=RP.y,saga=1000*Math.pow(1.1,Y),sam=1000+100*Y;$('#rpSnow').innerHTML=snowSVG(Y);
+  $('#rpSnowTxt').innerHTML=`<div class="duo"><div class="who"><div class="em">🫙</div><b>Sam</b><span class="amt">${kr(Math.round(sam))}</span></div><div class="who"><div class="em">⛄</div><b>Saga</b><span class="amt">${kr(Math.round(saga))}</span></div></div>
+  <p>Efter <b>${Y} år</b> har Saga <b class="pink">${kr(Math.round(saga-sam))}</b> mer än Sam. ${Y>=10?(RP.guess==='saga'?'Du gissade rätt!':RP.guess?'Blev du förvånad?':''):''}
+  ${Y>=7?' Snöbollen växer allt snabbare, eftersom ju mer pengar som ligger på kontot, desto mer ränta blir det.':''}</p>`};
+  d();$('#rpY1').onclick=()=>{RP.y=Math.min(30,RP.y+1);d()};$('#rpY5').onclick=()=>{RP.y=Math.min(30,RP.y+5);d()};$('#rpY0').onclick=()=>{RP.y=0;d()}}},
+{t:'Räkna själv: Sagas konto',r:()=>`
+<p>Fyll i tabellen. Räntan är alltid 10 % av det som finns på kontot i början av året. Svaren får ha decimaler.</p>
+<table class="rtab"><tr><th>År</th><th>I början</th><th>Ränta 10 %</th><th>I slutet</th></tr>
+<tr><td>1</td><td>1 000</td><td>100</td><td>1 100</td></tr>
+<tr><td>2</td><td>1 100</td><td><input id="t22" inputmode="decimal"></td><td><input id="t23" inputmode="decimal"></td></tr>
+<tr><td>3</td><td><input id="t31" inputmode="decimal"></td><td><input id="t32" inputmode="decimal"></td><td><input id="t33" inputmode="decimal"></td></tr>
+<tr><td>4</td><td><input id="t41" inputmode="decimal"></td><td><input id="t42" inputmode="decimal"></td><td><input id="t43" inputmode="decimal"></td></tr>
+</table>
+<button class="btn main wide" id="rpTb">Rätta tabellen</button><div id="rpTf"></div>`,
+ init(){$('#rpTb').onclick=()=>{const A={t22:110,t23:1210,t31:1210,t32:121,t33:1331,t41:1331,t42:133.1,t43:1464.1};let n=0;
+  for(const k in A){const el=$('#'+k),v=parseNum(el.value),ok=!isNaN(v)&&Math.abs(v-A[k])<.011;el.className=ok?'right':'wrong';if(ok)n++}
+  $('#rpTf').innerHTML=n===8?`<div class="fb ok"><h4>Alla rätt!</h4>Ser du mönstret? "I slutet" ett år blir "I början" nästa år. Och räntan blir större för varje år: 100, 110, 121, 133,10 …</div>`
+  :`<div class="fb bad">${n} av 8 rätt. Tips: Det som står "I slutet" ett år flyttar ner till "I början" året efter. Räntan = 0,1 · det som står i början. I slutet = i början + räntan.</div>`}}},
+{t:'Genvägen: gånger 1,1',r:()=>`
+<p>Att lägga till 10 % varje år tar tid. Men kom ihåg <b>förändringsfaktorn</b>: en ökning med 10 % är samma sak som att multiplicera med <b>1,1</b> (100 % + 10 % = 110 % = 1,1).</p>
+<p>Tryck på maskinen. Varje tryck är ett år på banken.</p>
+<div class="machine"><button class="box" id="rpM">× 1,1</button><button class="btn ghost sm" id="rpM0">Börja om</button></div>
+<div class="chain" id="rpChain"></div><div id="rpMtxt"></div>`,
+ init(){const d=()=>{const m=RP.m,v=1000*Math.pow(1.1,m);
+  $('#rpChain').innerHTML=`1 000${' <span class="x">· 1,1</span>'.repeat(m)} = ${f(v,2)} kr`;
+  $('#rpMtxt').innerHTML=m===0?'<p>Startpengar: 1 000 kr. Tryck på maskinen!</p>':
+  `<p>${m} år = ${m} st "· 1,1" efter varandra.${m>=2?` Det kan skrivas kortare med en <b>potens</b>:</p><div class="fbig">1 000 · 1,1<sup>${m}</sup> = ${f(v,2)} kr</div><p>Exponenten (den lilla siffran) är <b>antalet år</b>. ${m<=4?'Jämför med tabellen du fyllde i, det blir samma tal!':''}`:''}</p>`};
+  d();$('#rpM').onclick=()=>{if(RP.m<10)RP.m++;d()};$('#rpM0').onclick=()=>{RP.m=0;d()}}},
+{t:'Formeln',r:()=>`
+<p>Nu har du upptäckt formeln själv:</p>
+<div class="fbig"><span class="k">startbelopp</span> · <span class="f">faktor</span><sup><span class="n">år</span></sup> = slutbelopp</div>
+<div class="ex" style="--c:var(--s25)"><b class="lbl">Så hittar du faktorn</b>Faktor = 1 + räntan i decimalform.
+<ol><li>3 % ränta → 1 + 0,03 = <b>1,03</b></li><li>5 % ränta → <b>1,05</b></li><li>2,5 % ränta → <b>1,025</b></li></ol></div>
+<div class="ex" style="--c:var(--s21)"><b class="lbl">På miniräknaren</b>5 000 kr, 3 % i 4 år: skriv <b>5000 × 1.03 ^ 4</b> (knappen heter <b>^</b>, <b>x<sup>y</sup></b> eller <b>y<sup>x</sup></b>).<br>Hittar du inte knappen? Skriv 5000 × 1.03 × 1.03 × 1.03 × 1.03. Det blir samma: 5 627,54 kr.</div>
+<p><b>Vanliga fel</b> (räknat på 5 000 kr, 3 %, 4 år):</p>
+<ul class="mist">
+<li>✗ <b>5000 · 0,03 · 4 = 600</b><br>Det är bara räntan med <i>enkel</i> ränta, inte ränta på ränta.</li>
+<li>✗ <b>5000 · 1,03 · 4 = 20 600</b><br>Du ska ha "upphöjt till 4", inte "gånger 4".</li>
+<li>✗ <b>5000 · 0,03<sup>4</sup></b><br>Glömt ettan! Faktorn ska vara 1,03, annars krymper pengarna nästan till noll.</li>
+<li>✓ <b>5000 · 1,03<sup>4</sup> ≈ 5 627,54 kr</b></li>
+</ul>
+<p><b>Rimlighetskoll:</b> svaret ska vara lite mer än med enkel ränta (5 000 + 600 = 5 600 kr). 5 627 kr är rimligt!</p>`},
+{t:'Bygg uträkningen',r:()=>{if(!RP.g)rpGuided();const g=RP.g;return `
+<p>${pick(['Alice','Saga','Du'])} sätter in <b>${f(g.K)} kr</b> till <b>${g.r} %</b> ränta per år och låter pengarna växa i <b>${g.n} år</b> med ränta på ränta.</p>
+<p><b>Steg 1.</b> Vilken är förändringsfaktorn?</p>
+<div class="minirow"><input id="rg1" inputmode="decimal"><button class="btn main sm" id="rg1b">Rätta</button></div><div id="rg1f"></div>
+<p><b>Steg 2.</b> Vilken exponent (upphöjt till) ska du använda?</p>
+<div class="minirow"><input id="rg2" inputmode="decimal"><button class="btn main sm" id="rg2b">Rätta</button></div><div id="rg2f"></div>
+<p><b>Steg 3.</b> Räkna ut slutbeloppet. Avrunda till hela kronor.</p>
+<div class="minirow"><input id="rg3" inputmode="decimal"><span class="unit">kr</span><button class="btn main sm" id="rg3b">Rätta</button></div><div id="rg3f"></div>
+<button class="btn ghost wide" id="rgNew">Ny uppgift</button>`},
+ init(){const g=RP.g,fa=1+g.r/100,A=g.K*Math.pow(fa,g.n);
+  $('#rg1b').onclick=()=>rpIn('rg1',fa,1e-6,'rg1f',`Rätt! 1 + ${f(g.r/100,2)} = ${f(fa,2)}`,`Faktorn = 1 + räntan i decimalform. ${g.r} % = ${f(g.r/100,2)}.`);
+  $('#rg2b').onclick=()=>rpIn('rg2',g.n,0,'rg2f','Rätt! Exponenten är antalet år.','Exponenten är antalet år.');
+  $('#rg3b').onclick=()=>rpIn('rg3',A,.51,'rg3f',`Rätt! ${f(g.K)} · ${f(fa,2)}<sup>${g.n}</sup> = ${kr(A)} ≈ <b>${f(Math.round(A))} kr</b>`,`Räkna ${f(g.K)} · ${f(fa,2)}<sup>${g.n}</sup> på miniräknaren. Rätt svar: ${f(Math.round(A))} kr.`);
+  $('#rgNew').onclick=()=>{rpGuided();renderRpr()}}},
+{t:'Utmaningen',r:()=>`
+<p>Du får välja en av två presenter:</p>
+<div class="choice" id="rpCh">
+<button data-v="a"><b>A.</b> 1 miljon kronor direkt.</button>
+<button data-v="b"><b>B.</b> 1 öre i dag. Sedan dubblas beloppet varje dag i 30 dagar.</button>
+</div><div id="rpChf"></div>`,
+ init(){$('#rpCh').onclick=e=>{const b=e.target.closest('button');if(!b)return;$('#rpCh').querySelectorAll('button').forEach(x=>x.classList.toggle('picked',x===b));
+  const show=[1,2,3,4,5,6,7,10,15,20,25,27,28,29,30];
+  $('#rpChf').innerHTML=`<p>${b.dataset.v==='b'?'Modigt val!':'Säkert val … men titta här:'}</p><div class="days">${show.map(d=>`<span class="${d>=28?'hot':''}">Dag ${d}<b>${d<15?kr(0.01*Math.pow(2,d-1)):f(Math.round(0.01*Math.pow(2,d-1)))+' kr'}</b></span>`).join('')}</div>
+  <div class="fb ok" style="margin-top:12px">Dag 30 har öret blivit <b>${kr(0.01*Math.pow(2,29))}</b>, över 5 miljoner!<br><br>
+  Att dubblas är samma sak som 100 % ränta per dag, faktor 2. Uträkningen är ränta på ränta: 0,01 · 2<sup>29</sup>. Det går långsamt i början och sedan extremt fort. Precis som Sagas snöboll, fast mycket snabbare.</div>`}}},
+{t:'Sammanfattning',r:()=>`
+<ul class="mist">
+<li><b>Enkel ränta:</b> samma ränta varje år, eftersom den bara räknas på startpengarna. Som Sam.</li>
+<li><b>Ränta på ränta:</b> räntan läggs till på kontot och ger själv ränta nästa år. Pengarna växer mer och mer. Som Saga.</li>
+<li><b>Förändringsfaktor:</b> 1 + räntan i decimalform. 4 % → 1,04.</li>
+<li><b>Formeln:</b> startbelopp · faktor<sup>antal år</sup></li>
+<li><b>Räntan totalt:</b> slutbelopp − startbelopp.</li>
+</ul>
+<button class="btn main wide" id="rpGo">Öva på ränteuppgifter</button>
+<button class="btn ghost wide" data-go="lab">Testa i Räntelabbet</button>`,
+ init(){$('#rpGo').onclick=()=>{go('train');const c=document.querySelector('#trainChips .chip[data-k="2.5"]');if(c)c.click()}}}
+];
+function renderRpr(){
+  const s=RPS[rp];
+  $('#rpCount').textContent=`Steg ${rp+1} av ${RPS.length}`;
+  $('#rpDots').innerHTML=RPS.map((_,i)=>`<b class="${i<rp?'done':i===rp?'now':''}"></b>`).join('');
+  $('#rpCard').innerHTML=`<h3>${s.t}</h3>`+s.r();
+  if(s.init)s.init();
+  $('#rpPrev').disabled=rp===0;
+  $('#rpNext').textContent=rp===RPS.length-1?'Till startsidan':'Nästa ›';
+}
+$('#rpPrev').onclick=()=>{if(rp>0){rp--;renderRpr();window.scrollTo(0,0)}};
+$('#rpNext').onclick=()=>{if(rp<RPS.length-1){rp++;renderRpr();window.scrollTo(0,0)}else go('home')};
 
 renderHome();
 </script>
