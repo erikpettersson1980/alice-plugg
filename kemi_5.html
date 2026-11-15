@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plugga kemi – kolatomen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F4; --card:#FFFFFF; --ink:#1E2340; --soft:#5D6480; --line:#D9DFE6;
+  --red:#D7263D; --orange:#EE7A2B; --yellow:#F2B705; --green:#3FA34D; --teal:#1F9E9A; --blue:#2B59C3; --violet:#6A3FB5;
+  --okbg:#DDF3E1; --badbg:#FBE0E4; --carbon:#2A2F45; --hyd:#8A93AD;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#141827; --card:#1E2338; --ink:#ECEFF7; --soft:#A6ADC6; --line:#30375A; --okbg:#173A24; --badbg:#47202A; --carbon:#ECEFF7; --hyd:#8A93AD; }
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Lexend,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:Outfit,Lexend,system-ui,sans-serif;line-height:1.15;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:20px 18px 40px}
+
+/* hexagon strip – grafen som signatur */
+.hexes{display:flex;gap:3px;margin:14px 0 4px;height:26px;overflow:hidden}
+.hexes svg{flex:none}
+
+header h1{font-size:2.1rem;font-weight:800;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--soft)}
+
+.modes{display:grid;gap:12px;margin-top:20px}
+.mode{display:flex;gap:14px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px 16px}
+.mode:hover{border-color:var(--ink)}
+.mode .ic{flex:none;width:44px;height:44px}
+.mode h2{font-size:1.2rem}
+.mode p{margin:2px 0 0;color:var(--soft);font-size:.93rem}
+.group{margin:22px 0 -4px;color:var(--soft);font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 6px}
+.chip{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.backbtn{background:none;border:none;padding:6px 0;color:var(--soft);font-weight:600}
+.count{color:var(--soft);font-size:.95rem}
+
+.panel{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:20px;margin-top:14px}
+.panel h3{font-size:1.25rem;margin-bottom:8px}
+.panel p{margin:8px 0}
+.panel ul{margin:8px 0;padding-left:20px}
+.panel li{margin-bottom:4px}
+.tag{display:inline-block;font-size:.8rem;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--soft)}
+.key{background:var(--bg);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0}
+
+/* flashcard */
+.flash{perspective:1200px;margin-top:14px}
+.flash-inner{position:relative;min-height:290px;transition:transform .45s ease;transform-style:preserve-3d}
+.flash.flipped .flash-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{transform:rotateY(180deg)}
+.face small{color:var(--soft);font-size:.85rem;position:absolute;top:16px;left:24px}
+.face .term{font-family:Outfit,sans-serif;font-size:2rem;font-weight:700;text-align:center}
+.face .def{font-size:1.05rem}
+.hint{text-align:center;color:var(--soft);font-size:.9rem;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.btn{border:none;border-radius:14px;padding:14px;font-weight:600;font-size:1rem;background:var(--bg)}
+.btn.again{background:var(--badbg)}
+.btn.know{background:var(--okbg)}
+.btn.main{background:var(--ink);color:var(--bg);width:100%;margin-top:16px}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* quiz */
+.q{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:22px;margin-top:14px}
+.q h3{font-size:1.25rem;font-weight:700}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt{text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--okbg);border-color:var(--green)}
+.opt.wrong{background:var(--badbg);border-color:var(--red)}
+.explain{margin-top:14px;padding:12px 14px;border-left:4px solid var(--blue);background:var(--bg);border-radius:0 10px 10px 0}
+.progress{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:8px}
+.progress i{display:block;height:100%;background:var(--teal);transition:width .4s ease}
+
+.result{text-align:center;margin-top:30px}
+.result .big{font-family:Outfit,sans-serif;font-size:4rem;font-weight:800;line-height:1}
+.result p{color:var(--soft)}
+.done-list{text-align:left;margin-top:18px}
+.done-list li{margin-bottom:8px}
+.hidden{display:none!important}
+
+/* molekylbyggare */
+.mol{width:100%;height:auto;display:block;margin:6px auto 0;max-height:260px}
+.mol text{font-family:Outfit,sans-serif;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.mol .c{fill:var(--carbon);font-size:24px}
+.mol .h{fill:var(--hyd);font-size:20px}
+.mol line{stroke:var(--soft);stroke-width:2.4;stroke-linecap:round}
+.mol line.cc{stroke:var(--ink)}
+.mol line.multi{stroke:var(--orange);stroke-width:3}
+.ctrl{margin-top:14px}
+.ctrl label{display:block;font-size:.9rem;color:var(--soft);font-weight:600;margin-bottom:6px}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.seg.three{grid-template-columns:repeat(3,1fr)}
+.seg button{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 4px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.fact{background:var(--bg);border-radius:12px;padding:10px 12px}
+.fact b{display:block;font-family:Outfit,sans-serif;font-size:1.35rem}
+.fact span{font-size:.82rem;color:var(--soft)}
+.warn{background:var(--badbg);border-radius:12px;padding:12px 14px;margin-top:12px}
+.toggle{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:.95rem}
+.toggle input{width:22px;height:22px}
+
+/* förklara */
+textarea{width:100%;min-height:110px;font:inherit;color:inherit;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-size:.98rem}
+.check input{width:20px;height:20px;margin-top:3px;flex:none}
+
+/* kretslopp */
+.dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--teal)}
+.where{font-family:Outfit,sans-serif;font-size:1.5rem;font-weight:800}
+@media (prefers-reduced-motion:reduce){.flash-inner,.progress i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- START -->
+  <section id="home">
+    <header>
+      <h1>Kolatomen – en mångsidig byggsten</h1>
+      <p>Kemi kapitel 5.1–5.4. Välj hur du vill plugga.</p>
+      <div class="hexes" id="homeHex" aria-hidden="true"></div>
+    </header>
+    <p class="group">Lär dig</p>
+    <div class="modes">
+      <button class="mode" data-go="sum"><span class="ic" data-hex="var(--teal)"></span><span><h2>Genomgång</h2><p>Det viktigaste i 5.1–5.4, kort och tydligt.</p></span></button>
+      <button class="mode" data-go="cycle"><span class="ic" data-hex="var(--green)"></span><span><h2>Kolets kretslopp</h2><p>Följ en kolatom steg för steg.</p></span></button>
+      <button class="mode" data-go="build"><span class="ic" data-hex="var(--orange)"></span><span><h2>Molekylbyggaren</h2><p>Bygg kolväten och se namn, formel och strukturformel.</p></span></button>
+    </div>
+    <p class="group">Öva</p>
+    <div class="modes">
+      <button class="mode" data-go="cards"><span class="ic" data-hex="var(--blue)"></span><span><h2>Begrepp</h2><p>Alla ord i begreppslistan som kort att vända.</p></span></button>
+      <button class="mode" data-go="name"><span class="ic" data-hex="var(--violet)"></span><span><h2>Namnge molekylen</h2><p>10 molekyler. Vad heter de, vilken formel har de?</p></span></button>
+      <button class="mode" data-go="quiz"><span class="ic" data-hex="var(--red)"></span><span><h2>Quiz</h2><p>10 frågor i taget med förklaring efter varje svar.</p></span></button>
+      <button class="mode" data-go="explain"><span class="ic" data-hex="var(--yellow)"></span><span><h2>Förklara</h2><p>Provfrågor där du skriver eget svar och rättar själv.</p></span></button>
+      <button class="mode" data-go="exam"><span class="ic" data-hex="var(--ink)"></span><span><h2>Övningsprov</h2><p>Alla quizfrågor i blandad ordning.</p></span></button>
+    </div>
+    <p class="hint" id="homeProgress"></p>
+  </section>
+
+  <!-- GENOMGÅNG -->
+  <section id="sum" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button></div>
+    <h2>Genomgång</h2>
+    <div class="chips" id="sumChips" role="group" aria-label="Välj avsnitt"></div>
+    <div id="sumBody"></div>
+  </section>
+
+  <!-- KRETSLOPP -->
+  <section id="cycle" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="cycCount"></span></div>
+    <h2>Kolets kretslopp</h2>
+    <div class="panel">
+      <span class="tag" id="cycTag"></span>
+      <p class="where" id="cycWhere"></p>
+      <p id="cycText"></p>
+      <div class="key hidden" id="cycKey"></div>
+    </div>
+    <div class="dots" id="cycDots"></div>
+    <div class="row">
+      <button class="btn" id="cycPrev">‹ Förra</button>
+      <button class="btn know" id="cycNext">Nästa ›</button>
+    </div>
+  </section>
+
+  <!-- BYGGARE -->
+  <section id="build" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button></div>
+    <h2>Molekylbyggaren</h2>
+    <div class="panel">
+      <svg class="mol" id="bSvg" viewBox="0 0 440 220" role="img" aria-label="Strukturformel"></svg>
+      <div id="bWarn" class="warn hidden"></div>
+      <div class="facts" id="bFacts"></div>
+      <p id="bNote" style="font-size:.95rem;color:var(--soft)"></p>
+    </div>
+    <div class="ctrl">
+      <label>Antal kolatomer</label>
+      <div class="seg" id="bN"></div>
+    </div>
+    <div class="ctrl">
+      <label>Bindning mellan de två första kolatomerna</label>
+      <div class="seg three" id="bB"></div>
+    </div>
+    <label class="toggle hidden" id="bIsoWrap"><input type="checkbox" id="bIso"> Grenad kedja (isobutan)</label>
+  </section>
+
+  <!-- KORT -->
+  <section id="cards" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="cardCount"></span></div>
+    <h2>Begrepp</h2>
+    <div class="chips" id="cardChips" role="group" aria-label="Välj avsnitt"></div>
+    <div class="flash" id="flash" tabindex="0" role="button" aria-label="Vänd kortet">
+      <div class="flash-inner">
+        <div class="face front"><small id="cardSec"></small><div class="term" id="cardTerm"></div></div>
+        <div class="face back"><small id="cardSec2"></small><div class="def" id="cardDef"></div></div>
+      </div>
+    </div>
+    <p class="hint" id="cardHint">Tryck på kortet för att vända det.</p>
+    <div class="row" id="cardRow">
+      <button class="btn again" id="cardAgain">Öva mer</button>
+      <button class="btn know" id="cardKnow">Jag kan den</button>
+    </div>
+    <div class="result hidden" id="cardsDone">
+      <div class="big">Klart!</div>
+      <p>Du kan alla kort i det här urvalet.</p>
+      <button class="btn main" id="cardsReset">Börja om med alla kort</button>
+    </div>
+  </section>
+
+  <!-- QUIZ (används även för namnge och prov) -->
+  <section id="quiz" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="quizCount"></span></div>
+    <div class="progress" aria-hidden="true"><i id="quizBar" style="width:0%"></i></div>
+    <div class="q" id="qBox">
+      <svg class="mol hidden" id="qSvg" viewBox="0 0 440 220" role="img" aria-label="Strukturformel"></svg>
+      <h3 id="qText"></h3>
+      <div class="opts" id="qOpts"></div>
+      <div class="explain hidden" id="qExplain"></div>
+      <button class="btn main hidden" id="qNext">Nästa fråga</button>
+    </div>
+    <div class="result hidden" id="qResult">
+      <div class="big" id="qScore"></div>
+      <p id="qVerdict"></p>
+      <div class="done-list" id="qMissed"></div>
+      <button class="btn main" id="qAgain">Kör igen</button>
+    </div>
+  </section>
+
+  <!-- FÖRKLARA -->
+  <section id="explain" class="hidden">
+    <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="exCount"></span></div>
+    <h2>Förklara</h2>
+    <div class="q">
+      <span class="tag" id="exSec"></span>
+      <h3 id="exQ" style="margin-top:8px"></h3>
+      <textarea id="exText" placeholder="Skriv ditt svar här, som på provet …"></textarea>
+      <button class="btn main" id="exShow">Visa vad svaret ska innehålla</button>
+      <div id="exAns" class="hidden">
+        <p style="margin:16px 0 4px;font-weight:600">Bocka för det du fick med:</p>
+        <div id="exChecks"></div>
+        <div class="explain" id="exModel"></div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn" id="exPrev">‹ Förra</button>
+      <button class="btn know" id="exNext">Nästa ›</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const SUB = "₀₁₂₃₄₅₆₇₈₉";
+const sub = n => String(n).split("").map(d=>SUB[+d]).join("");
+const formula = (c,h) => "C"+(c>1?sub(c):"")+"H"+(h>1?sub(h):"");
+
+// ---------- hexagoner ----------
+function hexSvg(color,size){
+  const s=size, r=s/2, pts=[];
+  for(let i=0;i<6;i++){const a=Math.PI/180*(60*i-30);pts.push((r+r*0.92*Math.cos(a)).toFixed(1)+","+(r+r*0.92*Math.sin(a)).toFixed(1));}
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><polygon points="${pts.join(" ")}" fill="${color}"/></svg>`;
+}
+(function(){
+  const cols=["var(--teal)","var(--green)","var(--orange)","var(--blue)","var(--violet)","var(--red)","var(--yellow)"];
+  let h=""; for(let i=0;i<30;i++) h+=hexSvg(cols[i%cols.length],24);
+  $("homeHex").innerHTML=h;
+  document.querySelectorAll("[data-hex]").forEach(e=>e.innerHTML=hexSvg(e.dataset.hex,44));
+})();
+
+// ---------- strukturformler ----------
+const PRE = ["met","et","prop","but","pent"];
+const SUF = {1:"an",2:"en",3:"yn"};
+const GROUP = {1:"alkan",2:"alken",3:"alkyn"};
+function hCount(n,b){ return b===1 ? 2*n+2 : b===2 ? 2*n : 2*n-2; }
+function molName(n,b,iso){ return iso ? "isobutan" : PRE[n-1]+SUF[b]; }
+
+function drawMol(svg,n,b,iso){
+  const W=440,H=220, cy=iso?85:110, gap=iso?84:76;
+  const startX = W/2 - gap*((iso?3:n)-1)/2;
+  let out=[];
+  const atoms=[], bonds=[];
+  if(iso){
+    const xs=[startX,startX+gap,startX+2*gap];
+    xs.forEach(x=>atoms.push({x,y:cy}));
+    atoms.push({x:xs[1],y:cy+70});
+    bonds.push([0,1,1],[1,2,1],[1,3,1]);
+  } else {
+    for(let i=0;i<n;i++) atoms.push({x:startX+i*gap,y:cy});
+    for(let i=0;i<n-1;i++) bonds.push([i,i+1,i===0?b:1]);
+  }
+  const hs=[];
+  const D=50;
+  if(iso){
+    const [a0,a1,a2,a3]=atoms;
+    hs.push([a0,a0.x,a0.y-D],[a0,a0.x,a0.y+D],[a0,a0.x-D,a0.y]);
+    hs.push([a2,a2.x,a2.y-D],[a2,a2.x,a2.y+D],[a2,a2.x+D,a2.y]);
+    hs.push([a1,a1.x,a1.y-D]);
+    hs.push([a3,a3.x,a3.y+D],[a3,a3.x-40,a3.y+30],[a3,a3.x+40,a3.y+30]);
+  } else {
+    atoms.forEach((a,i)=>{
+      let used=0; bonds.forEach(([p,q,o])=>{ if(p===i||q===i) used+=o; });
+      const h=4-used;
+      const up=[a,a.x,a.y-D], dn=[a,a.x,a.y+D], lf=[a,a.x-D,a.y], rt=[a,a.x+D,a.y];
+      if(n===1){ hs.push(up,dn,lf,rt); return; }
+      const end = i===0 ? lf : (i===n-1 ? rt : null);
+      let slots;
+      if(end){ slots = h===3?[up,dn,end]:h===2?[up,dn]:h===1?[end]:[]; }
+      else   { slots = h===2?[up,dn]:h===1?[up]:[]; }
+      hs.push(...slots);
+    });
+  }
+  // bindningar C–C
+  bonds.forEach(([p,q,o])=>{
+    const A=atoms[p],B=atoms[q];
+    const dx=B.x-A.x, dy=B.y-A.y, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L, nx=-uy, ny=ux, s=17;
+    const offs = o===1?[0]:o===2?[-4.5,4.5]:[-7,0,7];
+    offs.forEach(k=>out.push(`<line class="cc${o>1?" multi":""}" x1="${A.x+ux*s+nx*k}" y1="${A.y+uy*s+ny*k}" x2="${B.x-ux*s+nx*k}" y2="${B.y-uy*s+ny*k}"/>`));
+  });
+  // bindningar C–H
+  hs.forEach(([a,x,y])=>{
+    const dx=x-a.x, dy=y-a.y, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L;
+    out.push(`<line x1="${a.x+ux*16}" y1="${a.y+uy*16}" x2="${x-ux*12}" y2="${y-uy*12}"/>`);
+  });
+  atoms.forEach(a=>out.push(`<text class="c" x="${a.x}" y="${a.y}">C</text>`));
+  hs.forEach(([a,x,y])=>out.push(`<text class="h" x="${x}" y="${y}">H</text>`));
+  svg.setAttribute("viewBox", `0 0 ${W} ${iso?250:H}`);
+  svg.innerHTML=out.join("");
+}
+
+// ---------- byggaren ----------
+let bn=2,bb=1,biso=false;
+$("bN").innerHTML=[1,2,3,4,5].map(n=>`<button data-n="${n}">${n}</button>`).join("");
+$("bB").innerHTML=[[1,"Enkel"],[2,"Dubbel"],[3,"Trippel"]].map(([b,t])=>`<button data-b="${b}">${t}</button>`).join("");
+$("bN").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;bn=+t.dataset.n;renderBuild();});
+$("bB").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;bb=+t.dataset.b;renderBuild();});
+$("bIso").addEventListener("change",e=>{biso=e.target.checked;renderBuild();});
+const USES = {
+  metan:"Färglös och luktfri gas. Huvuddelen av naturgas och biogas.",
+  etan:"Färglös gas. Finns i naturgas.",
+  propan:"Gas som finns i gasol (t.ex. till grillen).",
+  butan:"Gas som finns i gasol och i tändare.",
+  pentan:"Vätska i rumstemperatur. Längre kedja = högre kokpunkt.",
+  isobutan:"Samma molekylformel som butan, C₄H₁₀, men grenad. Kokpunkt −12 °C (normalbutan 0 °C). Butan och isobutan är isomerer.",
+  eten:"Används för att tillverka plasten polyeten. Får också frukt att mogna.",
+  etyn:"Kallas också acetylen. Brinner mycket varmt och används vid svetsning.",
+};
+function renderBuild(){
+  const canIso = bn===4 && bb===1;
+  $("bIsoWrap").classList.toggle("hidden",!canIso);
+  if(!canIso){ biso=false; $("bIso").checked=false; }
+  $("bN").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",+x.dataset.n===bn));
+  $("bB").querySelectorAll("button").forEach(x=>{x.setAttribute("aria-pressed",+x.dataset.b===bb); x.disabled = bn===1 && +x.dataset.b>1;});
+  if(bn===1 && bb>1) bb=1;
+  $("bB").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",+x.dataset.b===bb));
+  $("bWarn").classList.toggle("hidden", bn!==1);
+  $("bWarn").textContent = "Med bara en kolatom finns ingen annan kolatom att dubbel- eller trippelbinda till. Därför finns inte ”meten” eller ”metyn”.";
+  drawMol($("bSvg"),bn,bb,biso);
+  const h=hCount(bn,bb), nm=molName(bn,bb,biso);
+  $("bFacts").innerHTML=[
+    [nm,"namn"],[formula(bn,h),"molekylformel"],
+    [GROUP[bb],"grupp (namnet slutar på -"+SUF[bb]+")"],
+    [bb===1?"mättat":"omättat", bb===1?"bara enkelbindningar":(bb===2?"har en dubbelbindning":"har en trippelbindning")]
+  ].map(([v,l])=>`<div class="fact"><b>${v}</b><span>${l}</span></div>`).join("");
+  const base = USES[nm] || "";
+  const prefix = `Förled ”${PRE[bn-1]}-” = ${bn} kolatom${bn>1?"er":""}. `;
+  $("bNote").textContent = biso ? base : prefix + base;
+}
+
+// ---------- genomgång ----------
+const SUMMARY = {
+ "5.1":{t:"Det finns många former av kol",h:`
+  <div class="panel"><h3>Kolatomen</h3>
+  <p>Kol har atomnummer 6 och <b>4 valenselektroner</b>. Därför kan en kolatom binda till <b>4 andra atomer</b>. Kolatomer kan binda till varandra i långa kedjor, grenar och ringar, med enkel-, dubbel- eller trippelbindningar. Därför finns det miljontals olika kolföreningar.</p>
+  <div class="key">Grundämnesformer av kol = rent kol, bara kolatomer. De skiljer sig i hur atomerna sitter ihop. Olika struktur ger olika egenskaper.</div></div>
+  <div class="panel"><h3>Diamant</h3><p>Varje kolatom binder hårt till <b>4</b> andra kolatomer i ett tredimensionellt nätverk, en enda jättemolekyl (kristall).</p><p><b>Egenskap:</b> världens hårdaste ämne. <b>Används:</b> borrar, glasskärning, smycken.</p></div>
+  <div class="panel"><h3>Grafit</h3><p>Kolatomerna sitter i <b>platta skikt</b>. I skiktet binder varje kolatom hårt till <b>3</b> andra. Mellan skikten finns bara <b>svaga krafter</b>, så skikten glider lätt mot varandra.</p><p><b>Egenskap:</b> mjukt, smetar av sig. <b>Används:</b> blyertspennor.</p></div>
+  <div class="panel"><h3>Amorft kol och aktivt kol</h3><p><b>Amorft kol:</b> atomerna sitter huller om buller utan bestämt mönster. Exempel: träkol, grillkol.</p><p><b>Aktivt kol:</b> korn av amorft kol med massor av små porer. Det ger en jättestor yta där ämnen fastnar. <b>Används:</b> rena luft och vatten, gasmasker, vid vissa förgiftningar.</p></div>
+  <div class="panel"><h3>Fullerener och grafen</h3><p><b>Fullerener</b> är samlingsnamnet för fotbollsmolekyler och nanorör.</p><ul>
+  <li><b>Fotbollsmolekyl:</b> 5- och 6-hörningar av kolatomer som bildar en boll, som en fotboll.</li>
+  <li><b>Nanorör:</b> 6-hörningar som bildar ett smalt rör. Mycket starka och leder elektricitet, bra i elektronik.</li></ul>
+  <p><b>Grafen:</b> ett enda skikt av 6-hörningar (som ett skikt av grafit). Tunt, genomskinligt, formbart, 200 gånger starkare än stål och leder elektricitet mycket bra.</p></div>`},
+ "5.2":{t:"Organisk kemi är kolföreningarnas kemi",h:`
+  <div class="panel"><h3>Organiskt eller oorganiskt?</h3>
+  <p><b>Organiska ämnen</b> = kolföreningar. <b>Organisk kemi</b> = kolföreningarnas kemi.</p>
+  <p><b>Oorganisk kemi</b> = kemin om ämnen utan kolatomer.</p>
+  <div class="key"><b>Undantag att komma ihåg:</b> själva grundämnet kol (diamant, grafit …) och enkla kolföreningar som <b>koldioxid</b>, <b>kolmonoxid</b> och <b>kolsyra</b> räknas till oorganisk kemi.</div></div>
+  <div class="panel"><h3>Olika sätt att visa en molekyl</h3><ul>
+  <li><b>Molekylformel:</b> vilka atomer och hur många av varje. Metan = CH₄.</li>
+  <li><b>Strukturformel:</b> visar i vilken ordning atomerna sitter ihop. Varje streck är en bindning.</li>
+  <li><b>Molekylmodeller</b> visar molekylens riktiga form i 3D: <b>pinn-kulmodell</b> (kulor = atomer, pinnar = bindningar) och <b>kalottmodell</b> (atomerna trycks ihop, visar formen mer verklighetstroget).</li></ul>
+  <p>Testa i <b>Molekylbyggaren</b> hur strukturformel och molekylformel hänger ihop.</p></div>
+  <div class="panel"><h3>Kolets kretslopp</h3><p>Kolatomer går runt i naturen: luft (CO₂) → växter (fotosyntes) → djur (mat) → luft (andning, nedbrytning). En del kol lagras i miljoner år som fossila bränslen. När vi bränner dem kommer kolet snabbt ut i luften som CO₂.</p><p>Gå igenom det steg för steg under <b>Kolets kretslopp</b>.</p></div>`},
+ "5.3":{t:"Kolväten är grunden i organisk kemi",h:`
+  <div class="panel"><h3>Kolväten och alkaner</h3>
+  <p>Ett <b>kolväte</b> innehåller bara <b>kol och väte</b>. Kolväten är grunden i den organiska kemin.</p>
+  <p><b>Alkaner</b> är de enklaste kolvätena. De har bara enkelbindningar och namnen slutar på <b>-an</b>. För varje ny kolatom kommer två väteatomer till.</p>
+  <ul><li><b>Metan</b> CH₄ – 1 kol. Färglös, luktfri gas (naturgas, biogas).</li>
+  <li><b>Etan</b> C₂H₆ – 2 kol. Färglös gas.</li>
+  <li><b>Propan</b> C₃H₈ – 3 kol. Gas i gasol.</li>
+  <li><b>Butan</b> C₄H₁₀ – 4 kol. Gas i gasol.</li>
+  <li><b>Pentan</b> C₅H₁₂ – 5 kol. Vätska.</li></ul>
+  <div class="key"><b>Minnesregel för förleden:</b> met = 1, et = 2, prop = 3, but = 4, pent = 5.<br>Längre kolkedja → högre smält- och kokpunkt (gas → vätska → fast).</div></div>
+  <div class="panel"><h3>Isomerer</h3><p>Isomer betyder ”samma delar”. Isomerer har <b>samma molekylformel men olika form</b>, eftersom atomerna sitter ihop på olika sätt. Olika form ger olika egenskaper.</p>
+  <p>Exempel: <b>normalbutan</b> (rak kedja, kokpunkt 0 °C) och <b>isobutan</b> (grenad, kokpunkt −12 °C). Båda är C₄H₁₀.</p>
+  <p>Ju fler kolatomer, desto fler isomerer: butan har 2, oktan (8 kol) har 18 och med 20 kolatomer finns ungefär 366 000.</p></div>
+  <div class="panel"><h3>Fossila bränslen</h3><p><b>Naturgas, råolja och stenkol</b>, plus bensin och diesel som görs av råolja. De bildades långsamt av växter och djur som dog för många miljoner år sedan. Vi använder dem mycket snabbare än de bildas, så de håller på att ta slut. När de brinner bildas koldioxid, som förstärker växthuseffekten.</p></div>`},
+ "5.4":{t:"Omättade kolväten",h:`
+  <div class="panel"><h3>Enkel, dubbel och trippel</h3>
+  <p>Ibland binder en kolatom flera gånger till samma atom.</p>
+  <ul><li><b>Enkelbindning</b> C–C: delar 1 elektronpar = 2 elektroner.</li>
+  <li><b>Dubbelbindning</b> C=C: delar 2 elektronpar = 4 elektroner.</li>
+  <li><b>Trippelbindning</b> C≡C: delar 3 elektronpar = 6 elektroner.</li></ul></div>
+  <div class="panel"><h3>Mättade och omättade kolväten</h3>
+  <p><b>Mättade kolväten</b> har bara enkelbindningar (alkanerna). Varje kolatom binder så många väteatomer som möjligt. De är ”mätta” på väte.</p>
+  <p><b>Omättade kolväten</b> har dubbel- eller trippelbindningar. De skulle kunna binda fler väteatomer om bindningarna öppnades. Omättade kolväten <b>reagerar lättare</b> med andra ämnen.</p>
+  <div class="key">Ett omättat kolväte måste ha minst <b>2 kolatomer</b>. Därför finns inte ”meten”.</div></div>
+  <div class="panel"><h3>Alkener och alkyner</h3>
+  <p><b>Alkener</b> har en dubbelbindning, namnet slutar på <b>-en</b>: eten C₂H₄, propen C₃H₆, buten C₄H₈.</p>
+  <p><b>Alkyner</b> har en trippelbindning, namnet slutar på <b>-yn</b>: etyn C₂H₂, propyn C₃H₄, butyn C₄H₆.</p>
+  <div class="key"><b>Namnregel:</b> förled = antal kol, ändelse = sorts bindning.<br>prop + <b>an</b> = 3 kol, bara enkel · prop + <b>en</b> = 3 kol, en dubbel · prop + <b>yn</b> = 3 kol, en trippel</div></div>`}
+};
+let sumSec="5.1";
+$("sumChips").innerHTML=Object.keys(SUMMARY).map(k=>`<button class="chip" data-s="${k}">${k}</button>`).join("");
+$("sumChips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;sumSec=b.dataset.s;renderSum();window.scrollTo(0,0);});
+function renderSum(){
+  $("sumChips").querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.s===sumSec));
+  const s=SUMMARY[sumSec];
+  $("sumBody").innerHTML=`<p class="count" style="margin-top:4px">${sumSec} ${s.t}</p>`+s.h;
+}
+
+// ---------- kretslopp ----------
+const CYCLE = [
+ ["Start","I luften","Vår kolatom sitter i en koldioxidmolekyl, CO₂, i luften.",""],
+ ["Fotosyntes","I en växt","En växt tar upp koldioxid från luften. Med hjälp av solljus och vatten gör växten om den till socker (glukos). Kolatomen är nu en del av växten.","Fotosyntes: koldioxid + vatten → socker + syre. Växterna tar kol UR luften."],
+ ["Mat","I ett djur","En hare äter växten. Kolatomen följer med maten och blir en del av djurets kropp, eller används som energi.","Allt levande är byggt av kolföreningar."],
+ ["Andning","Tillbaka i luften","När djuret förbränner sockret i cellerna (cellandning) bildas koldioxid som andas ut. Kolatomen är tillbaka i luften. Samma sak händer när döda växter och djur bryts ned av svampar och bakterier.","Det här är det snabba kretsloppet. Det tar dagar eller år."],
+ ["Miljoner år","I marken","Men en annan kolatom hamnar i en växt som dör och begravs i en sumpmark eller på havsbotten, utan syre. Den bryts inte ned. Under miljontals år, med högt tryck och värme, blir den kol, olja eller naturgas.","Fossila bränslen = kol som lagrats i marken i miljontals år."],
+ ["Förbränning","I luften igen, snabbt","Vi pumpar upp olja och gör bensin. När bilen kör förbränns bensinen och kolatomen blir koldioxid i luften igen, efter miljoner år i marken.","Vi släpper ut mer koldioxid än växterna och haven hinner ta upp. Halten CO₂ i luften ökar och växthuseffekten förstärks."],
+ ["Havet","Löst i havet","En del av koldioxiden i luften löses i haven. Havet är ett stort kolförråd, men när det tar upp mycket koldioxid blir vattnet surare.","Kolförråd: luften, växter och djur, marken (fossila bränslen) och haven."],
+ ["Sammanfattning","Runt, runt","Kolatomer försvinner aldrig. De flyttar mellan luft, växter, djur, mark och hav.","<b>In i växter:</b> fotosyntes. <b>Ut i luften:</b> andning, nedbrytning och förbränning. <b>Problemet:</b> förbränning av fossila bränslen flyttar på kort tid kol som legat i marken i miljoner år."]
+];
+let cyc=0;
+$("cycDots").innerHTML=CYCLE.map(()=>"<i></i>").join("");
+function renderCycle(){
+  const [tag,where,text,key]=CYCLE[cyc];
+  $("cycTag").textContent=`Steg ${cyc+1}: ${tag}`; $("cycWhere").textContent=where; $("cycText").textContent=text;
+  $("cycKey").innerHTML=key; $("cycKey").classList.toggle("hidden",!key);
+  $("cycCount").textContent=`${cyc+1} av ${CYCLE.length}`;
+  [...$("cycDots").children].forEach((d,i)=>d.classList.toggle("on",i<=cyc));
+  $("cycPrev").disabled=cyc===0;
+  $("cycNext").textContent= cyc===CYCLE.length-1 ? "Börja om" : "Nästa ›";
+}
+$("cycPrev").addEventListener("click",()=>{if(cyc>0){cyc--;renderCycle();}});
+$("cycNext").addEventListener("click",()=>{cyc = cyc===CYCLE.length-1 ? 0 : cyc+1; renderCycle();});
+
+// ---------- begrepp ----------
+const SECTIONS = {"5.1":"Former av kol","5.2":"Organisk kemi","5.3":"Kolväten","5.4":"Omättade kolväten"};
+const CARDS = [
+ ["5.1","kolatomen","Atomnummer 6. Har 4 valenselektroner och kan därför binda till 4 andra atomer. Kan bilda kedjor, grenar och ringar."],
+ ["5.1","diamant","Kol där varje kolatom binder hårt till 4 andra i ett 3D-nätverk (en kristall). Världens hårdaste ämne. Borrar, glasskärning, smycken."],
+ ["5.1","grafit","Kol i platta skikt. Varje kolatom binder till 3 andra i skiktet. Svaga krafter mellan skikten, så de glider. Mjukt. Blyertspennor."],
+ ["5.1","amorft kol","Kol där atomerna sitter huller om buller, utan bestämt mönster. Exempel: träkol och grillkol."],
+ ["5.1","aktivt kol","Korn av amorft kol med många små porer. Stor yta där ämnen fastnar. Renar luft och vatten, används i gasmasker och vid förgiftningar."],
+ ["5.1","fotbollsmolekyler","Kolatomer i 5- och 6-hörningar som sitter ihop till en boll, som en fotboll. Ganska nyupptäckt."],
+ ["5.1","nanorör","Kolatomer i 6-hörningar som bildar ett smalt rör. Mycket starka och leder elektricitet."],
+ ["5.1","fullerener","Samlingsnamn för fotbollsmolekyler och nanorör."],
+ ["5.1","grafen","Ett enda skikt av 6-hörningar av kolatomer. Tunt, genomskinligt, formbart, 200 gånger starkare än stål och leder elektricitet."],
+ ["5.2","organiska ämnen","Kolföreningar."],
+ ["5.2","organisk kemi","Kolföreningarnas kemi."],
+ ["5.2","oorganisk kemi","Kemin om ämnen utan kol. Även grundämnet kol, koldioxid, kolmonoxid och kolsyra räknas hit."],
+ ["5.2","molekylformel","Visar vilka atomer som ingår och hur många av varje. Exempel: CH₄."],
+ ["5.2","strukturformel","Visar i vilken ordning atomerna sitter ihop. Streck mellan atomerna = bindningar."],
+ ["5.2","molekylmodell","3D-modell som visar molekylens riktiga form. Pinn-kulmodell och kalottmodell."],
+ ["5.2","kolets kretslopp","Kol flyttar mellan luft, växter, djur, mark och hav. In i växter genom fotosyntes, ut i luften genom andning, nedbrytning och förbränning."],
+ ["5.3","kolväte","Organisk förening som bara innehåller kol och väte."],
+ ["5.3","alkaner","Grupp av kolväten med bara enkelbindningar. Namnen slutar på -an. För varje ny kolatom kommer två väteatomer till."],
+ ["5.3","metan","CH₄. 1 kolatom, 4 väteatomer. Det enklaste kolvätet. Färglös, luktfri gas."],
+ ["5.3","etan","C₂H₆. 2 kolatomer, 6 väteatomer. Färglös gas."],
+ ["5.3","propan","C₃H₈. 3 kolatomer, 8 väteatomer. Gas som finns i gasol."],
+ ["5.3","butan","C₄H₁₀. 4 kolatomer, 10 väteatomer. Gas som finns i gasol."],
+ ["5.3","pentan","C₅H₁₂. 5 kolatomer, 12 väteatomer. En vätska."],
+ ["5.3","isomerer","Ämnen med samma molekylformel men olika form, för att atomerna sitter ihop på olika sätt. Exempel: normalbutan och isobutan."],
+ ["5.3","fossila bränslen","Naturgas, råolja och stenkol (och bensin, diesel). Bildades av döda växter och djur för miljoner år sedan. Håller på att ta slut."],
+ ["5.4","dubbelbindning","Två atomer binds ihop med två bindningar. De delar två elektronpar (4 elektroner). Skrivs C=C."],
+ ["5.4","trippelbindning","Två atomer binds ihop med tre bindningar. De delar tre elektronpar (6 elektroner). Skrivs C≡C."],
+ ["5.4","alken","Kolväte med en dubbelbindning. Namnet slutar på -en."],
+ ["5.4","eten","C₂H₄. 2 kolatomer och en dubbelbindning. Används till plasten polyeten."],
+ ["5.4","propen","C₃H₆. 3 kolatomer och en dubbelbindning."],
+ ["5.4","buten","C₄H₈. 4 kolatomer och en dubbelbindning."],
+ ["5.4","alkyn","Kolväte med en trippelbindning. Namnet slutar på -yn."],
+ ["5.4","etyn","C₂H₂. 2 kolatomer och en trippelbindning. Kallas också acetylen."],
+ ["5.4","propyn","C₃H₄. 3 kolatomer och en trippelbindning."],
+ ["5.4","butyn","C₄H₆. 4 kolatomer och en trippelbindning."],
+ ["5.4","mättade kolväten","Kolväten med bara enkelbindningar, som alkanerna. Varje kolatom binder max antal väteatomer."],
+ ["5.4","omättade kolväten","Kolväten med dubbel- eller trippelbindningar. Kunde ha bundit fler väteatomer. Reagerar lätt med andra ämnen."]
+];
+let known=new Set();
+try{ known=new Set(JSON.parse(localStorage.getItem("kem5-known")||"[]")); }catch(e){}
+function saveKnown(){ try{ localStorage.setItem("kem5-known",JSON.stringify([...known])); }catch(e){} }
+function homeProgress(){ $("homeProgress").textContent=`Du kan ${known.size} av ${CARDS.length} begrepp.`; }
+
+let section="alla", deck=[], cur=null;
+$("cardChips").innerHTML=[["alla","Alla"],...Object.entries(SECTIONS)].map(([k,v])=>`<button class="chip" data-sec="${k}" aria-pressed="${k==="alla"}">${k==="alla"?v:k+" "+v}</button>`).join("");
+$("cardChips").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  section=b.dataset.sec;
+  $("cardChips").querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
+  startCards();
+});
+const keyOf=c=>c[0]+"|"+c[1];
+const pool=()=>CARDS.filter(c=>section==="alla"||c[0]===section);
+function startCards(){ deck=shuffle(pool().filter(c=>!known.has(keyOf(c)))); nextCard(); }
+function nextCard(){
+  $("flash").classList.remove("flipped");
+  const p=pool(), left=p.filter(c=>!known.has(keyOf(c))).length;
+  $("cardCount").textContent=`${p.length-left} av ${p.length} kan du`;
+  const empty=deck.length===0;
+  ["flash","cardRow","cardHint"].forEach(id=>$(id).classList.toggle("hidden",empty));
+  $("cardsDone").classList.toggle("hidden",!empty);
+  if(empty) return;
+  cur=deck.shift();
+  const label=`${cur[0]} ${SECTIONS[cur[0]]}`;
+  $("cardSec").textContent=label; $("cardSec2").textContent=cur[1];
+  $("cardTerm").textContent=cur[1]; $("cardDef").textContent=cur[2];
+}
+const flip=()=>$("flash").classList.toggle("flipped");
+$("flash").addEventListener("click",flip);
+$("flash").addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}});
+$("cardKnow").addEventListener("click",()=>{known.add(keyOf(cur));saveKnown();nextCard();});
+$("cardAgain").addEventListener("click",()=>{deck.splice(Math.min(3,deck.length),0,cur);nextCard();});
+$("cardsReset").addEventListener("click",()=>{pool().forEach(c=>known.delete(keyOf(c)));saveKnown();startCards();});
+
+// ---------- quizfrågor ----------
+// [fråga, [alternativ], rätt index, förklaring]
+const QUIZ = [
+ ["Hur många valenselektroner har en kolatom?",["2","4","6","8"],1,"Kol har 4 valenselektroner och kan därför binda till 4 andra atomer."],
+ ["Varför finns det så många olika ämnen som innehåller kol?",["Kol är det vanligaste grundämnet på jorden","Kolatomer kan binda till 4 atomer och till varandra i kedjor, grenar och ringar","Kol är en metall","Kolatomer är väldigt stora"],1,"Kolatomen kan binda på många sätt, även till andra kolatomer. Därför blir det miljontals kombinationer."],
+ ["Vilket av dessa är INTE en grundämnesform av kol?",["Grafit","Diamant","DNA","Grafen"],2,"DNA innehåller kol men också många andra grundämnen. Det är en kolförening, inte rent kol."],
+ ["Varför är diamant så hårt?",["Kolatomerna sitter i skikt","Varje kolatom binder hårt till 4 andra i ett 3D-nätverk","Det innehåller metall","Atomerna ligger huller om buller"],1,"I diamant sitter alla atomer ihop med starka bindningar åt alla håll."],
+ ["Varför är grafit mjukt?",["Skikten hålls ihop av svaga krafter och glider lätt","Grafit innehåller vatten","Varje kolatom binder till 4 andra","Grafit är en vätska"],0,"Inne i skikten är bindningarna starka, men mellan skikten är de svaga."],
+ ["Vad är skillnaden mellan diamant och grafit?",["De består av olika grundämnen","Kolatomerna sitter ihop på olika sätt","Diamant är organiskt, grafit oorganiskt","Det finns ingen skillnad"],1,"Båda är rent kol. Olika struktur ger olika egenskaper: diamant är hårt, grafit mjukt."],
+ ["Vilken form av kol finns i en blyertspenna?",["Diamant","Grafen","Grafit","Aktivt kol"],2,"Grafit smetar av sig eftersom skikten glider."],
+ ["I vilken form av kol ligger atomerna huller om buller?",["Diamant","Amorft kol","Grafit","Nanorör"],1,"Amorf betyder utan form. Träkol och grillkol är amorft kol."],
+ ["Varför används aktivt kol i gasmasker?",["Det luktar gott","Det har många små porer och en stor yta där ämnen fastnar","Det är hårdast av allt","Det leder elektricitet"],1,"Den stora ytan fångar upp skadliga ämnen."],
+ ["Vilka former av kol är fullerener?",["Diamant och grafit","Fotbollsmolekyler och nanorör","Amorft och aktivt kol","Grafen och grafit"],1,"Fullerener är samlingsnamnet för fotbollsmolekyler och nanorör."],
+ ["Hur ser en fotbollsmolekyl ut?",["Platta skikt av 6-hörningar","5- och 6-hörningar som bildar en boll","Ett smalt rör","Huller om buller"],1,"Mönstret liknar sömmarna på en fotboll."],
+ ["Vilket material är ett enda skikt av 6-hörningar, starkare än stål och genomskinligt?",["Grafen","Grafit","Diamant","Amorft kol"],0,"Grafen är som ett enda skikt av grafit."],
+ ["Vad är organisk kemi?",["Kemi om levande djur","Kolföreningarnas kemi","Kemi om ämnen utan kol","Kemi om metaller"],1,"Organiska ämnen = kolföreningar."],
+ ["Vilket ämne räknas till oorganisk kemi trots att det innehåller kol?",["Metan","Propan","Koldioxid","Eten"],2,"Grundämnet kol och enkla kolföreningar som koldioxid, kolmonoxid och kolsyra räknas som oorganiska."],
+ ["Vad visar en molekylformel?",["Molekylens form i 3D","Vilka atomer som ingår och hur många av varje","I vilken ordning atomerna sitter","Hur ämnet luktar"],1,"T.ex. C₃H₈: 3 kolatomer och 8 väteatomer."],
+ ["Vad visar en strukturformel?",["Bara antalet atomer","I vilken ordning atomerna sitter ihop","Ämnets färg","Ämnets kokpunkt"],1,"Streck mellan atomerna visar bindningarna."],
+ ["Vilken modell visar tydligast molekylens verkliga form?",["Molekylformel","Pinn-kulmodell och kalottmodell","Ett ord","Periodiska systemet"],1,"Molekylmodeller visar formen i 3D."],
+ ["Hur tar växter upp kol från luften?",["Genom andning","Genom fotosyntes","Genom förbränning","Genom rötterna som metan"],1,"Vid fotosyntesen tar växter upp koldioxid och gör socker."],
+ ["Vilket av dessa släpper ut koldioxid i luften?",["Fotosyntes","Förbränning av bensin","Att en växt växer","Att havet fryser"],1,"Förbränning, andning och nedbrytning släpper ut koldioxid."],
+ ["Varför ökar halten koldioxid i luften?",["Växterna andas för mycket","Vi bränner fossila bränslen och släpper ut kol som legat i marken i miljoner år","Haven släpper ut syre","Diamanter bryts ned"],1,"Vi släpper ut mer koldioxid än växter och hav hinner ta upp."],
+ ["Vad är ett kolväte?",["Ett ämne av kol och syre","Ett ämne som bara innehåller kol och väte","Vatten med kol i","Ett ämne av kol, väte och syre"],1,"Kolväte = bara kol och väte."],
+ ["Vilket ”efternamn” har alla alkaner?",["-en","-yn","-an","-ol"],2,"Metan, etan, propan … alla alkaner slutar på -an."],
+ ["Vad är molekylformeln för metan?",["CH₂","CH₄","C₂H₆","C₂H₄"],1,"Metan har 1 kolatom och 4 väteatomer."],
+ ["Hur många kolatomer har propan?",["2","3","4","5"],1,"prop = 3."],
+ ["Vilken molekylformel har butan?",["C₄H₈","C₄H₁₀","C₃H₈","C₄H₆"],1,"Alkan med 4 kol: 2·4+2 = 10 väteatomer."],
+ ["Vilka kolväten finns i gasol?",["Metan och etan","Propan och butan","Eten och etyn","Pentan och oktan"],1,"Gasol är propan och butan."],
+ ["Vilket kolväte är det enklaste?",["Etan","Metan","Eten","Propan"],1,"Metan, CH₄, har bara en kolatom."],
+ ["Vad händer med kokpunkten när kolkedjan blir längre?",["Den blir lägre","Den blir högre","Den ändras inte","Ämnet blir en gas"],1,"Metan–butan är gaser, pentan är vätska, långa kedjor är fasta."],
+ ["Vad är isomerer?",["Ämnen med olika molekylformel men samma form","Ämnen med samma molekylformel men olika form","Två olika former av grundämnet kol","Kolväten med dubbelbindning"],1,"Isomer = ”samma delar”, men atomerna sitter ihop på olika sätt."],
+ ["Normalbutan och isobutan är isomerer. Vad skiljer dem åt?",["Antalet kolatomer","Antalet väteatomer","Formen, och därför t.ex. kokpunkten","Ingenting"],2,"Båda är C₄H₁₀. Isobutan är grenad och har lägre kokpunkt (−12 °C mot 0 °C)."],
+ ["Vilket påstående om isomerer stämmer?",["Ju fler kolatomer, desto fler isomerer","Metan har flest isomerer","Alla ämnen har exakt två isomerer","Isomerer har olika molekylformel"],0,"Butan har 2, oktan 18, och med 20 kol finns cirka 366 000."],
+ ["Vilket av dessa är INTE ett fossilt bränsle?",["Naturgas","Stenkol","Råolja","Ved"],3,"Ved kommer från träd som växer nu. Fossila bränslen bildades för miljoner år sedan."],
+ ["Hur har de fossila bränslena bildats?",["Från vulkaner","Från döda växter och djur för många miljoner år sedan","I fabriker","Från diamanter"],1,"Därför tar det miljoner år att bilda nya, och de håller på att ta slut."],
+ ["Hur många elektroner delar två atomer i en dubbelbindning?",["2","4","6","8"],1,"Två elektronpar = 4 elektroner. Enkel = 2, trippel = 6."],
+ ["Hur många elektroner delar atomerna i en trippelbindning?",["3","4","6","9"],2,"Tre elektronpar = 6 elektroner."],
+ ["Vilken ändelse har en alken?",["-an","-en","-yn","-ol"],1,"Alken = dubbelbindning, namnet slutar på -en."],
+ ["Vilken ändelse har en alkyn?",["-an","-en","-yn","-in"],2,"Alkyn = trippelbindning, namnet slutar på -yn."],
+ ["Hur ser en propenmolekyl ut?",["3 kolatomer, bara enkelbindningar","3 kolatomer, en dubbelbindning","4 kolatomer, en dubbelbindning","3 kolatomer, en trippelbindning"],1,"prop = 3 kol, -en = en dubbelbindning."],
+ ["Vilken molekyl kan INTE finnas?",["Eten","Etyn","Meten","Propyn"],2,"Metan har bara 1 kolatom. Det finns ingen kolatom att dubbelbinda till."],
+ ["Vilken molekylformel har eten?",["C₂H₆","C₂H₄","C₂H₂","CH₄"],1,"Eten har en dubbelbindning, då får det plats med 4 väteatomer."],
+ ["Vilken molekylformel har etyn?",["C₂H₂","C₂H₄","C₂H₆","C₃H₄"],0,"Trippelbindningen gör att bara 2 väteatomer får plats."],
+ ["Vad är ett mättat kolväte?",["Ett kolväte med bara enkelbindningar","Ett kolväte med dubbelbindning","Ett kolväte med trippelbindning","Ett kolväte som är fast"],0,"Mättat = binder max antal väte. Alkanerna är mättade."],
+ ["Vilket av dessa är ett omättat kolväte?",["Etan","Propan","Buten","Metan"],2,"Buten har en dubbelbindning (-en)."],
+ ["Varför kallas omättade kolväten för ”omättade”?",["De är hungriga på syre","De skulle kunna binda fler väteatomer om dubbel- eller trippelbindningen öppnades","De innehåller vatten","De har inga väteatomer"],1,"De är ”inte riktigt mätta” på väte."],
+ ["Vilka reagerar lättast med andra ämnen?",["Mättade kolväten","Omättade kolväten","Diamant","Grafit"],1,"Dubbel- och trippelbindningar gör molekylen mer reaktiv."],
+ ["Är etan mättat eller omättat?",["Mättat","Omättat"],0,"Etan slutar på -an: bara enkelbindningar."],
+ ["Är propyn mättat eller omättat?",["Mättat","Omättat"],1,"Propyn har en trippelbindning."]
+];
+
+// ---------- namnge-molekylen ----------
+const MOLS=[];
+for(let n=1;n<=5;n++){ MOLS.push([n,1,false]); }
+for(let n=2;n<=4;n++){ MOLS.push([n,2,false]); MOLS.push([n,3,false]); }
+MOLS.push([4,1,true]);
+function makeNameQs(k){
+  const pick=shuffle(MOLS).slice(0,k);
+  return pick.map(([n,b,iso],i)=>{
+    const nm=molName(n,b,iso), f=formula(n,hCount(n,b));
+    if(i%2===0){
+      // vad heter den?
+      const wrong=new Set();
+      const cand=[PRE[n-1]+SUF[1],PRE[n-1]+SUF[2],PRE[n-1]+SUF[3],PRE[Math.max(0,n-2)]+SUF[b],PRE[Math.min(4,n)]+SUF[b],"meten"];
+      if(iso) cand.push("butan","buten","propan");
+      shuffle(cand).forEach(c=>{ if(c!==nm && wrong.size<3 && !(iso&&c==="isobutan")) wrong.add(c); });
+      const opts=shuffle([nm,...wrong]);
+      const why = iso ? "Den har 4 kolatomer, bara enkelbindningar och en gren. Det är isobutan, en isomer till butan."
+        : `${n} kolatom${n>1?"er":""} = ”${PRE[n-1]}-”. ${b===1?"Bara enkelbindningar = -an.":b===2?"En dubbelbindning = -en.":"En trippelbindning = -yn."} Formel ${f}.`;
+      return {mol:[n,b,iso],q:"Vad heter molekylen?",o:opts,r:opts.indexOf(nm),w:why};
+    } else {
+      const h0=hCount(n,b);
+      const pairs=[[n,hCount(n,1)],[n,hCount(n,2)],[n,hCount(n,3)],[n+1,h0],[n,h0+2],[n-1,h0],[n,h0-2]];
+      const fs=new Set([f]);
+      shuffle(pairs).forEach(([c,h])=>{ if(c>=1 && h>=2 && fs.size<4) fs.add(formula(c,h)); });
+      const opts=shuffle([...fs]);
+      const why = `${nm}: ${n} kol. ${b===1?"Alkan → 2·"+n+"+2":b===2?"Alken → 2·"+n:"Alkyn → 2·"+n+"−2"} = ${hCount(n,b)} väteatomer. Räkna H i bilden!`;
+      return {mol:[n,b,iso],q:`Vilken molekylformel har ${nm}?`,o:opts,r:opts.indexOf(f),w:why};
+    }
+  });
+}
+
+// ---------- quizmotor ----------
+let qs=[], qi=0, score=0, missed=[];
+function fromQuiz(list){ return list.map(([q,o,r,w])=>({q,o,r,w})); }
+function startQuiz(list){
+  qs=list; qi=0; score=0; missed=[];
+  $("qBox").classList.remove("hidden"); $("qResult").classList.add("hidden");
+  renderQ();
+}
+function renderQ(){
+  const it=qs[qi];
+  $("quizCount").textContent=`Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("quizBar").style.width=(qi/qs.length*100)+"%";
+  $("qText").textContent=it.q;
+  $("qSvg").classList.toggle("hidden",!it.mol);
+  if(it.mol) drawMol($("qSvg"),...it.mol);
+  $("qExplain").classList.add("hidden"); $("qNext").classList.add("hidden");
+  const idx=it.o.map((o,i)=>i);
+  const order= (it.o.length>2 && !it.mol) ? shuffle(idx) : idx;
+  $("qOpts").classList.toggle("two", it.o.length===2 || !!it.mol);
+  $("qOpts").innerHTML=order.map(i=>`<button class="opt" data-i="${i}">${it.o[i]}</button>`).join("");
+}
+$("qOpts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||b.disabled) return;
+  const it=qs[qi], pick=+b.dataset.i;
+  $("qOpts").querySelectorAll(".opt").forEach(o=>{o.disabled=true; if(+o.dataset.i===it.r) o.classList.add("right");});
+  if(pick===it.r){ score++; $("qExplain").textContent="Rätt! "+it.w; }
+  else { b.classList.add("wrong"); missed.push(it); $("qExplain").textContent="Inte riktigt. "+it.w; }
+  $("quizCount").textContent=`Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qExplain").classList.remove("hidden");
+  $("qNext").textContent= qi===qs.length-1 ? "Se resultat" : "Nästa fråga";
+  $("qNext").classList.remove("hidden"); $("qNext").focus();
+});
+$("qNext").addEventListener("click",()=>{
+  qi++;
+  if(qi<qs.length){ renderQ(); window.scrollTo(0,0); return; }
+  $("quizBar").style.width="100%";
+  $("qBox").classList.add("hidden"); $("qResult").classList.remove("hidden");
+  $("qScore").textContent=`${score}/${qs.length}`;
+  const p=score/qs.length;
+  $("qVerdict").textContent= p===1?"Alla rätt. Du är redo!": p>=0.8?"Riktigt bra. Kolla frågorna nedan en gång till.": p>=0.5?"Bra jobbat. Öva på frågorna nedan och kör igen.":"Fortsätt öva. Läs genomgången och testa begreppskorten.";
+  $("qMissed").innerHTML= missed.length ? "<h3>Öva mer på</h3><ul>"+missed.map(m=>`<li><strong>${m.q}</strong><br>${m.o[m.r]}</li>`).join("")+"</ul>" : "";
+  $("quizCount").textContent="Klart";
+});
+let lastMode="quiz";
+$("qAgain").addEventListener("click",()=>launch(lastMode));
+
+// ---------- förklara ----------
+const EXPL = [
+ ["5.1","Varför kan kol bilda så många olika ämnen?",["Kol har 4 valenselektroner","Kan binda till 4 andra atomer","Kan binda till andra kolatomer i kedjor, grenar och ringar","Kan ha enkel-, dubbel- och trippelbindningar"],"Kolatomen har 4 valenselektroner och kan därför binda till 4 andra atomer. Den kan binda till andra kolatomer i långa kedjor, grenar och ringar, och med enkel-, dubbel- eller trippelbindningar. Därför finns det miljontals kolföreningar."],
+ ["5.1","Förklara skillnaden mellan diamant och grafit. Beskriv uppbyggnad, egenskaper och användning.",["Båda är rent kol, atomerna sitter ihop på olika sätt","Diamant: varje kol binder till 4 andra i ett 3D-nätverk","Diamant är hårt: borrar, glasskärning, smycken","Grafit: skikt där varje kol binder till 3 andra, svaga krafter mellan skikten","Grafit är mjukt: blyertspennor"],"Båda består bara av kolatomer, men atomerna sitter ihop på olika sätt. I diamant binder varje kolatom hårt till 4 andra i ett tredimensionellt nätverk, så diamant är världens hårdaste ämne och används i borrar och smycken. I grafit sitter atomerna i platta skikt där varje kolatom binder till 3 andra. Mellan skikten är krafterna svaga, så skikten glider. Grafit är mjukt och används i blyertspennor."],
+ ["5.1","Beskriv tre nyare former av kol och vad de kan användas till.",["Fotbollsmolekyler: 5- och 6-hörningar som en boll","Nanorör: 6-hörningar som ett rör, starka och leder el","Grafen: ett skikt av 6-hörningar, starkt, genomskinligt, leder el","Fullerener = fotbollsmolekyler + nanorör","Användning t.ex. elektronik"],"Fotbollsmolekyler är 5- och 6-hörningar av kol som bildar en boll. Nanorör är 6-hörningar som bildar ett smalt rör; de är mycket starka och leder elektricitet. Tillsammans kallas de fullerener. Grafen är ett enda skikt av 6-hörningar, tunt, genomskinligt, 200 gånger starkare än stål och leder elektricitet. De kan användas i till exempel elektronik."],
+ ["5.1","Vad är aktivt kol och varför fungerar det som filter?",["Amorft kol (huller om buller)","Många små porer","Mycket stor yta där ämnen fastnar","Används i gasmasker, för att rena luft/vatten, vid förgiftning"],"Aktivt kol är korn av amorft kol med väldigt många små porer. Porerna ger en jättestor yta där andra ämnen fastnar. Därför används det för att rena luft och vatten, i gasmasker och vid vissa förgiftningar."],
+ ["5.2","Vad är skillnaden mellan organisk och oorganisk kemi? Ge exempel.",["Organisk kemi = kolföreningarnas kemi","Oorganisk kemi = ämnen utan kol","Undantag: kol, koldioxid, kolmonoxid, kolsyra räknas som oorganiska","Exempel på organiskt ämne, t.ex. metan"],"Organisk kemi är kolföreningarnas kemi, t.ex. metan och propan. Oorganisk kemi handlar om ämnen utan kol, t.ex. vatten och salt. Grundämnet kol och enkla kolföreningar som koldioxid, kolmonoxid och kolsyra räknas också till oorganisk kemi."],
+ ["5.2","Vad är skillnaden mellan molekylformel, strukturformel och molekylmodell?",["Molekylformel: vilka atomer och hur många (CH₄)","Strukturformel: i vilken ordning atomerna sitter, streck = bindningar","Molekylmodell: visar formen i 3D","Pinn-kulmodell och kalottmodell"],"En molekylformel visar vilka atomer som ingår och hur många, t.ex. CH₄. En strukturformel visar i vilken ordning atomerna sitter ihop, och strecken är bindningar. Molekylmodeller, som pinn-kulmodellen och kalottmodellen, visar molekylens verkliga form i 3D."],
+ ["5.2","Beskriv kolets kretslopp och hur människan påverkar det.",["Växter tar upp CO₂ vid fotosyntes","Djur äter växter, kolet följer med","Andning och nedbrytning släpper ut CO₂","Fossila bränslen = kol lagrat i miljoner år","Förbränning av fossila bränslen ökar CO₂ i luften → förstärkt växthuseffekt"],"Växter tar upp koldioxid från luften genom fotosyntes och bygger socker. Djur äter växterna och kolet följer med. Vid andning och när döda växter och djur bryts ned kommer kolet tillbaka till luften som koldioxid. En del kol har lagrats i marken i miljoner år som fossila bränslen. När vi bränner dem släpps mycket koldioxid ut snabbt, mer än växter och hav hinner ta upp. Halten ökar och växthuseffekten förstärks."],
+ ["5.3","Vad är alkaner? Ge tre exempel med molekylformel och var de finns.",["Kolväten med bara enkelbindningar","Namnet slutar på -an","Metan CH₄: naturgas/biogas","Propan C₃H₈ och butan C₄H₁₀: gasol","Två väteatomer till för varje ny kolatom"],"Alkaner är kolväten (bara kol och väte) med bara enkelbindningar. Namnen slutar på -an. Metan, CH₄, finns i naturgas och biogas. Propan, C₃H₈, och butan, C₄H₁₀, finns i gasol. För varje ny kolatom kommer två väteatomer till."],
+ ["5.3","Vad är isomerer? Ge ett exempel.",["Samma molekylformel","Olika form, atomerna sitter ihop på olika sätt","Olika egenskaper, t.ex. kokpunkt","Exempel: normalbutan och isobutan (C₄H₁₀)"],"Isomerer har samma molekylformel men olika form, eftersom atomerna sitter ihop på olika sätt. Olika form ger olika egenskaper. Normalbutan och isobutan är båda C₄H₁₀, men isobutan är grenad och har kokpunkten −12 °C medan normalbutan har 0 °C."],
+ ["5.3","Vad är fossila bränslen och varför är de ett problem?",["Naturgas, råolja, stenkol (bensin, diesel)","Bildade av döda växter och djur för miljoner år sedan","Tar slut, vi använder dem snabbare än de bildas","Ger koldioxid när de brinner → förstärkt växthuseffekt"],"Fossila bränslen är naturgas, råolja och stenkol, och bränslen som bensin och diesel. De bildades av döda växter och djur för miljoner år sedan. Vi använder dem mycket snabbare än de bildas, så de tar slut. När de brinner bildas koldioxid som förstärker växthuseffekten."],
+ ["5.4","Förklara skillnaden mellan mättade och omättade kolväten (struktur och egenskaper).",["Mättade: bara enkelbindningar (alkaner)","Mättade binder max antal väteatomer","Omättade: dubbel- eller trippelbindning (alkener, alkyner)","Omättade kan binda fler väteatomer","Omättade reagerar lättare"],"Mättade kolväten har bara enkelbindningar, som alkanerna. Varje kolatom binder så många väteatomer som möjligt. Omättade kolväten har en dubbelbindning (alkener) eller trippelbindning (alkyner). De skulle kunna binda fler väteatomer, och de reagerar lättare med andra ämnen."],
+ ["5.4","Förklara vad namnen etan, eten och etyn berättar om molekylerna.",["et- = 2 kolatomer","-an = bara enkelbindningar (alkan), C₂H₆","-en = en dubbelbindning (alken), C₂H₄","-yn = en trippelbindning (alkyn), C₂H₂"],"Förledet et- betyder 2 kolatomer. Ändelsen visar bindningen: etan (-an) har bara enkelbindningar, C₂H₆. Eten (-en) har en dubbelbindning, C₂H₄. Etyn (-yn) har en trippelbindning, C₂H₂. Ju fler bindningar mellan kolatomerna, desto färre väteatomer får plats."]
+];
+let ex=0;
+const exStore={};
+function renderEx(){
+  const [sec,q,pts,model]=EXPL[ex];
+  $("exCount").textContent=`${ex+1} av ${EXPL.length}`;
+  $("exSec").textContent=`${sec} ${SECTIONS[sec]}`;
+  $("exQ").textContent=q;
+  $("exText").value=exStore[ex]||"";
+  $("exAns").classList.add("hidden"); $("exShow").classList.remove("hidden");
+  $("exChecks").innerHTML=pts.map((p,i)=>`<label class="check"><input type="checkbox"> <span>${p}</span></label>`).join("");
+  $("exModel").innerHTML="<b>Exempel på svar:</b> "+model;
+  $("exPrev").disabled=ex===0;
+  $("exNext").textContent= ex===EXPL.length-1 ? "Börja om" : "Nästa ›";
+}
+$("exText").addEventListener("input",e=>exStore[ex]=e.target.value);
+$("exShow").addEventListener("click",()=>{$("exAns").classList.remove("hidden");$("exShow").classList.add("hidden");});
+$("exPrev").addEventListener("click",()=>{if(ex>0){ex--;renderEx();window.scrollTo(0,0);}});
+$("exNext").addEventListener("click",()=>{ex= ex===EXPL.length-1?0:ex+1;renderEx();window.scrollTo(0,0);});
+
+// ---------- navigering ----------
+const VIEWS=["home","sum","cycle","build","cards","quiz","explain"];
+function show(id){ VIEWS.forEach(s=>$(s).classList.toggle("hidden",s!==id)); window.scrollTo(0,0); }
+function launch(g){
+  if(g==="home"){ homeProgress(); show("home"); return; }
+  if(g==="sum"){ renderSum(); show("sum"); }
+  if(g==="cycle"){ renderCycle(); show("cycle"); }
+  if(g==="build"){ renderBuild(); show("build"); }
+  if(g==="cards"){ startCards(); show("cards"); }
+  if(g==="explain"){ renderEx(); show("explain"); }
+  if(g==="quiz"){ lastMode=g; startQuiz(fromQuiz(shuffle(QUIZ).slice(0,10))); show("quiz"); }
+  if(g==="exam"){ lastMode=g; startQuiz(fromQuiz(shuffle(QUIZ))); show("quiz"); }
+  if(g==="name"){ lastMode=g; startQuiz(makeNameQs(10)); show("quiz"); }
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>launch(b.dataset.go)));
+homeProgress();
+</script>
+</body>
+</html>
