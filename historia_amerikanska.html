@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amerikanska revolutionen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* Pergament + kolonialt blått och tegelrött. Ett smalt spår, som ett dokument från 1776. */
+:root{
+  --bg:#F4EEE2; --card:#FFFDF8; --ink:#1E2433; --soft:#655F52; --line:#DDD2BD;
+  --navy:#23395B; --rod:#B23A2E; --guld:#C99A2E; --gron:#3D7A4F; --lila:#6E4C9A; --sand:#D3B983; --bla:#3E6FB0;
+  --okbg:#DDEFE0; --badbg:#F8DFDA; --chipbg:#FFFDF8;
+  --display:"Bricolage Grotesque", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --bg:#16140F; --card:#221F18; --ink:#F0EADC; --soft:#B3AA97; --line:#3A3528; --navy:#6F8FC4; --okbg:#1C3824; --badbg:#46221D; --chipbg:#221F18; color-scheme:dark; } }
+:root[data-theme="dark"]{ --bg:#16140F; --card:#221F18; --ink:#F0EADC; --soft:#B3AA97; --line:#3A3528; --navy:#6F8FC4; --okbg:#1C3824; --badbg:#46221D; --chipbg:#221F18; color-scheme:dark; }
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible,textarea:focus-visible{outline:3px solid var(--bla);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding-inline:18px;padding-block:22px 44px}
+.hidden{display:none!important}
+
+/* hero: 13 ränder */
+.hero{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.hero h1{font-size:clamp(1.9rem,8vw,2.5rem);font-weight:800;letter-spacing:-.015em}
+.hero p{margin:6px 0 0;color:var(--soft)}
+.flag{position:relative;width:92px;height:66px;border:2px solid var(--ink);border-radius:4px;overflow:hidden;background:repeating-linear-gradient(180deg,var(--rod) 0 calc(100%/13),var(--card) calc(100%/13) calc(200%/13));transform:rotate(-4deg)}
+.flag::after{content:"13";position:absolute;left:0;top:0;width:44%;height:54%;background:var(--navy);color:#fff;font:800 .95rem/1 var(--display);display:grid;place-items:center}
+
+.modes{display:grid;gap:12px;margin-top:24px}
+.mode{display:flex;gap:14px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:16px}
+.mode:hover{border-color:var(--ink)}
+.seal{flex:none;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font:800 .9rem/1 var(--display);color:#fff}
+.mode h2{font-size:1.22rem}
+.mode p{margin:2px 0 0;color:var(--soft);font-size:.95rem}
+.note{color:var(--soft);font-size:.92rem;text-align:center;margin-top:16px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.backbtn{background:none;border:none;padding:6px 0;color:var(--soft);font-weight:700}
+.count{color:var(--soft);font-size:.95rem;font-variant-numeric:tabular-nums}
+section>h2{font-size:1.6rem}
+.lead{color:var(--soft);margin:6px 0 0}
+
+/* läs */
+.read{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:18px 18px 14px;margin-top:14px;border-top:8px solid var(--c,var(--navy))}
+.read h3{font-size:1.25rem;margin-bottom:6px}
+.read p{margin:6px 0}
+.read ul{margin:6px 0;padding-left:20px}
+.read li{margin-bottom:4px}
+.read .when{font-variant-numeric:tabular-nums;color:var(--soft);font-size:.9rem;font-weight:700}
+.key{background:var(--bg);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:.95rem}
+.key b{font-family:var(--display)}
+
+/* tidslinje */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.tab{border:2px solid var(--line);background:var(--card);border-radius:10px;padding:10px;font-weight:700}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tl{list-style:none;margin:16px 0 0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:58px;top:6px;bottom:6px;width:3px;background:var(--line)}
+.tl li{display:grid;grid-template-columns:50px 1fr;gap:22px;margin-bottom:12px;position:relative}
+.tl li::before{content:"";position:absolute;left:52px;top:8px;width:15px;height:15px;border-radius:50%;background:var(--c,var(--navy));border:2px solid var(--card)}
+.tl .yr{font-family:var(--display);font-weight:800;text-align:right;font-variant-numeric:tabular-nums;font-size:.98rem;line-height:1.2;padding-top:4px}
+.tl button{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+.tl button strong{display:block}
+.tl button span{display:block;color:var(--soft);font-size:.95rem;margin-top:4px}
+.tl button[aria-expanded="false"] span{display:none}
+.order{display:grid;gap:10px;margin-top:14px}
+.ord{display:flex;gap:12px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:12px 14px}
+.ord .n{flex:none;width:30px;height:30px;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;font-weight:800;font-family:var(--display)}
+.ord.done{background:var(--okbg);border-color:var(--gron);cursor:default}
+.ord.done .n{border:2px solid var(--gron);background:var(--gron);color:#fff}
+.ord.oops{animation:shake .35s;border-color:var(--rod);background:var(--badbg)}
+.ord .y{margin-left:auto;font-weight:800;font-family:var(--display);font-variant-numeric:tabular-nums}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* sortera */
+.stmt{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:24px 20px;margin-top:12px;min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.15rem;font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pick{border:2px solid var(--ink);border-radius:12px;padding:14px;font-weight:800;font-family:var(--display);font-size:1.1rem;background:var(--card)}
+.pick.or{border-color:var(--rod);color:var(--rod)}
+.pick.ko{border-color:var(--gron);color:var(--gron)}
+.pick:disabled{opacity:.5;cursor:default}
+
+/* kort */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--chipbg);border-radius:999px;padding:5px 13px;font-size:.92rem}
+.chip i{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink);display:inline-block}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] i{border-color:var(--bg)}
+.flash{perspective:1200px;margin-top:14px;cursor:pointer}
+.flash-inner{position:relative;min-height:310px;transition:transform .45s ease;transform-style:preserve-3d}
+.flash.flipped .flash-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:46px 24px 24px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:auto}
+.face::before{content:"";position:absolute;top:0;left:0;right:0;height:22px;background:var(--stripe,var(--navy));border-bottom:2px solid var(--line);border-radius:8px 8px 0 0}
+.face.backside{transform:rotateY(180deg)}
+.face small{position:absolute;top:30px;left:24px;color:var(--soft);font-size:.85rem}
+.term{font-family:var(--display);font-size:clamp(1.5rem,7vw,2.05rem);font-weight:800;text-align:center;overflow-wrap:anywhere}
+.def{font-size:1.06rem}
+.def em{display:block;margin-top:10px;color:var(--soft);font-style:normal}
+.hint{text-align:center;color:var(--soft);font-size:.9rem;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{border:none;border-radius:12px;padding:14px;font-weight:700;font-size:1rem}
+.btn.again{background:var(--badbg)}
+.btn.know{background:var(--okbg)}
+.btn.main{background:var(--ink);color:var(--bg);width:100%;margin-top:16px}
+.btn.ghost{background:none;border:2px solid var(--line);width:100%;margin-top:10px}
+
+/* quiz */
+.meter{display:flex;gap:3px;margin:8px 0 2px}
+.meter b{flex:1;height:10px;border-radius:2px;background:var(--line)}
+.meter b.ok{background:var(--gron)}
+.meter b.bad{background:var(--rod)}
+.meter b.now{background:var(--ink)}
+.q{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:22px;margin-top:12px}
+.qsec{color:var(--soft);font-size:.85rem;margin-bottom:6px}
+.q h3{font-size:1.26rem;font-weight:700}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opt{text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--okbg);border-color:var(--gron)}
+.opt.wrong{background:var(--badbg);border-color:var(--rod)}
+.explain{margin-top:14px;padding:12px 14px;border-left:4px solid var(--navy);background:var(--bg);border-radius:0 8px 8px 0}
+.result{text-align:center;margin-top:28px}
+.result .big{font-family:var(--display);font-size:4rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.result p{color:var(--soft)}
+.missed{text-align:left;margin-top:18px}
+.missed li{margin-bottom:10px}
+
+/* förklara */
+textarea{width:100%;min-height:140px;margin-top:14px;border:2px solid var(--line);border-radius:10px;padding:12px;font:inherit;background:var(--bg);color:var(--ink);resize:vertical}
+.check{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:8px;padding:10px 12px;cursor:pointer}
+.check input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--gron)}
+.tip{color:var(--soft);font-size:.92rem;margin-top:10px}
+
+@media (prefers-reduced-motion:reduce){ .flash-inner{transition:none} .ord.oops{animation:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="home">
+  <div class="hero">
+    <div>
+      <h1>Amerikanska revolutionen</h1>
+      <p>Historia åk 8: bakgrund, orsaker, kriget, det nya USA och historiebruk.</p>
+    </div>
+    <div class="flag" aria-hidden="true"></div>
+  </div>
+  <div class="modes">
+    <button class="mode" data-go="read"><span class="seal" style="background:var(--navy)">1</span><span><h2>Kort fattat</h2><p>Hela revolutionen på fem minuter. Börja här.</p></span></button>
+    <button class="mode" data-go="time"><span class="seal" style="background:var(--guld)">2</span><span><h2>Tidslinjen</h2><p>Från Columbus 1492 till Washington 1789. Testa att sätta händelser i rätt ordning.</p></span></button>
+    <button class="mode" data-go="sort"><span class="seal" style="background:var(--rod)">3</span><span><h2>Orsak eller följd?</h2><p>Sortera påståenden. Det här brukar komma på provet.</p></span></button>
+    <button class="mode" data-go="cards"><span class="seal" style="background:var(--gron)">4</span><span><h2>Begrepp</h2><p>Kort att vända. Säg förklaringen högt och vänd sedan.</p></span></button>
+    <button class="mode" data-go="quiz"><span class="seal" style="background:var(--lila)">5</span><span><h2>Quiz</h2><p>10 frågor i taget, med förklaring efter varje svar.</p></span></button>
+    <button class="mode" data-go="explain"><span class="seal" style="background:var(--sand);color:var(--ink)">6</span><span><h2>Förklara</h2><p>Skriv egna svar på provfrågor och bocka av vad som ska vara med.</p></span></button>
+    <button class="mode" data-go="exam"><span class="seal" style="background:var(--ink);color:var(--bg)">✓</span><span><h2>Övningsprov</h2><p>25 blandade frågor från alla områden.</p></span></button>
+  </div>
+  <p class="note" id="homeProgress"></p>
+</section>
+
+<section id="read" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button></div>
+  <h2>Kort fattat</h2>
+  <p class="lead">Läs en ruta i taget. Fetstilta ord finns som begreppskort.</p>
+  <div id="readBox"></div>
+  <button class="btn main" data-go="time">Vidare till tidslinjen ›</button>
+</section>
+
+<section id="time" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="ordCount"></span></div>
+  <h2>Tidslinjen</h2>
+  <div class="tabs" role="group" aria-label="Visa">
+    <button class="tab" id="tabList" aria-pressed="true">Läs tidslinjen</button>
+    <button class="tab" id="tabGame" aria-pressed="false">Sätt i ordning</button>
+  </div>
+  <div id="tlList">
+    <p class="lead" style="margin-top:12px">Tryck på en händelse för att läsa mer.</p>
+    <ol class="tl" id="tl"></ol>
+  </div>
+  <div id="tlGame" class="hidden">
+    <p class="lead" style="margin-top:12px" id="ordLead">Tryck på händelserna i den ordning de hände. Den tidigaste först.</p>
+    <div class="order" id="order"></div>
+    <div class="explain hidden" id="ordMsg"></div>
+    <button class="btn main hidden" id="ordNext">Fem nya händelser</button>
+  </div>
+</section>
+
+<section id="sort" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="sortCount"></span></div>
+  <h2>Orsak eller följd?</h2>
+  <p class="lead">Är det här en <b>orsak</b> till revolutionen eller en <b>konsekvens</b> av den?</p>
+  <div class="meter" id="sortMeter" aria-hidden="true"></div>
+  <div id="sortBox">
+    <div class="stmt" id="stmt"></div>
+    <div class="two">
+      <button class="pick or" data-a="o">Orsak</button>
+      <button class="pick ko" data-a="k">Konsekvens</button>
+    </div>
+    <div class="explain hidden" id="sortExplain"></div>
+    <button class="btn main hidden" id="sortNext">Nästa</button>
+  </div>
+  <div class="result hidden" id="sortResult">
+    <div class="big" id="sortScore"></div>
+    <p id="sortVerdict"></p>
+    <button class="btn main" id="sortAgain">Kör igen</button>
+  </div>
+</section>
+
+<section id="cards" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="cardCount"></span></div>
+  <h2>Begrepp</h2>
+  <div class="chips" id="cardChips" role="group" aria-label="Välj område"></div>
+  <div class="flash" id="flash" tabindex="0" role="button" aria-label="Vänd kortet">
+    <div class="flash-inner">
+      <div class="face front"><small id="cardSec"></small><div class="term" id="cardTerm"></div></div>
+      <div class="face backside"><small id="cardSec2"></small><div class="def" id="cardDef"></div></div>
+    </div>
+  </div>
+  <p class="hint" id="cardHint">Tryck på kortet för att vända det.</p>
+  <div class="row" id="cardBtns">
+    <button class="btn again" id="cardAgain">Öva mer</button>
+    <button class="btn know" id="cardKnow">Jag kan den</button>
+  </div>
+  <div class="result hidden" id="cardsDone">
+    <div class="big">Klart!</div>
+    <p>Du kan alla kort i det här området.</p>
+    <button class="btn main" id="cardsReset">Börja om med de här korten</button>
+  </div>
+</section>
+
+<section id="quiz" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="quizCount"></span></div>
+  <div class="meter" id="meter" aria-hidden="true"></div>
+  <div class="q" id="qBox">
+    <div class="qsec" id="qSec"></div>
+    <h3 id="qText"></h3>
+    <div class="opts" id="qOpts"></div>
+    <div class="explain hidden" id="qExplain"></div>
+    <button class="btn main hidden" id="qNext">Nästa fråga</button>
+  </div>
+  <div class="result hidden" id="qResult">
+    <div class="big" id="qScore"></div>
+    <p id="qVerdict"></p>
+    <div class="missed" id="qMissed"></div>
+    <button class="btn main" id="qAgain">Kör igen</button>
+  </div>
+</section>
+
+<section id="explain" class="hidden">
+  <div class="top"><button class="backbtn" data-go="home">‹ Tillbaka</button><span class="count" id="exCount"></span></div>
+  <div class="q">
+    <div class="qsec" id="exSec"></div>
+    <h3 id="exText"></h3>
+    <textarea id="exAns" placeholder="Skriv ditt svar här. Använd begreppen och förklara varför."></textarea>
+    <button class="btn main" id="exShow">Visa vad som ska vara med</button>
+    <div id="exCheckBox" class="hidden">
+      <ul class="check" id="exCheck"></ul>
+      <p class="tip" id="exTip"></p>
+      <button class="btn main" id="exNext">Nästa fråga</button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const SECTIONS = {
+  bak:["Bakgrund","var(--sand)"],
+  ors:["Orsaker","var(--rod)"],
+  kri:["Revolutionen och kriget","var(--navy)"],
+  per:["Personer","var(--guld)"],
+  nya:["Det nya USA","var(--gron)"],
+  hb:["Historiebruk och källkritik","var(--lila)"]
+};
+
+// ---------- läs ----------
+const READ = [
+ ["bak","Bakgrund: Amerika blir kolonier","1492–1700-talet",
+  `<p>1492 seglade <b>Christopher Columbus</b> från Genua västerut för att hitta Indien. Han kom i stället till Amerika. Fler européer följde efter för att hitta guld och rikedomar. De tog makten från <b>ursprungsbefolkningen</b>, och många urinvånare dog i sjukdomar som européerna förde med sig.</p>
+   <p>I <b>triangelhandeln</b> (1500–1800) skeppades vapen och tyg till Västafrika, förslavade afrikaner till Amerika och socker, tobak och bomull tillbaka till Europa.</p>
+   <p>1607 grundades <b>Jamestown</b> i Virginia, den första permanenta brittiska bosättningen. Med tiden fanns <b>de 13 kolonierna</b> längs östkusten.</p>`,
+  "Nordliga kolonierna: fiske, handel, skepp. Mellersta: jordbruk, hantverk. Södra: plantager med slavarbete."],
+ ["bak","Sjuårskriget","1756–1763",
+  `<p>Storbritannien och Frankrike hade båda kolonier i Nordamerika. När länderna krigade drogs kolonierna med. Kriget pågick i Europa, Asien och Nordamerika och kallas ibland <i>det första världskriget</i>.</p>
+   <p>Storbritannien vann och tog över Frankrikes kolonier. Men kriget var dyrt och britterna fick <b>stora skulder</b>. Det är här problemen börjar.</p>`,
+  "Läget: USA fanns inte. Amerika var koloniserat och britterna var den ledande stormakten."],
+ ["ors","De fyra orsakerna","1765–1775",
+  `<ul>
+   <li><b>Skatter utan inflytande.</b> Britterna ville att kolonisterna skulle betala för kriget. <b>Stämpelskatten</b> 1765 lades på tidningar, spelkort och dokument. Kolonisterna hade inga egna representanter i parlamentet i London: <b>”No taxation without representation”</b>.</li>
+   <li><b>Handelshinder och monopol.</b> Kolonierna fick bara handla med Storbritannien, till bestämda priser. Det gällde bland annat te.</li>
+   <li><b>Upplysningens idéer.</b> Frihet, alla människors lika värde och att makten ska komma från folket och inte från en kung. Kolonisterna började se sig som amerikaner och inte britter.</li>
+   <li><b>Växande självstyre.</b> Kolonierna var vana att sköta sig själva. När Storbritannien försökte skärpa kontrollen blev det kraftigt motstånd.</li>
+  </ul>`,
+  "Minnesregel: <b>S H U S</b> = Skatter, Handel, Upplysningen, Självstyre."],
+ ["ors","Gnistan: Boston Tea Party","16 december 1773",
+  `<p>Kolonister från gruppen <b>Sons of Liberty</b> bordade tre brittiska skepp i Bostons hamn och kastade 342 lådor te i havet i protest mot skatterna och tullarna.</p>
+   <p>Britterna blev rasande. De stängde Bostons hamn, införde hårda strafflagar och skickade trupper. Kolonierna började bygga en armé. Kolonisterna <b>bojkottade</b> brittiska varor. Men det fanns också <b>lojalister</b> som ville förbli brittiska.</p>`,
+  "Boston Tea Party var inte orsaken, utan gnistan som tände det som redan pyrde."],
+ ["kri","Revolutionen och frihetskriget","1775–1783",
+  `<p>1775 började striderna mellan kolonisterna och britterna. <b>George Washington</b> ledde kolonisternas armé.</p>
+   <p>Den <b>4 juli 1776</b> antogs <b>självständighetsförklaringen</b>, skriven främst av <b>Thomas Jefferson</b>: alla människor är skapade lika och har rätt till liv, frihet och strävan efter lycka. Idéerna kom från upplysningsfilosofen <b>John Locke</b>. Kolonierna bröt sig loss från kung <b>Georg III</b>.</p>
+   <p>Frankrike, britternas gamla fiende, hjälpte kolonisterna. 1781 besegrades britterna vid Yorktown, och i <b>freden i Paris 1783</b> erkändes USA som självständigt land.</p>`,
+  "Två årtal att kunna: <b>1776</b> (självständighetsförklaringen) och <b>1783</b> (freden, kriget slut)."],
+ ["nya","Konsekvenser: det nya USA","1776 och framåt",
+  `<ul>
+   <li>Staten <b>USA</b> bildades med 13 delstater. Idag finns 50.</li>
+   <li>USA blev en <b>republik</b> med en vald <b>president</b> i stället för en kung. George Washington blev den första presidenten 1789. Huvudstaden Washington är uppkallad efter honom.</li>
+   <li>En gemensam grundlag, <b>konstitutionen</b> (1787), byggde på <b>mänskliga rättigheter</b>.</li>
+   <li><b>Maktfördelning:</b> presidenten delar makten med kongressen och högsta domstolen.</li>
+   <li><b>Religionsfrihet</b> och nya politiska rättigheter. USA räknas ofta som världens första moderna <b>demokrati</b>.</li>
+   <li>Men rättigheterna gällde <b>inte kvinnor, slavar eller ursprungsbefolkningen</b>. Urinvånarna trängdes senare undan till <b>reservat</b>.</li>
+   <li>Revolutionen inspirerade andra kolonier att bryta sig loss, och <b>franska revolutionen 1789</b>.</li>
+   <li>USA blev med tiden en <b>stormakt</b>.</li>
+  </ul>`,
+  "Tänk på provet: visa båda sidor. Frihet och demokrati, men inte för alla."],
+ ["hb","Historiebruk och källkritik","Hur vi använder historien",
+  `<p><b>Historiebruk</b> handlar om hur och varför människor använder historia. Sju sätt:</p>
+   <ul>
+   <li><b>Vetenskapligt</b>: ta reda på vad som hände, varför och hur.</li>
+   <li><b>Existentiellt</b>: skapa mening, identitet och gemenskap.</li>
+   <li><b>Moraliskt</b>: visa på orättvisor, vad som var bra och dåligt.</li>
+   <li><b>Kommersiellt</b>: tjäna pengar på historia.</li>
+   <li><b>Ideologiskt</b>: visa att en ideologi är rätt, eller fel.</li>
+   <li><b>Politiskt-pedagogiskt</b>: lära av historien och påverka politiken idag.</li>
+   <li><b>Icke-bruk</b>: glömma, förneka eller bara se framåt.</li>
+  </ul>
+  <p>När amerikaner firar 4 juli för att minnas landets historia och känna gemenskap är det ett <b>existentiellt</b> (och lite vetenskapligt) historiebruk.</p>
+  <p><b>Källkritik</b>: äkthet, oberoende, samtidighet och tendens.</p>`,
+  "Fråga dig: Vem använder historien, och varför?"]
+];
+$("readBox").innerHTML = READ.map(([s,t,w,html,key])=>`<article class="read" style="--c:${SECTIONS[s][1]}"><div class="when">${w}</div><h3>${t}</h3>${html}<div class="key">${key}</div></article>`).join("");
+
+// ---------- tidslinje: [sorteringsår, visat år, rubrik, text, område] ----------
+const EVENTS = [
+ [1492,"1492","Columbus kommer till Amerika","Han letade efter sjövägen till Indien och trodde att Kuba var Kina. Européer koloniserar Amerika och ursprungsbefolkningen förlorar makten.","bak"],
+ [1500,"1500–1800","Triangelhandeln","Europa → Västafrika → Amerika → Europa. Miljontals afrikaner tvingas över Atlanten för att arbeta som slavar på plantager.","bak"],
+ [1607,"1607","Jamestown grundas","14 maj 1607 i Virginia. Den första permanenta brittiska bosättningen i Nordamerika och startskottet för slavhandeln där.","bak"],
+ [1756,"1756–1763","Sjuårskriget","Storbritannien mot Frankrike. Britterna vinner och tar Frankrikes kolonier men får stora skulder.","bak"],
+ [1765,"1765","Stämpelskatten","Ny skatt på tidningar, spelkort och dokument. ”No taxation without representation!”","ors"],
+ [1773,"1773","Boston Tea Party","16 december. Sons of Liberty kastar 342 lådor te i Bostons hamn. Gnistan till revolutionen.","ors"],
+ [1774,"1774","Britterna slår tillbaka","Bostons hamn stängs, hårda strafflagar införs och brittiska trupper skickas till kolonierna.","ors"],
+ [1775,"1775","Kriget börjar","De första striderna mellan kolonisterna och britterna. George Washington leder kolonisternas armé.","kri"],
+ [1776,"1776","Självständighetsförklaringen","4 juli. Skriven främst av Thomas Jefferson. De 13 kolonierna förklarar sig fria. USA bildas.","kri"],
+ [1778,"1778","Frankrike hjälper kolonisterna","Frankrike går in i kriget mot Storbritannien med soldater, skepp och pengar.","kri"],
+ [1781,"1781","Segern vid Yorktown","Britterna besegras i det sista stora slaget.","kri"],
+ [1783,"1783","Freden i Paris","Storbritannien erkänner USA som ett självständigt land. Kriget är slut.","kri"],
+ [1787,"1787","Konstitutionen skrivs","USA:s grundlag med maktfördelning mellan president, kongress och högsta domstol.","nya"],
+ [1789,"1789","Washington blir president","George Washington blir USA:s första president. Samma år börjar franska revolutionen.","nya"]
+];
+$("tl").innerHTML = EVENTS.map((e,i)=>`<li style="--c:${SECTIONS[e[4]][1]}"><div class="yr">${e[1].replace("–","–<br>")}</div><button aria-expanded="false" data-i="${i}"><strong>${e[2]}</strong><span>${e[3]}</span></button></li>`).join("");
+$("tl").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) b.setAttribute("aria-expanded", b.getAttribute("aria-expanded")==="true"?"false":"true"); });
+function tlTab(game){
+  $("tabList").setAttribute("aria-pressed",String(!game)); $("tabGame").setAttribute("aria-pressed",String(game));
+  $("tlList").classList.toggle("hidden",game); $("tlGame").classList.toggle("hidden",!game);
+  if(game) newOrder(); else $("ordCount").textContent="";
+}
+$("tabList").addEventListener("click",()=>tlTab(false));
+$("tabGame").addEventListener("click",()=>tlTab(true));
+
+let ordSet=[], ordStep=0, ordMiss=0, ordRounds=0, ordPerfect=0;
+function newOrder(){
+  ordSet = shuffle(EVENTS).slice(0,5); ordStep=0; ordMiss=0;
+  const sorted=[...ordSet].sort((a,b)=>a[0]-b[0]);
+  ordSet.forEach(e=>e.rank=sorted.indexOf(e));
+  $("order").innerHTML = ordSet.map((e,i)=>`<button class="ord" data-i="${i}"><span class="n"></span><span>${e[2]}</span><span class="y hidden">${e[1]}</span></button>`).join("");
+  $("ordMsg").classList.add("hidden"); $("ordNext").classList.add("hidden");
+  $("ordCount").textContent = ordRounds ? `${ordPerfect} av ${ordRounds} felfria` : "";
+}
+$("order").addEventListener("click",e=>{
+  const b=e.target.closest(".ord"); if(!b||b.classList.contains("done")) return;
+  const ev=ordSet[+b.dataset.i];
+  if(ev.rank===ordStep){
+    b.classList.add("done"); b.querySelector(".n").textContent=ordStep+1; b.querySelector(".y").classList.remove("hidden");
+    ordStep++;
+    if(ordStep===5){
+      ordRounds++; if(ordMiss===0) ordPerfect++;
+      const list=[...ordSet].sort((a,b)=>a[0]-b[0]);
+      $("order").innerHTML = list.map((e,i)=>`<div class="ord done"><span class="n">${i+1}</span><span>${e[2]}</span><span class="y">${e[1]}</span></div>`).join("");
+      $("ordMsg").textContent = ordMiss===0 ? "Helt rätt ordning! Kolla årtalen en gång till." : `Klart! Du tryckte fel ${ordMiss} ${ordMiss===1?"gång":"gånger"}. Läs ordningen ovan och testa igen.`;
+      $("ordMsg").classList.remove("hidden"); $("ordNext").classList.remove("hidden");
+      $("ordCount").textContent = `${ordPerfect} av ${ordRounds} felfria`;
+    }
+  } else {
+    ordMiss++; b.classList.remove("oops"); void b.offsetWidth; b.classList.add("oops");
+    setTimeout(()=>b.classList.remove("oops"),500);
+  }
+});
+$("ordNext").addEventListener("click",newOrder);
+
+// ---------- orsak/följd: [text, "o"/"k", förklaring] ----------
+const SORT = [
+ ["Storbritannien hade stora skulder efter sjuårskriget.","o","Britterna behövde pengar och lät kolonisterna betala genom skatter och tullar."],
+ ["Kolonisterna fick betala nya skatter, till exempel stämpelskatten.","o","Skatten 1765 på tidningar, spelkort och dokument väckte stor ilska."],
+ ["Kolonisterna hade inga representanter i parlamentet i London.","o","”No taxation without representation” – de fick betala men inte bestämma."],
+ ["Kolonierna fick bara handla med Storbritannien, till bestämda priser.","o","Handelshinder och monopol, bland annat på te."],
+ ["Upplysningens idéer om frihet och människors lika värde spreds.","o","Tanken att makten ska komma från folket och inte från en kung."],
+ ["Kolonisterna började se sig själva som amerikaner och inte som britter.","o","En egen amerikansk identitet och kultur hade vuxit fram."],
+ ["Storbritannien försökte skärpa kontrollen över kolonier som var vana vid självstyre.","o","Kolonierna hade länge skött sin egen vardag och lokala politik."],
+ ["Bostons hamn stängdes och brittiska trupper skickades till kolonierna.","o","Britternas straff efter Boston Tea Party gjorde kolonisterna ännu argare. Det drev fram kriget."],
+ ["USA bildades som ett självständigt land.","k","1776 förklarade sig kolonierna fria, och 1783 erkändes USA."],
+ ["George Washington blev landets första president.","k","1789. Huvudstaden fick hans namn."],
+ ["Landet fick en grundlag där makten delades mellan president, kongress och högsta domstol.","k","Maktfördelning i konstitutionen från 1787."],
+ ["Religionsfrihet infördes.","k","Man fick själv välja vilken religion man ville ha."],
+ ["Andra kolonier inspirerades att bryta sig loss från sina kolonialmakter.","k","Revolutionen blev ett exempel för andra."],
+ ["Fransmännen inspirerades att göra revolution 1789.","k","Amerikanska revolutionen var en av orsakerna till franska revolutionen."],
+ ["De nya rättigheterna gällde inte kvinnor, slavar eller ursprungsbefolkningen.","k","Frihet och jämlikhet – men inte för alla."],
+ ["Ursprungsbefolkningen trängdes undan och fick bo i reservat.","k","När USA växte västerut tog nybyggarna urinvånarnas land."],
+ ["USA blev med tiden en stormakt.","k","Idag ett av världens mäktigaste länder."],
+ ["Landet blev en republik med en vald president i stället för en kung.","k","USA blev en republik. Storbritannien var en monarki."]
+];
+let sortQs=[], si=0, sScore=0, sMarks=[];
+function startSort(){
+  sortQs=shuffle(SORT).slice(0,10); si=0; sScore=0; sMarks=Array(10).fill("");
+  $("sortBox").classList.remove("hidden"); $("sortResult").classList.add("hidden"); renderSort();
+}
+function sortMeter(){ $("sortMeter").innerHTML = sMarks.map((m,i)=>`<b class="${m || (i===si ? "now" : "")}"></b>`).join(""); }
+function renderSort(){
+  $("stmt").textContent = sortQs[si][0];
+  $("sortCount").textContent = `${si+1} av ${sortQs.length} · ${sScore} rätt`;
+  document.querySelectorAll(".pick").forEach(p=>p.disabled=false);
+  $("sortExplain").classList.add("hidden"); $("sortNext").classList.add("hidden");
+  sortMeter();
+}
+document.querySelectorAll(".pick").forEach(p=>p.addEventListener("click",()=>{
+  if(p.disabled) return;
+  const [t,a,why]=sortQs[si];
+  document.querySelectorAll(".pick").forEach(x=>x.disabled=true);
+  const ok = p.dataset.a===a; if(ok){ sScore++; sMarks[si]="ok"; } else sMarks[si]="bad";
+  $("sortExplain").textContent = (ok?"Rätt! ":"Inte riktigt. ") + `Det är en ${a==="o"?"orsak":"konsekvens"}. ` + why;
+  $("sortExplain").classList.remove("hidden");
+  $("sortNext").textContent = si===sortQs.length-1 ? "Se resultat" : "Nästa";
+  $("sortNext").classList.remove("hidden"); $("sortNext").focus();
+  $("sortCount").textContent = `${si+1} av ${sortQs.length} · ${sScore} rätt`;
+  sortMeter();
+}));
+$("sortNext").addEventListener("click",()=>{
+  si++; if(si<sortQs.length){ renderSort(); return; }
+  sortMeter();
+  $("sortBox").classList.add("hidden"); $("sortResult").classList.remove("hidden");
+  $("sortScore").textContent=`${sScore}/${sortQs.length}`;
+  $("sortVerdict").textContent = sScore===sortQs.length ? "Alla rätt! Du har koll på orsaker och konsekvenser." : sScore>=8 ? "Riktigt bra. Kör en gång till." : "Läs ”Kort fattat” om orsakerna och konsekvenserna och testa igen.";
+  $("sortCount").textContent="Klart";
+});
+$("sortAgain").addEventListener("click",startSort);
+
+// ---------- begrepp: [område, begrepp, förklaring, exempel] ----------
+const CARDS = [
+ ["bak","Revolution","En omvälvning. En snabb och grundläggande förändring av samhället.","Liknande ord: revolt, uppror, samhällsomstörtning."],
+ ["bak","Christopher Columbus","Sjöfarare från Genua i Italien (1451–1506). Ville hitta sjövägen västerut till Indien men kom 1492 till Amerika.","Han trodde att Kuba var Kina. Där bodde redan människor, så ”upptäckt” är inom citattecken."],
+ ["bak","Ursprungsbefolkning / urinvånare","De människor som bodde i ett område först, innan andra kom och koloniserade det.","Många urinvånare i Amerika dog i sjukdomar som européerna förde med sig."],
+ ["bak","Koloni","Ett område som styrs av ett annat land, ofta långt bort.","De 13 kolonierna styrdes av Storbritannien."],
+ ["bak","Kolonister","Människor som flyttar till och bosätter sig i en koloni.","Kolonisterna i Nordamerika kom främst från Storbritannien."],
+ ["bak","Kolonialmakt","Landet som äger och styr kolonierna. Kallas också moderland.","Storbritannien var kolonialmakt över de 13 kolonierna."],
+ ["bak","Kolonialism","När ett land tar kontroll över andra områden för att utnyttja deras mark, råvaror och människor.","Européerna tog makten från ursprungsbefolkningen i Amerika."],
+ ["bak","Triangelhandeln","Handel 1500–1800: vapen, tyg och sprit till Västafrika, förslavade människor till Amerika, och socker, tobak och bomull tillbaka till Europa.","Skapade enorma rikedomar i Europa."],
+ ["bak","Slaveri","När människor ägs av andra och tvingas arbeta utan lön och utan rättigheter.","Förslavade afrikaner arbetade på plantagerna i de södra kolonierna."],
+ ["bak","Jamestown","Den första permanenta brittiska bosättningen i Nordamerika, grundad 1607 i Virginia.","Startskottet för brittisk kolonisering och för slavhandeln där."],
+ ["bak","De 13 kolonierna","Storbritanniens kolonier längs Nordamerikas östkust. De blev de första 13 delstaterna i USA.","Nordliga: fiske och handel. Mellersta: jordbruk och hantverk. Södra: plantager med slavarbete."],
+ ["bak","Sjuårskriget","Krig 1756–1763 mellan bland andra Storbritannien och Frankrike, i Europa, Asien och Nordamerika.","Britterna vann men fick stora skulder. Kallas ibland ”det första världskriget”."],
+ ["bak","Storbritannien","Kolonialmakten som styrde de 13 kolonierna. Efter sjuårskriget världens ledande makt.","Styrdes av kung Georg III och parlamentet i London."],
+ ["bak","Stormakt","Ett land med mycket makt och inflytande i världen, militärt och ekonomiskt.","Storbritannien på 1700-talet, USA idag."],
+ ["ors","Beskattning","När staten tar ut skatt av invånarna.","Britterna beskattade kolonierna för att betala skulderna efter sjuårskriget."],
+ ["ors","Tull","En avgift för varor som förs in (import) eller ut (export) ur ett land.","Tullar på te gjorde kolonisterna arga."],
+ ["ors","Stämpelskatten","Skatt som Storbritannien införde 1765 på tidningar, spelkort och dokument i kolonierna.","Ledde till stora protester."],
+ ["ors","Representation","Att ha någon som företräder en och för ens talan där besluten fattas.","Kolonisterna hade inga egna representanter i parlamentet i London."],
+ ["ors","No taxation without representation","”Ingen beskattning utan representation.” Man ska inte behöva betala skatt om man inte får vara med och bestämma.","Kolonisternas slagord mot britterna."],
+ ["ors","Monopol","När bara en aktör får sälja eller köpa en vara.","Kolonierna fick bara handla med Storbritannien, till bestämda priser."],
+ ["ors","Boston Tea Party","16 december 1773 bordade kolonister tre brittiska skepp i Bostons hamn och kastade 342 lådor te i havet i protest.","”Gnistan.” Britterna stängde hamnen och skickade trupper."],
+ ["ors","Sons of Liberty","”Frihetens söner.” Kolonister som protesterade mot de brittiska skatterna och tullarna.","De låg bakom Boston Tea Party."],
+ ["ors","Bojkott","Att vägra köpa något i protest.","Kolonisterna slutade köpa brittiska varor."],
+ ["ors","Protestera","Visa att man är emot något, till exempel genom demonstrationer, bojkott eller uppror.","Boston Tea Party var en protest."],
+ ["ors","Upplysningen","Idéströmning på 1700-talet. Människan är förnuftig, alla har lika värde och makten ska komma från folket, inte från en kung.","Spreds från Europa till Amerika och blev en drivkraft bakom revolutionen."],
+ ["ors","Självstyre / självstyrande","Att få bestämma över sig själv.","Kolonierna hade länge skött sin vardag och lokala politik själva."],
+ ["ors","Drivkraft","Det som driver på en händelse. En orsak till att något händer.","Upplysningens idéer var en drivkraft bakom revolutionen."],
+ ["ors","Lojalister","Kolonister som ville förbli lojala mot den brittiska kungen.","Alla kolonister ville inte bli fria."],
+ ["kri","Amerikanska revolutionen / frihetskriget","När de 13 kolonierna gjorde uppror och kämpade sig fria från Storbritannien, 1776–1783.","Kriget kallas frihetskriget eller självständighetskriget."],
+ ["kri","Självständighet","Att ett land är fritt och styr sig självt utan att lyda under ett annat land.","USA blev självständigt från Storbritannien."],
+ ["kri","Självständighetsförklaringen","Dokumentet från 4 juli 1776 där kolonierna förklarade sig fria från Storbritannien. Skrevs främst av Thomas Jefferson.","”Alla människor är skapade lika” med rätt till liv, frihet och strävan efter lycka."],
+ ["kri","1776","Året då självständighetsförklaringen antogs och USA bildades.","4 juli är USA:s nationaldag."],
+ ["kri","1783","Freden i Paris. Storbritannien erkände USA som självständigt land och kriget tog slut.",""],
+ ["kri","Frankrikes hjälp","Frankrike, britternas gamla fiende, stödde kolonisterna med soldater, skepp och pengar.","Frankrike fick själv stora skulder – en orsak till franska revolutionen 1789."],
+ ["per","George Washington","Ledde kolonisternas armé i frihetskriget och blev USA:s första president 1789.","Huvudstaden Washington är uppkallad efter honom."],
+ ["per","Thomas Jefferson","Skrev det mesta av självständighetsförklaringen 1776. Blev senare USA:s tredje president.","Inspirerad av upplysningen och John Locke. Ägde själv slavar."],
+ ["per","John Locke","Engelsk upplysningsfilosof (1632–1704). Alla människor har rätt till liv, frihet och egendom. Makten kommer från folket, som får avsätta en härskare som missbrukar den.","Hans idéer finns i självständighetsförklaringen."],
+ ["per","Georg III","Storbritanniens kung under revolutionen.","Kolonisterna såg honom som en tyrann och bröt sig loss från honom."],
+ ["nya","Republik","Ett land där statschefen är vald, ofta en president, och inte en kung.","USA blev en republik."],
+ ["nya","Monarki","Ett land där statschefen är kung eller drottning och makten ärvs.","Storbritannien är en monarki."],
+ ["nya","President","Vald statschef i en republik. I USA leder presidenten också regeringen.","George Washington var den första."],
+ ["nya","Demokrati","Folkstyre. Folket väljer sina ledare i fria val.","USA räknas ofta som den första moderna demokratin, men först fick bara vita män med egendom rösta."],
+ ["nya","Konstitution","Ett lands grundlag, de viktigaste lagarna om hur landet ska styras.","USA:s konstitution skrevs 1787 och gäller fortfarande."],
+ ["nya","Maktfördelning","Makten delas i tre delar så att ingen får för mycket: presidenten, kongressen och högsta domstolen.","Kongressen stiftar lagar, presidenten verkställer, domstolen dömer."],
+ ["nya","Federalism","Makten delas mellan en central regering och delstaterna, som bestämmer mycket själva.","USA: 13 delstater från början, 50 idag."],
+ ["nya","Mänskliga rättigheter","Rättigheter som gäller alla människor, till exempel rätt till liv, frihet och yttrandefrihet.","USA:s grundlag byggde på dem, men de gällde inte alla."],
+ ["nya","Jämlikhet","Att alla människor har lika värde och samma rättigheter.","”Alla är skapade lika” – men kvinnor, slavar och urinvånare fick inte samma rättigheter."],
+ ["nya","Religionsfrihet","Rätten att själv välja vilken religion man har, eller ingen alls.","Infördes i USA efter revolutionen."],
+ ["nya","Reservat","Områden som urinvånarna tvingades flytta till när nybyggarna tog deras land.","Hände när USA växte västerut."],
+ ["hb","Historiebruk","Hur och varför vi använder historia.","Sju sätt: vetenskapligt, existentiellt, moraliskt, kommersiellt, ideologiskt, politiskt-pedagogiskt och icke-bruk."],
+ ["hb","Vetenskapligt historiebruk","Ta reda på vad som hände, varför och hur. Att utbilda.","En historiker granskar källor om Boston Tea Party."],
+ ["hb","Existentiellt historiebruk","Historia som skapar mening, identitet och gemenskap. Det som hänt förr är viktigt för oss idag.","Amerikaner firar 4 juli för att minnas landets historia."],
+ ["hb","Moraliskt historiebruk","Visa på orättvisor i historien. Vad var bra och vad var dåligt?","Att lyfta fram slaveriet och hur urinvånarna behandlades."],
+ ["hb","Kommersiellt historiebruk","Att tjäna pengar på historia.","Souvenirer, filmer och turistresor till Boston."],
+ ["hb","Ideologiskt historiebruk","Använda historia för att visa att en ideologi är bra och riktig, eller att en annan är dålig.","Någon använder revolutionen för att visa att frihet från staten är viktigast."],
+ ["hb","Politiskt-pedagogiskt historiebruk","Lära av historien och använda den som exempel för att påverka politiken idag.","En politiker säger: ”Precis som 1776 måste vi stå upp mot orättvisa skatter.”"],
+ ["hb","Icke-bruk","Att inte använda historia: glömma, förneka eller bara blicka framåt.","Att tiga om de mörka delarna av ett lands historia."],
+ ["hb","Källkritik","Att granska en källa för att se hur trovärdig den är.","Fyra kriterier: äkthet, oberoende, samtidighet och tendens."],
+ ["hb","Äkthet","Är källan äkta och inte en förfalskning?",""],
+ ["hb","Oberoende","Förstahandskälla: personen var själv på plats. Andrahandskälla: personen har fått det berättat eller läst om det.","En förstahandskälla är oftast mer trovärdig."],
+ ["hb","Samtidighet","Är källan från samma tid som händelsen?","Ett brev från 1773 är mer samtida än en film från 2020."],
+ ["hb","Tendens","Är källan vinklad? Vill avsändaren påverka genom att överdriva eller välja bort fakta?","En brittisk och en amerikansk tidning beskrev nog Boston Tea Party olika."]
+];
+
+// ---------- quiz: [område, fråga, [alternativ], rätt index, förklaring] ----------
+const QUIZ = [
+ ["bak","Vad betyder ordet revolution?",["En långsam förändring","En snabb och grundläggande förändring, en omvälvning","Ett fredsavtal","En sorts skatt"],1,"Revolution = omvälvning, grundläggande förändring."],
+ ["bak","Vem var Christopher Columbus?",["En brittisk kung","Sjöfarare från Genua som kom till Amerika 1492","USA:s första president","En upplysningsfilosof"],1,"Han ville hitta Indien västerut men kom till Amerika."],
+ ["bak","Vad trodde Columbus att Kuba var?",["Indien","Japan","Kina","Afrika"],2,"Han trodde att han hade kommit till Asien."],
+ ["bak","Vad hände med ursprungsbefolkningen när européerna kom?",["De fick mer makt","Många dog i sjukdomar och de förlorade makten","De flyttade till Europa","Ingenting förändrades"],1,"Européerna tog makten och förde med sig sjukdomar."],
+ ["bak","Vad fraktades från Amerika till Europa i triangelhandeln?",["Vapen och krut","Förslavade människor","Socker, tobak, bomull och kaffe","Tyger och sprit"],2,"Vapen och tyg gick till Afrika, människor till Amerika, råvaror till Europa."],
+ ["bak","Vad var Jamestown?",["Den första permanenta brittiska bosättningen i Nordamerika (1607)","Huvudstaden i USA","Ett slag i frihetskriget","En brittisk kung"],0,"Grundades 14 maj 1607 i Virginia."],
+ ["bak","Vad levde de södra kolonierna främst på?",["Fiske och skeppsbyggnad","Plantager med tobak, ris och indigo, drivna med slavarbete","Industrier","Hantverk"],1,"Nordliga: fiske och handel. Mellersta: jordbruk och hantverk. Södra: plantager."],
+ ["bak","Hur många kolonier hade Storbritannien längs östkusten?",["7","10","13","50"],2,"De 13 kolonierna blev de första 13 delstaterna."],
+ ["bak","Vilka länder krigade mot varandra i sjuårskriget?",["USA och Kanada","Storbritannien och Frankrike","Spanien och Portugal","Sverige och Ryssland"],1,"1756–1763. Kolonierna drogs in i kriget."],
+ ["bak","Hur slutade sjuårskriget för Storbritannien?",["De förlorade alla kolonier","De vann men fick stora skulder","De blev fattiga och svaga","De gick samman med Frankrike"],1,"Britterna tog Frankrikes kolonier men behövde pengar."],
+ ["bak","Varför kallas sjuårskriget ibland ”det första världskriget”?",["Det pågick i Europa, Asien och Nordamerika","Alla länder i världen var med","Det var det längsta kriget","Det började i Amerika"],0,"Det utkämpades på flera kontinenter."],
+ ["ors","Varför ville Storbritannien beskatta kolonierna?",["För att straffa Frankrike","För att betala skulderna efter sjuårskriget","För att bygga skolor i Amerika","För att kungen ville flytta dit"],1,"Britterna tyckte att kolonisterna skulle betala för kriget som skyddat dem."],
+ ["ors","Vad beskattades genom stämpelskatten 1765?",["Te","Tidningar, spelkort och dokument","Socker","Mark"],1,"Stämpelskatten väckte stora protester."],
+ ["ors","Vad betyder ”No taxation without representation”?",["Inga skatter alls","Ingen beskattning om man inte får vara med och bestämma","Alla ska betala lika mycket","Bara kungen får ta ut skatt"],1,"Kolonisterna hade inga representanter i parlamentet i London."],
+ ["ors","Vad var Boston Tea Party?",["En fest för kungen","En protest där kolonister kastade te i Bostons hamn","Ett fredsavtal","Ett slag i kriget"],1,"16 december 1773. 342 lådor te kastades i havet."],
+ ["ors","När var Boston Tea Party?",["1765","1773","1776","1783"],1,"16 december 1773."],
+ ["ors","Vilken grupp låg bakom Boston Tea Party?",["Lojalisterna","Sons of Liberty","Brittiska armén","Franska soldater"],1,"Sons of Liberty protesterade mot skatter och tullar."],
+ ["ors","Hur reagerade britterna på Boston Tea Party?",["De sänkte skatterna","De stängde Bostons hamn och skickade trupper","De gav kolonierna frihet","De bad om ursäkt"],1,"Hårda strafflagar gjorde kolonisterna ännu argare."],
+ ["ors","Varför kallas Boston Tea Party för ”gnistan”?",["Det var en eldsvåda","Den satte igång konflikten som redan pyrde","Det var den första orsaken","Den avslutade kriget"],1,"Orsakerna fanns redan. Teet blev gnistan."],
+ ["ors","Vad ville upplysningens tänkare?",["Att kungen skulle ha all makt","Frihet, lika värde och att makten ska komma från folket","Att kyrkan skulle styra","Att alla skulle bli bönder"],1,"Upplysningens idéer var en drivkraft bakom revolutionen."],
+ ["ors","Vad betyder bojkott?",["Att rösta","Att vägra köpa något i protest","Att betala tull","Att starta krig"],1,"Kolonisterna slutade köpa brittiska varor."],
+ ["ors","Vilka var lojalisterna?",["Kolonister som ville förbli brittiska","Franska soldater","Sons of Liberty","Ursprungsbefolkningen"],0,"Alla kolonister ville inte göra uppror."],
+ ["ors","Vilket handelshinder hade kolonierna?",["De fick bara handla med Storbritannien","De fick inte handla alls","De fick bara handla med Frankrike","De fick handla fritt"],0,"Monopol: bara brittiska varor till bestämda priser."],
+ ["ors","Vilken av dessa är INTE en orsak till amerikanska revolutionen?",["Skatter utan inflytande","Upplysningens idéer","Ångmaskinen","Växande självstyre"],2,"Ångmaskinen hör till industriella revolutionen."],
+ ["kri","När antogs självständighetsförklaringen?",["4 juli 1776","16 december 1773","1783","1789"],0,"4 juli är USA:s nationaldag."],
+ ["kri","Vem skrev det mesta av självständighetsförklaringen?",["George Washington","Thomas Jefferson","John Locke","Georg III"],1,"Jefferson, som senare blev USA:s tredje president."],
+ ["kri","Vad står det i självständighetsförklaringen?",["Att kungen har all makt","Att alla människor är skapade lika och har rätt till liv, frihet och lycka","Att slaveriet förbjuds","Att USA ska bli en monarki"],1,"Idéerna kom från upplysningen."],
+ ["kri","Vilket land hjälpte kolonisterna i kriget?",["Spanien","Frankrike","Ryssland","Sverige"],1,"Frankrike var Storbritanniens gamla fiende."],
+ ["kri","När tog frihetskriget slut?",["1776","1781","1783","1789"],2,"Freden i Paris 1783. USA erkändes som självständigt."],
+ ["kri","Vad hände 1783?",["Boston Tea Party","Freden i Paris – USA erkändes som självständigt","Columbus kom till Amerika","Konstitutionen skrevs"],1,"Storbritannien erkände USA."],
+ ["kri","Vad kallas också amerikanska revolutionen?",["Sjuårskriget","Frihetskriget","Trettioåriga kriget","Inbördeskriget"],1,"Frihetskriget eller självständighetskriget."],
+ ["per","Vem ledde kolonisternas armé?",["Thomas Jefferson","George Washington","Georg III","John Locke"],1,"Washington blev sedan första president."],
+ ["per","Vem var USA:s första president?",["Thomas Jefferson","Abraham Lincoln","George Washington","John Locke"],2,"1789. Huvudstaden har fått hans namn."],
+ ["per","Vem var John Locke?",["En brittisk general","En upplysningsfilosof som skrev om naturliga rättigheter","USA:s andra president","En kolonist i Boston"],1,"Rätt till liv, frihet och egendom. Makten kommer från folket."],
+ ["per","Vem var kung i Storbritannien under revolutionen?",["Georg III","Ludvig XVI","Gustav III","Henrik VIII"],0,"Ludvig XVI var kung i Frankrike."],
+ ["nya","Vilket land bildades genom revolutionen?",["Kanada","USA","Mexiko","Storbritannien"],1,"USA med 13 delstater."],
+ ["nya","Hur många delstater har USA idag?",["13","48","50","52"],2,"13 från början, 50 idag."],
+ ["nya","Vad är en republik?",["Ett land med kung","Ett land där statschefen är vald, ofta en president","Ett land utan lagar","En koloni"],1,"USA blev en republik, Storbritannien var en monarki."],
+ ["nya","Vad betyder maktfördelning i USA?",["Presidenten bestämmer allt","Makten delas mellan presidenten, kongressen och högsta domstolen","Delstaterna har ingen makt","Kungen och presidenten delar makten"],1,"Så att ingen får för mycket makt."],
+ ["nya","Vad är en konstitution?",["En armé","Ett lands grundlag","En skatt","Ett fredsavtal"],1,"USA:s konstitution skrevs 1787."],
+ ["nya","Vad betyder federalism?",["Makten delas mellan en central regering och delstaterna","Kungen har all makt","Alla bestämmer allt tillsammans","Landet styrs av ett annat land"],0,"Delstaterna i USA bestämmer mycket själva."],
+ ["nya","Vilka fick INTE de nya politiska rättigheterna?",["Vita män med egendom","Kvinnor, slavar och ursprungsbefolkningen","Presidenten","Kongressen"],1,"Frihet och jämlikhet, men inte för alla."],
+ ["nya","Vilken frihet infördes i USA?",["Religionsfrihet","Frihet från alla skatter","Frihet att äga kolonier","Ingen frihet"],0,"Man fick själv välja religion."],
+ ["nya","Vilken revolution inspirerades av den amerikanska?",["Industriella revolutionen","Franska revolutionen 1789","Ryska revolutionen","Ingen"],1,"Fransmännen hade sett att det gick att göra uppror."],
+ ["nya","Vad hände med ursprungsbefolkningen när USA växte?",["De fick mer land","De trängdes undan till reservat","De blev presidenter","De flyttade till Europa"],1,"Nybyggarna tog deras land."],
+ ["nya","Varför är huvudstaden i USA uppkallad efter Washington?",["Han byggde staden","Han var USA:s första president","Han var kung","Han var född där"],1,"George Washington, första presidenten."],
+ ["hb","Vad är historiebruk?",["Att läsa historieböcker","Hur och varför vi använder historia","Att gräva fram fornlämningar","Att skriva dagbok"],1,"Det finns sju olika sätt att bruka historia."],
+ ["hb","En souvenirbutik i Boston säljer muggar med Boston Tea Party. Vilket historiebruk?",["Moraliskt","Kommersiellt","Existentiellt","Vetenskapligt"],1,"Kommersiellt = tjäna pengar på historia."],
+ ["hb","Amerikaner firar 4 juli för att minnas landets historia och känna gemenskap. Vilket historiebruk?",["Existentiellt","Kommersiellt","Icke-bruk","Ideologiskt"],0,"Existentiellt = mening, identitet och gemenskap."],
+ ["hb","En historiker granskar brev från 1773 för att ta reda på vad som hände. Vilket historiebruk?",["Kommersiellt","Moraliskt","Vetenskapligt","Icke-bruk"],2,"Vetenskapligt = ta reda på vad, varför och hur."],
+ ["hb","Någon lyfter fram hur orättvist slavarna behandlades. Vilket historiebruk?",["Moraliskt","Kommersiellt","Existentiellt","Vetenskapligt"],0,"Moraliskt = visa på orättvisor, vad som var rätt och fel."],
+ ["hb","En politiker säger: ”Vi måste lära av 1776 och sänka skatterna nu.” Vilket historiebruk?",["Kommersiellt","Politiskt-pedagogiskt","Icke-bruk","Vetenskapligt"],1,"Använder historien som exempel för att påverka politiken idag."],
+ ["hb","Vad betyder icke-bruk av historia?",["Att tjäna pengar på historia","Att glömma, förneka eller bara blicka framåt","Att forska om historia","Att fira historiska dagar"],1,"Man använder inte historien alls."],
+ ["hb","Vad är en förstahandskälla?",["En person som själv var på plats","En person som läst om händelsen","En film från idag","En lärobok"],0,"Andrahandskälla = har fått det berättat eller läst om det."],
+ ["hb","Vad betyder att en källa har tendens?",["Den är gammal","Den är vinklad och vill påverka","Den är förfalskad","Den är från samma tid"],1,"Avsändaren kan överdriva eller välja bort fakta."],
+ ["hb","Vilket källkritiskt kriterium handlar om att källan är från samma tid som händelsen?",["Äkthet","Tendens","Samtidighet","Oberoende"],2,"Ju närmare i tid, desto mer trovärdig brukar källan vara."]
+];
+
+// ---------- förklara: [område, fråga, [punkter], tips] ----------
+const EXPLAIN = [
+ ["ors","Vilka var orsakerna till amerikanska revolutionen? Förklara minst tre.",[
+   "Storbritannien hade skulder efter sjuårskriget och beskattade kolonierna (t.ex. stämpelskatten).",
+   "Kolonisterna hade inga representanter i parlamentet: ”No taxation without representation”.",
+   "Handelshinder/monopol: kolonierna fick bara handla med Storbritannien.",
+   "Upplysningens idéer om frihet, lika värde och att makten ska komma från folket.",
+   "Växande självstyre och en egen amerikansk identitet."],"Minnesregel: S H U S = Skatter, Handel, Upplysningen, Självstyre."],
+ ["ors","Vad var Boston Tea Party och varför var det viktigt?",[
+   "16 december 1773 i Boston.",
+   "Sons of Liberty kastade te från brittiska skepp i havet.",
+   "En protest mot skatter och tullar utan representation.",
+   "Britterna stängde hamnen, införde strafflagar och skickade trupper.",
+   "Det blev ”gnistan” som ledde fram till kriget."],"Säg både vad som hände och vad det ledde till."],
+ ["bak","Hur hängde sjuårskriget ihop med amerikanska revolutionen?",[
+   "Storbritannien och Frankrike krigade 1756–1763, även i Nordamerika.",
+   "Storbritannien vann och tog Frankrikes kolonier.",
+   "Kriget gav britterna stora skulder.",
+   "Britterna lät kolonisterna betala genom nya skatter och tullar, vilket ledde till protester."],"Det här är ett orsakssamband: krig → skulder → skatter → protester."],
+ ["nya","Vilka konsekvenser fick amerikanska revolutionen?",[
+   "USA bildades som ett självständigt land (1776, erkänt 1783).",
+   "En republik med president. George Washington blev först 1789.",
+   "En grundlag (konstitution) med maktfördelning och mänskliga rättigheter.",
+   "Religionsfrihet och nya politiska rättigheter.",
+   "Inspirerade andra kolonier och franska revolutionen.",
+   "Men rättigheterna gällde inte kvinnor, slavar och ursprungsbefolkningen."],"Ett bra svar visar både det positiva och det som inte gällde alla."],
+ ["nya","”Alla människor är skapade lika”, står det i självständighetsförklaringen. Stämde det i det nya USA?",[
+   "Förklarar vad citatet betyder (lika värde, rätt till liv och frihet).",
+   "Kvinnor fick inte samma rättigheter, t.ex. rösträtt.",
+   "Slaveriet fanns kvar. Även Jefferson ägde slavar.",
+   "Ursprungsbefolkningen trängdes undan till reservat.",
+   "Drar en slutsats: idén var ny och viktig, men gällde i början bara en del av befolkningen."],"Det här är en resonerande fråga. Ge exempel på båda sidor och avsluta med en egen slutsats."],
+ ["nya","Vad betyder maktfördelning, och varför ville amerikanerna ha det?",[
+   "Makten delas i tre delar: presidenten, kongressen och högsta domstolen.",
+   "Kongressen stiftar lagar, presidenten verkställer, domstolen dömer.",
+   "Ingen ska få för mycket makt.",
+   "De ville inte få en ny kung eller tyrann som Georg III."],""],
+ ["per","Vilken roll spelade upplysningen och John Locke för revolutionen?",[
+   "Upplysningen: människan är förnuftig och alla har lika värde.",
+   "Locke: alla har rätt till liv, frihet och egendom.",
+   "Makten kommer från folket, som får avsätta en dålig härskare.",
+   "Idéerna finns i självständighetsförklaringen och gav kolonisterna argument att göra uppror."],""],
+ ["kri","Beskriv tre viktiga personer och vad de gjorde.",[
+   "George Washington: ledde armén, första presidenten.",
+   "Thomas Jefferson: skrev självständighetsförklaringen.",
+   "John Locke: upplysningsfilosof vars idéer inspirerade.",
+   "Georg III: brittisk kung som kolonierna bröt sig loss från."],""],
+ ["bak","Vad var triangelhandeln och hur hänger den ihop med kolonierna i Amerika?",[
+   "Handel mellan Europa, Västafrika och Amerika 1500–1800.",
+   "Vapen och varor till Afrika, förslavade människor till Amerika, råvaror till Europa.",
+   "Förslavade afrikaner arbetade på plantagerna, särskilt i de södra kolonierna.",
+   "Skapade stora rikedomar i Europa."],""],
+ ["hb","Ge exempel på två olika sätt att bruka historien om amerikanska revolutionen.",[
+   "Namnger rätt sorts historiebruk (t.ex. existentiellt, kommersiellt, moraliskt).",
+   "Ger ett konkret exempel för varje (t.ex. 4 juli-firande, souvenirer i Boston, kritik av slaveriet).",
+   "Förklarar vem som använder historien och varför."],"De sju: vetenskapligt, existentiellt, moraliskt, kommersiellt, ideologiskt, politiskt-pedagogiskt, icke-bruk."],
+ ["hb","En brittisk tidning från 1774 skriver att kolonisterna i Boston är ”brottslingar och upprorsmakare”. Granska källan.",[
+   "Samtidighet: från tiden, nära händelsen. Plus.",
+   "Tendens: brittisk avsändare, troligen vinklad mot kolonisterna.",
+   "Oberoende: vet vi om skribenten var på plats?",
+   "Slutsats: bra för att visa hur britterna såg på händelsen, men behöver jämföras med andra källor."],"Använd kriterierna äkthet, oberoende, samtidighet och tendens."]
+];
+
+// ---------- helpers ----------
+function shuffle(a){ a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = "hist-amrev-known";
+let known = new Set();
+try { known = new Set(JSON.parse(localStorage.getItem(KEY)||"[]")); } catch(e){}
+function saveKnown(){ try{ localStorage.setItem(KEY, JSON.stringify([...known])); }catch(e){} }
+function homeProgress(){ $("homeProgress").textContent = `Du kan ${known.size} av ${CARDS.length} begrepp.`; }
+
+const VIEWS=["home","read","time","sort","cards","quiz","explain"];
+function show(id){ VIEWS.forEach(s=>$(s).classList.toggle("hidden", s!==id)); window.scrollTo(0,0); }
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>{
+  const g=b.dataset.go;
+  if(g==="home"){ homeProgress(); show("home"); }
+  if(g==="read"){ show("read"); }
+  if(g==="time"){ tlTab(false); show("time"); }
+  if(g==="sort"){ startSort(); show("sort"); }
+  if(g==="cards"){ startCards(); show("cards"); }
+  if(g==="quiz"){ startQuiz(10); show("quiz"); }
+  if(g==="exam"){ startQuiz(25); show("quiz"); }
+  if(g==="explain"){ startExplain(); show("explain"); }
+}));
+
+// ---------- kort ----------
+let section="alla", deck=[], cur=null;
+const chips=$("cardChips");
+chips.innerHTML = `<button class="chip" data-sec="alla" aria-pressed="true">Alla</button>` +
+  Object.entries(SECTIONS).map(([k,[n,c]])=>`<button class="chip" data-sec="${k}" aria-pressed="false"><i style="background:${c}"></i>${n}</button>`).join("");
+chips.addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  section=b.dataset.sec;
+  chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", String(c===b)));
+  startCards();
+});
+const keyOf = c => c[0]+"|"+c[1];
+const pool = () => CARDS.filter(c=>section==="alla"||c[0]===section);
+function startCards(){ deck = shuffle(pool().filter(c=>!known.has(keyOf(c)))); nextCard(); }
+function nextCard(){
+  $("flash").classList.remove("flipped");
+  const p=pool(), done=p.filter(c=>known.has(keyOf(c))).length;
+  $("cardCount").textContent = `${done} av ${p.length} kan du`;
+  const empty = deck.length===0;
+  ["flash","cardHint","cardBtns"].forEach(id=>$(id).classList.toggle("hidden",empty));
+  $("cardsDone").classList.toggle("hidden",!empty);
+  if(empty) return;
+  cur = deck.shift();
+  const [n,c] = SECTIONS[cur[0]];
+  $("flash").style.setProperty("--stripe", c);
+  $("cardSec").textContent = n; $("cardSec2").textContent = cur[1];
+  $("cardTerm").textContent = cur[1];
+  $("cardDef").innerHTML = esc(cur[2]) + (cur[3] ? `<em>Exempel: ${esc(cur[3])}</em>` : "");
+}
+const flip=()=>$("flash").classList.toggle("flipped");
+$("flash").addEventListener("click",flip);
+$("flash").addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); flip(); } });
+$("cardKnow").addEventListener("click",()=>{ known.add(keyOf(cur)); saveKnown(); nextCard(); });
+$("cardAgain").addEventListener("click",()=>{ deck.splice(Math.min(3,deck.length),0,cur); nextCard(); });
+$("cardsReset").addEventListener("click",()=>{ pool().forEach(c=>known.delete(keyOf(c))); saveKnown(); startCards(); });
+
+// ---------- quiz ----------
+let qs=[], qi=0, score=0, missed=[], marks=[];
+function startQuiz(n){
+  qs=shuffle(QUIZ).slice(0,n); qi=0; score=0; missed=[]; marks=Array(qs.length).fill("");
+  $("qBox").classList.remove("hidden"); $("qResult").classList.add("hidden");
+  renderQ();
+}
+function drawMeter(){ $("meter").innerHTML = marks.map((m,i)=>`<b class="${m || (i===qi ? "now" : "")}"></b>`).join(""); }
+function renderQ(){
+  const [sec,text,opts] = qs[qi];
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qSec").textContent = SECTIONS[sec][0];
+  $("qText").textContent = text;
+  $("qExplain").classList.add("hidden"); $("qNext").classList.add("hidden");
+  const order = shuffle(opts.map((o,i)=>i));
+  $("qOpts").innerHTML = order.map(i=>`<button class="opt" data-i="${i}">${esc(opts[i])}</button>`).join("");
+  drawMeter();
+}
+$("qOpts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||b.disabled) return;
+  const [sec,text,opts,right,why] = qs[qi];
+  const pick=+b.dataset.i;
+  $("qOpts").querySelectorAll(".opt").forEach(o=>{ o.disabled=true; if(+o.dataset.i===right) o.classList.add("right"); });
+  if(pick===right){ score++; marks[qi]="ok"; $("qExplain").textContent="Rätt! "+why; }
+  else { b.classList.add("wrong"); marks[qi]="bad"; missed.push(qs[qi]); $("qExplain").textContent="Inte riktigt. "+why; }
+  drawMeter();
+  $("quizCount").textContent = `Fråga ${qi+1} av ${qs.length} · ${score} rätt`;
+  $("qExplain").classList.remove("hidden");
+  $("qNext").textContent = qi===qs.length-1 ? "Se resultat" : "Nästa fråga";
+  $("qNext").classList.remove("hidden"); $("qNext").focus();
+});
+$("qNext").addEventListener("click",()=>{
+  qi++;
+  if(qi<qs.length){ renderQ(); return; }
+  drawMeter();
+  $("qBox").classList.add("hidden"); $("qResult").classList.remove("hidden");
+  $("qScore").textContent = `${score}/${qs.length}`;
+  const p=score/qs.length;
+  $("qVerdict").textContent = p===1 ? "Alla rätt. Du är redo!" : p>=0.8 ? "Riktigt bra. Titta på frågorna nedan en gång till." : p>=0.5 ? "Bra jobbat. Öva på frågorna nedan och kör igen." : "Fortsätt öva. Läs ”Kort fattat” och testa begreppskorten.";
+  $("qMissed").innerHTML = missed.length ? "<h3>Öva mer på</h3><ul>"+missed.map(m=>`<li><strong>${esc(m[1])}</strong><br>${esc(m[2][m[3]])}</li>`).join("")+"</ul>" : "";
+  $("quizCount").textContent = "Klart";
+});
+$("qAgain").addEventListener("click",()=>startQuiz(qs.length));
+
+// ---------- förklara ----------
+let exList=[], ei=0;
+function startExplain(){ exList=shuffle(EXPLAIN); ei=0; renderEx(); }
+function renderEx(){
+  const [sec,q,pts,tip]=exList[ei];
+  $("exCount").textContent=`Fråga ${ei+1} av ${exList.length}`;
+  $("exSec").textContent=SECTIONS[sec][0];
+  $("exText").textContent=q;
+  $("exAns").value="";
+  $("exShow").classList.remove("hidden"); $("exCheckBox").classList.add("hidden");
+  $("exCheck").innerHTML = pts.map((p,i)=>`<li><label><input type="checkbox"><span>${esc(p)}</span></label></li>`).join("");
+  $("exTip").textContent = tip || "";
+  $("exNext").textContent = ei===exList.length-1 ? "Börja om" : "Nästa fråga";
+}
+$("exShow").addEventListener("click",()=>{ $("exShow").classList.add("hidden"); $("exCheckBox").classList.remove("hidden"); });
+$("exNext").addEventListener("click",()=>{ ei++; if(ei>=exList.length){ startExplain(); } else renderEx(); window.scrollTo(0,0); });
+
+homeProgress();
+</script>
+
+</body>
+</html>
